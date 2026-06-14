@@ -1,0 +1,181 @@
+﻿import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
+import authApi, { getMe, logout as logoutApi, refreshToken } from '../../utils/authApi'
+
+const STORAGE_KEY = 'amrin_auth_user'
+const DEBUG       = import.meta.env.DEV
+
+// Re-export so App.jsx and ProtectedRoute can import from one place
+export { TOKEN_KEY }
+
+/* â”€â”€ localStorage helpers (only stores non-sensitive user data, NOT tokens) â”€â”€ */
+const loadUser = () => {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    return raw ? JSON.parse(raw) : null
+  } catch {
+    return null
+  }
+}
+
+const persistUser = (user) => {
+  try {
+    if (user) {
+      const { _id, name, email, role, profileImage } = user
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ _id, name, email, role, profileImage }))
+    } else {
+      localStorage.removeItem(STORAGE_KEY)
+    }
+  } catch {}
+}
+
+/* â”€â”€ Restore session on app load â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+   1. Immediately hydrate from localStorage  (no flicker / no logout flash)
+   2. Validate with the server in background
+   3. If server rejects â†’ clear localStorage and mark as unauthenticated
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+export const restoreSession = createAsyncThunk(
+  'auth/restoreSession',
+  async (_, { rejectWithValue }) => {
+    // Read the persisted token and prime the axios default header so the
+    // very first getMe() request carries it â€” before any interceptor fires.
+    const token = localStorage.getItem(TOKEN_KEY)
+    if (token) {
+      authApi.defaults.headers.common['Authorization'] = `Bearer ${token}`
+    }
+
+    try {
+      const { data } = await getMe()
+      DEBUG && console.log('[authSlice] /me success â€” userId:', data.user?._id)
+      return data.user
+    } catch (err) {
+      // Only attempt a token refresh when the server explicitly says 401.
+      // Non-401 errors (network outage, 5xx) should NOT clear the session â€”
+      // the stored user stays until we have a definitive rejection.
+      if (err.response?.status !== 401) return rejectWithValue('network')
+
+      try {
+        await refreshToken()
+        const { data } = await getMe()
+        DEBUG && console.log('[authSlice] session restored after refresh â€” userId:', data.user?._id)
+        return data.user
+      } catch (refreshErr) {
+        // Only clear the session if the server definitively rejected the
+        // refresh token (401). Any other error (network, 5xx) keeps the
+        // stored user so a page reload when connectivity returns works.
+        if (refreshErr.response?.status === 401) {
+          localStorage.removeItem(TOKEN_KEY)
+          return rejectWithValue(null)
+        }
+        // Network / 5xx during refresh â€” keep stored user
+        return rejectWithValue('network')
+      }
+    }
+  }
+)
+
+/* â”€â”€ Silent background refresh (14-minute proactive timer) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+export const silentRefresh = createAsyncThunk(
+  'auth/silentRefresh',
+  async (_, { rejectWithValue }) => {
+    try {
+      await refreshToken()             // response interceptor saves new token to localStorage
+      const { data } = await getMe()
+      return data.user
+    } catch (err) {
+      if (err.response?.status === 401) {
+        localStorage.removeItem(TOKEN_KEY)
+        return rejectWithValue(null)
+      }
+      return rejectWithValue('network')
+    }
+  }
+)
+
+export const logoutUser = createAsyncThunk('auth/logout', async () => {
+  try {
+    await logoutApi()
+    DEBUG && console.log('[authSlice] logout API call succeeded')
+  } catch {
+    // Even if the API call fails, we still clear client state below
+  }
+})
+
+// â”€â”€ Initial state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+const storedUser  = loadUser()
+const storedToken = typeof window !== 'undefined' ? localStorage.getItem(TOKEN_KEY) : null
+
+// Only start in loading state when there is a token to validate.
+// If there is no token, the user is definitely not authenticated â€”
+// no need to show a loading spinner or make a network round-trip.
+const initialLoading = !!storedToken
+
+// â”€â”€ Slice â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+const authSlice = createSlice({
+  name: 'auth',
+  initialState: {
+    user:            storedUser,          // restored instantly from localStorage
+    isAuthenticated: !!storedUser,        // true if we have a stored user
+    loading:         true,                // true while server validates the session
+  },
+  reducers: {
+    // Called by login pages after a successful auth response.
+    // The token is already stored in localStorage by authApi's response interceptor.
+    setUser(state, { payload }) {
+      state.user            = payload
+      state.isAuthenticated = !!payload
+      state.loading         = false
+      persistUser(payload)
+    },
+
+    // Called from App.jsx when the auth:force-logout custom event fires
+    // (triggered by api.js when a refresh attempt fails during a protected call).
+    clearUser(state) {
+      state.user            = null
+      state.isAuthenticated = false
+      state.loading         = false
+      persistUser(null)
+      localStorage.removeItem(TOKEN_KEY)
+      wipeAuthHeaders()
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(restoreSession.pending, (s) => {
+        s.loading = true
+      })
+
+      // Server confirmed the session â†’ update user data and stop loading
+      .addCase(restoreSession.fulfilled, (s, { payload }) => {
+        s.user            = payload
+        s.isAuthenticated = true
+        s.loading         = false
+        persistUser(payload)
+        DEBUG && console.log('[authSlice] session restored âœ“')
+      })
+
+      // Only clear user when the server definitively rejected auth (payload === null).
+      // A network error or 5xx (payload === 'network') keeps the stored user.
+      .addCase(restoreSession.rejected, (s, { payload }) => {
+        s.loading = false
+        if (payload === null) {
+          s.user            = null
+          s.isAuthenticated = false
+          persistUser(null)
+        }
+      })
+
+      .addCase(logoutUser.fulfilled, (s) => {
+        s.user            = null
+        s.isAuthenticated = false
+        s.loading         = false
+        persistUser(null)
+        localStorage.removeItem(TOKEN_KEY)
+        wipeAuthHeaders()
+        DEBUG && console.log('[authSlice] logged out âœ“')
+      })
+  },
+})
+
+export const { setUser, clearUser } = authSlice.actions
+export default authSlice.reducer
+
