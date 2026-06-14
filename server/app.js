@@ -66,7 +66,9 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: (origin, cb) => {
-    if (!origin || allowedOrigins.includes(origin)) return cb(null, true)
+    if (!origin) return cb(null, true)
+    const isLocal = origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:')
+    if (isLocal || allowedOrigins.includes(origin)) return cb(null, true)
     cb(new Error(`CORS: origin ${origin} not allowed`))
   },
   credentials: false,

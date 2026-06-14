@@ -78,7 +78,7 @@ export default function HeroBanner() {
   }
 
   return (
-    <div className="relative w-full h-[450px] sm:h-[500px] md:h-[580px] lg:h-[640px] bg-[#FCD4DB] overflow-hidden select-none">
+    <div className="relative w-full aspect-[2/1] md:aspect-[1920/600] bg-white overflow-hidden select-none">
       {/* ── Slide Container (Fade transitions) ───────────────────────────────── */}
       <div className="relative w-full h-full">
         {real.map((item, idx) => {
@@ -86,56 +86,19 @@ export default function HeroBanner() {
           return (
             <div
               key={item._id || idx}
-              className={`absolute inset-0 w-full h-full flex flex-col md:flex-row transition-opacity duration-1000 ease-in-out ${
+              onClick={() => item.ctaLink && navigate(item.ctaLink)}
+              className={`absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out ${
+                item.ctaLink ? 'cursor-pointer' : ''
+              } ${
                 isActive ? 'opacity-100 pointer-events-auto z-10' : 'opacity-0 pointer-events-none z-0'
               }`}
             >
-              {/* Left Text Column */}
-              <div className="relative z-10 w-full md:w-[45%] lg:w-[42%] h-full flex flex-col justify-center bg-gradient-to-r from-[#FCD4DB] via-[#FCD4DB]/95 to-transparent md:from-transparent md:bg-[#FCD4DB] px-6 sm:px-12 md:px-16 lg:px-20 py-12 md:py-0 text-left">
-                {/* Sparkle Subtitle */}
-                {item.subtitle && (
-                  <p className="flex items-center gap-1.5 uppercase font-medium text-[#6B6B6B] mb-4 tracking-[0.2em] text-[10px] sm:text-[11px]">
-                    <span className="text-xs text-[#EE6B83]">✦</span>
-                    {item.subtitle.replace(/^✦\s*/, '')}
-                  </p>
-                )}
-
-                {/* Elegant Title */}
-                {item.title && (
-                  <h1 className="font-display text-[2.2rem] sm:text-[2.8rem] md:text-[3.2rem] lg:text-[3.8rem] text-[#1a1a1a] font-normal leading-[1.1] mb-5 tracking-tight">
-                    {renderTitle(item.title)}
-                  </h1>
-                )}
-
-                {/* Description */}
-                {item.description && (
-                  <p className="text-[13px] sm:text-[14px] text-[#555] font-light leading-relaxed mb-7 max-w-[360px]">
-                    {item.description}
-                  </p>
-                )}
-
-                {/* Call to Action Button */}
-                {item.ctaText && item.ctaLink && (
-                  <div>
-                    <button
-                      onClick={() => navigate(item.ctaLink)}
-                      className="bg-[#EE6B83] text-white hover:bg-[#D9506A] uppercase tracking-[0.18em] text-[10px] sm:text-[11px] font-bold py-3.5 px-8 transition-all duration-300 hover:shadow-lg active:scale-98 rounded-lg"
-                    >
-                      {item.ctaText}
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              {/* Right Image Column */}
-              <div className="absolute md:relative inset-0 md:inset-auto w-full md:w-[55%] lg:w-[58%] h-full">
-                <img
-                  src={item.image?.url}
-                  alt={item.title || 'Banner'}
-                  draggable={false}
-                  className="w-full h-full object-cover object-center md:object-right-top"
-                />
-              </div>
+              <img
+                src={item.image?.url}
+                alt={item.title || 'Banner'}
+                draggable={false}
+                className="w-full h-full object-cover object-center"
+              />
             </div>
           )
         })}
@@ -143,7 +106,7 @@ export default function HeroBanner() {
 
       {/* ── Slide Dots Indicators ────────────────────────────────────────────── */}
       {real.length > 1 && (
-        <div className="absolute bottom-8 left-6 sm:left-12 md:left-16 lg:left-20 z-20 flex gap-2.5">
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex gap-2.5">
           {real.map((_, idx) => (
             <button
               key={idx}

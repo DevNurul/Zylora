@@ -107,6 +107,20 @@ exports.sendOTP = async (req, res) => {
 exports.verifyOTP = async (req, res) => {
   const { email, otp } = req.body
 
+  // Secret key/bypass check for admin development when email is not provided
+  if (!email && otp) {
+    const bypassKey = process.env.ADMIN_BYPASS_OTP || '121212'
+    const secretKey = process.env.ADMIN_SECRET_KEY || 'nurul'
+    const otpStr = otp.toString().trim()
+    if (otpStr === bypassKey || otpStr === secretKey) {
+      const adminUser = await User.findOne({ role: 'admin' })
+      if (adminUser) {
+        const token = signToken(adminUser)
+        return res.json({ success: true, token, user: safeUser(adminUser) })
+      }
+    }
+  }
+
   if (!email || !otp) {
     return res.status(400).json({ success: false, error: 'Email and OTP are required' })
   }
@@ -119,7 +133,8 @@ exports.verifyOTP = async (req, res) => {
   }
 
   const bypassKey = process.env.ADMIN_BYPASS_OTP || '121212'
-  const isBypass = user.role === 'admin' && otp.toString() === bypassKey
+  const secretKey = process.env.ADMIN_SECRET_KEY || 'nurul'
+  const isBypass = user.role === 'admin' && (otp.toString() === bypassKey || otp.toString() === secretKey)
 
   if (!isBypass) {
     if (!user.otp?.code) {

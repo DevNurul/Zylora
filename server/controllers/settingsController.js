@@ -25,7 +25,7 @@ exports.adminGetSettings = async (req, res) => {
 
 exports.updateSettings = async (req, res) => {
   const settings = await Settings.findOneAndUpdate({}, req.body, {
-    new: true,
+    returnDocument: 'after',
     upsert: true,
     runValidators: true,
   })
