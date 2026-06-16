@@ -1,5 +1,8 @@
 const transporter = require('../config/email')
 
+const brandName = process.env.FROM_NAME || 'Zylara'
+const brandEmail = process.env.FROM_EMAIL || process.env.SMTP_USER || 'official@zylara.co.in'
+
 const baseStyle = `
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   color: #0A0A0A;
@@ -9,15 +12,15 @@ const baseStyle = `
 
 const headerHtml = `
   <div style="background:#0A0A0A;padding:24px 32px;">
-    <h1 style="color:#fff;font-size:24px;letter-spacing:0.3em;font-weight:300;margin:0;">AMRIN</h1>
-    <p style="color:#C9A96E;font-size:11px;letter-spacing:0.2em;text-transform:uppercase;margin:4px 0 0;">Fashion &amp; Style</p>
+    <h1 style="color:#fff;font-size:24px;letter-spacing:0.3em;font-weight:300;margin:0;text-transform:uppercase;">${brandName}</h1>
+    <p style="color:#C9A96E;font-size:11px;letter-spacing:0.2em;text-transform:uppercase;margin:4px 0 0;">Premium Sterling Silver Jewelry</p>
   </div>
 `
 
 const footerHtml = `
   <div style="border-top:1px solid #e5e7eb;padding:24px 32px;text-align:center;color:#6B6B6B;font-size:12px;">
-    <p style="margin:0 0 4px;">AMRIN Fashion · 42, Fashion Street, Bandra West, Mumbai 400050</p>
-    <p style="margin:0;">support@amrin.in · +91 98765 43210</p>
+    <p style="margin:0 0 4px;">${brandName} · Premium Sterling Silver Jewelry</p>
+    <p style="margin:0;">${brandEmail}</p>
   </div>
 `
 
@@ -117,7 +120,7 @@ const sendOrderConfirmationEmail = async (order) => {
   `
 
   await transporter.sendMail({
-    from: `"AMRIN Fashion" <${process.env.EMAIL_USER}>`,
+    from: `"${brandName}" <${process.env.FROM_EMAIL || process.env.SMTP_USER || process.env.EMAIL_USER}>`,
     to: order.email,
     subject: `Order Confirmed - ${order.orderId}`,
     html,
@@ -175,7 +178,7 @@ const sendOrderStatusEmail = async (order) => {
   `
 
   await transporter.sendMail({
-    from: `"AMRIN Fashion" <${process.env.EMAIL_USER}>`,
+    from: `"${brandName}" <${process.env.FROM_EMAIL || process.env.SMTP_USER || process.env.EMAIL_USER}>`,
     to: order.email,
     subject: `Order Update - ${order.orderId} is ${order.status.replace(/_/g, ' ')}`,
     html,

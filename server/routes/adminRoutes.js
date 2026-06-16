@@ -31,6 +31,7 @@ router.patch('/products/:id/toggle', productCtrl.toggleProductActive)
 router.get('/orders', orderCtrl.adminGetOrders)
 router.get('/orders/:orderId', orderCtrl.adminGetOrder)
 router.patch('/orders/:orderId/status', orderCtrl.updateOrderStatus)
+router.delete('/orders/:orderId', orderCtrl.deleteOrder)
 
 // Categories
 router.get('/categories', categoryCtrl.adminGetCategories)

@@ -54,10 +54,10 @@ if (process.env.NODE_ENV === 'production' && !process.env.CLIENT_URL) {
 }
 
 const allowedOrigins = [
-  'http://amrin.co.in',
-  'https://amrin.co.in',
-  'http://admin.amrin.co.in',
-  'https://admin.amrin.co.in',
+  'http://zylara.co.in',
+  'https://zylara.co.in',
+  'http://admin.zylara.co.in',
+  'https://admin.zylara.co.in',
   'http://localhost:5173',
   'http://localhost:3000',
   process.env.CLIENT_URL,

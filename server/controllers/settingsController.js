@@ -6,7 +6,7 @@ exports.getSettings = async (req, res) => {
   let settings = await Settings.findOne().select(PUBLIC_FIELDS)
   if (!settings) {
     settings = {
-      storeName: 'AMRIN',
+      storeName: 'Zylara',
       tagline: 'Fashion & Style',
       shippingCharge: 99,
       freeShippingThreshold: 999,

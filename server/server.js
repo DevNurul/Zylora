@@ -29,3 +29,4 @@ const start = async () => {
 }
 
 start()
+// Trigger reload

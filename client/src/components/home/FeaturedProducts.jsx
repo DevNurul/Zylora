@@ -9,30 +9,28 @@ export default function FeaturedProducts() {
   if (products.length === 0) return null
 
   return (
-    <section className="px-4 md:px-8 lg:px-16 py-16 bg-[#FAFAF9]">
-      <div className="flex items-end justify-between mb-3">
-        <h2 className="text-2xl md:text-3xl font-semibold">Featured Collection</h2>
-        <button
-          onClick={() => navigate('/products')}
-          className="hidden sm:block text-sm text-[#6B6B6B] hover:text-[#0A0A0A] transition-colors border-b border-transparent hover:border-[#0A0A0A] pb-0.5"
-        >
-          View All
-        </button>
+    <section className="px-4 md:px-8 lg:px-16 py-20 bg-[#0D0D0D]">
+      {/* Header */}
+      <div className="flex flex-col items-center text-center mb-12">
+        <p className="text-[10px] font-bold text-[#C9A86A] tracking-[0.25em] uppercase mb-2">DISCOVER THE BEST</p>
+        <h2 className="text-3xl md:text-4xl font-light text-white tracking-wide font-serif">Featured Collection</h2>
+        <div className="w-12 h-[1px] bg-[#EE6B83] mt-4" />
       </div>
-      <div className="w-16 h-px bg-[#EE6B83] mb-10" />
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-5 gap-y-10">
+      {/* Grid */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12">
         {products.slice(0, 8).map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}
       </div>
 
-      <div className="sm:hidden mt-8 text-center">
+      {/* CTA Button */}
+      <div className="mt-16 text-center">
         <button
           onClick={() => navigate('/products')}
-          className="text-sm border border-[#EE6B83] text-[#EE6B83] px-8 py-3 hover:bg-[#FCD4DB] hover:text-[#EE6B83] transition-colors rounded-lg"
+          className="border border-[#C9A86A] text-[#C9A86A] hover:bg-[#C9A86A]/10 px-10 py-3.5 rounded-lg text-[10px] uppercase font-bold tracking-widest transition-all duration-300 active:scale-[0.98] cursor-pointer"
         >
-          View All Products
+          View All Collections
         </button>
       </div>
     </section>

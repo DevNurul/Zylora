@@ -3,16 +3,29 @@ const nodemailer = require('nodemailer')
 /* ── Brevo SMTP transporter ─────────────────────────────────────────────────── */
 let transporter = null
 
+function emailEnv() {
+  const port = Number(process.env.EMAIL_PORT || process.env.SMTP_PORT) || 465
+  return {
+    host: process.env.EMAIL_HOST || process.env.SMTP_HOST || 'smtpout.secureserver.net',
+    port,
+    secure: port === 465 || process.env.SMTP_SECURE === 'true',
+    user: process.env.EMAIL_USER || process.env.SMTP_USER,
+    pass: process.env.EMAIL_PASS || process.env.SMTP_PASS,
+  }
+}
+
 function getTransporter() {
   if (transporter) return transporter
 
+  const cfg = emailEnv()
+
   transporter = nodemailer.createTransport({
-    host:   process.env.SMTP_HOST || 'smtp.hostinger.com',
-    port:   Number(process.env.SMTP_PORT) || 465,
-    secure: Number(process.env.SMTP_PORT) === 465 || process.env.SMTP_SECURE === 'true',
+    host:   cfg.host,
+    port:   cfg.port,
+    secure: cfg.secure,
     auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
+      user: cfg.user,
+      pass: cfg.pass,
     },
   })
 
@@ -20,8 +33,8 @@ function getTransporter() {
 }
 
 /* ── HTML email templates ────────────────────────────────────────────────────── */
-const BRAND  = process.env.FROM_NAME  || 'AMRIN Fashion'
-const LOGO   = process.env.BRAND_LOGO || 'AMRIN'
+const BRAND  = process.env.FROM_NAME  || 'Zylara'
+const LOGO   = process.env.BRAND_LOGO || 'Zylara'
 const YEAR   = new Date().getFullYear()
 
 function baseLayout(body) {
@@ -88,7 +101,8 @@ async function sendOTPEmail(to, otp, purpose) {
   const cfg = OTP_CONFIG[purpose]
   if (!cfg) throw new Error(`Unknown OTP purpose: ${purpose}`)
 
-  const from = `"${BRAND}" <${process.env.FROM_EMAIL || process.env.SMTP_USER}>`
+  const mail = emailEnv()
+  const from = `"${BRAND}" <${process.env.FROM_EMAIL || mail.user}>`
 
   await getTransporter().sendMail({
     from,
@@ -100,8 +114,9 @@ async function sendOTPEmail(to, otp, purpose) {
 
 /* ── Login OTP email (personalized) ─────────────────────────────────────────── */
 async function sendLoginOTPEmail(to, name, otp) {
-  const brand = process.env.FROM_NAME || 'AMRIN Fashion'
-  const from  = `"${brand}" <${process.env.FROM_EMAIL || process.env.SMTP_USER}>`
+  const brand = process.env.FROM_NAME || 'Zylara'
+  const mail  = emailEnv()
+  const from  = `"${brand}" <${process.env.FROM_EMAIL || mail.user}>`
   const year  = new Date().getFullYear()
 
   const html = `<!DOCTYPE html>
@@ -126,7 +141,7 @@ async function sendLoginOTPEmail(to, name, otp) {
 </head>
 <body>
   <div class="wrap">
-    <div class="hdr"><span class="logo">AMRIN</span></div>
+    <div class="hdr"><span class="logo">${LOGO}</span></div>
     <div class="body">
       <h2>Your One-Time Password</h2>
       <p>Hello ${name},</p>
@@ -137,7 +152,7 @@ async function sendLoginOTPEmail(to, name, otp) {
       </div>
       <p class="warn">If you did not request this, please ignore this email.</p>
     </div>
-    <div class="ftr">&copy; ${year} ${brand} &nbsp;&middot;&nbsp; ${process.env.FROM_EMAIL || process.env.SMTP_USER || ''}</div>
+    <div class="ftr">&copy; ${year} ${brand} &nbsp;&middot;&nbsp; ${process.env.FROM_EMAIL || mail.user || ''}</div>
   </div>
 </body>
 </html>`
@@ -145,15 +160,16 @@ async function sendLoginOTPEmail(to, name, otp) {
   await getTransporter().sendMail({
     from,
     to,
-    subject: 'Your AMRIN Login OTP',
+    subject: `Your ${brand} Login OTP`,
     html,
   })
 }
 
 /* ── Return confirmation email ───────────────────────────────────────────────── */
 async function sendReturnConfirmationEmail(ret) {
-  const brand    = process.env.FROM_NAME  || 'AMRIN Fashion'
-  const from     = `"${brand}" <${process.env.FROM_EMAIL || process.env.SMTP_USER}>`
+  const brand    = process.env.FROM_NAME  || 'Zylara'
+  const mail     = emailEnv()
+  const from     = `"${brand}" <${process.env.FROM_EMAIL || mail.user}>`
   const year     = new Date().getFullYear()
   const typeLabel = ret.type === 'return' ? 'REFUND REQUEST' : 'EXCHANGE REQUEST'
   const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173'
@@ -181,7 +197,7 @@ p{color:#6B6B6B;font-size:13px;line-height:1.7;margin:0 0 8px}
 .btn{display:inline-block;background:#0A0A0A;color:#fff;padding:12px 28px;text-decoration:none;font-size:12px;letter-spacing:0.15em;text-transform:uppercase}
 </style></head><body>
 <div class="wrap">
-<div class="hdr"><span class="logo">AMRIN</span></div>
+<div class="hdr"><span class="logo">${LOGO}</span></div>
 <div class="body">
 <h2>We received your ${ret.type === 'return' ? 'refund' : 'exchange'} request</h2>
 <p>Your request has been submitted successfully. Our team will review it within 24-48 hours.</p>
@@ -214,8 +230,9 @@ ${ret.type === 'return' ? `<p style="font-weight:600;color:#0A0A0A;">Estimated R
 
 /* ── Return status update email ──────────────────────────────────────────────── */
 async function sendReturnStatusEmail(ret) {
-  const brand     = process.env.FROM_NAME  || 'AMRIN Fashion'
-  const from      = `"${brand}" <${process.env.FROM_EMAIL || process.env.SMTP_USER}>`
+  const brand     = process.env.FROM_NAME  || 'Zylara'
+  const mail      = emailEnv()
+  const from      = `"${brand}" <${process.env.FROM_EMAIL || mail.user}>`
   const year      = new Date().getFullYear()
   const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173'
 
@@ -246,7 +263,7 @@ p{color:#6B6B6B;font-size:13px;line-height:1.7;margin:0 0 8px}
 .btn{display:inline-block;background:#0A0A0A;color:#fff;padding:12px 28px;text-decoration:none;font-size:12px;letter-spacing:0.15em;text-transform:uppercase}
 </style></head><body>
 <div class="wrap">
-<div class="hdr"><span class="logo">AMRIN</span></div>
+<div class="hdr"><span class="logo">${LOGO}</span></div>
 <div class="body">
 <h2>Update on your request</h2>
 <p>Request ID: <span class="id">${ret.returnId}</span></p>

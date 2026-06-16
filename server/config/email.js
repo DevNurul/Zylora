@@ -1,12 +1,16 @@
 const nodemailer = require('nodemailer')
 
+const host = process.env.EMAIL_HOST || process.env.SMTP_HOST || 'smtpout.secureserver.net'
+const port = Number(process.env.EMAIL_PORT || process.env.SMTP_PORT) || 465
+const secure = port === 465 || process.env.SMTP_SECURE === 'true'
+
 const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST,
-  port: Number(process.env.EMAIL_PORT) || 587,
-  secure: Number(process.env.EMAIL_PORT) === 465,
+  host,
+  port,
+  secure,
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
+    user: process.env.EMAIL_USER || process.env.SMTP_USER,
+    pass: process.env.EMAIL_PASS || process.env.SMTP_PASS,
   },
 })
 

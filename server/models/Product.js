@@ -20,6 +20,8 @@ const productSchema = new mongoose.Schema({
   isActive: { type: Boolean, default: true },
   tags: [String],
   createdAt: { type: Date, default: Date.now },
+}, {
+  suppressReservedKeysWarning: true
 })
 
 productSchema.pre('save', async function () {

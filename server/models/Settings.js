@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 
 const settingsSchema = new mongoose.Schema({
-  storeName: { type: String, default: 'AMRIN' },
+  storeName: { type: String, default: 'Zylara' },
   storeLogo: { url: String, publicId: String },
   tagline: String,
   contactEmail: String,

@@ -2,7 +2,25 @@ import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import api from '../lib/api'
 import toast from 'react-hot-toast'
-import { ArrowLeft, Loader2 } from 'lucide-react'
+import { 
+  ArrowLeft, 
+  Loader2, 
+  Calendar, 
+  DollarSign, 
+  CreditCard, 
+  Truck, 
+  Info, 
+  FileText, 
+  CheckCircle2, 
+  XCircle, 
+  AlertCircle, 
+  Building, 
+  Package, 
+  History, 
+  User, 
+  Copy, 
+  Check 
+} from 'lucide-react'
 
 const TRANSITIONS = {
   requested:          [{ value:'approved', label:'Approve'}, {value:'rejected', label:'Reject'}, {value:'cancelled', label:'Cancel'}],
@@ -15,23 +33,27 @@ const TRANSITIONS = {
 }
 
 const STATUS_CFG = {
-  requested:           { bg:'#fefce8',color:'#a16207',label:'Pending Review' },
-  approved:            { bg:'#eff6ff',color:'#1d4ed8',label:'Approved' },
-  rejected:            { bg:'#fef2f2',color:'#b91c1c',label:'Rejected' },
-  payment_pending:     { bg:'#fefce8',color:'#a16207',label:'Payment Required' },
-  pickup_scheduled:    { bg:'#faf5ff',color:'#7e22ce',label:'Pickup Scheduled' },
-  item_received:       { bg:'#eef2ff',color:'#3730a3',label:'Item Received' },
-  refund_approved:     { bg:'#f0fdf4',color:'#15803d',label:'Refund Approved' },
-  refund_rejected:     { bg:'#fef2f2',color:'#b91c1c',label:'Refund Rejected' },
-  refund_processed:    { bg:'#dcfce7',color:'#14532d',label:'Refund Processed' },
-  exchange_dispatched: { bg:'#faf5ff',color:'#7e22ce',label:'Dispatched' },
-  exchange_delivered:  { bg:'#f0fdf4',color:'#15803d',label:'Exchange Delivered' },
-  cancelled:           { bg:'#f9fafb',color:'#6b7280',label:'Cancelled' },
+  requested:           { bg: 'bg-amber-50 text-amber-700 border-amber-100 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20', label: 'Pending Review' },
+  approved:            { bg: 'bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20', label: 'Approved' },
+  rejected:            { bg: 'bg-rose-50 text-rose-700 border-rose-100 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20', label: 'Rejected' },
+  payment_pending:     { bg: 'bg-yellow-50 text-yellow-700 border-yellow-100 dark:bg-yellow-500/10 dark:text-yellow-400 dark:border-yellow-500/20', label: 'Payment Required' },
+  pickup_scheduled:    { bg: 'bg-purple-50 text-purple-700 border-purple-100 dark:bg-purple-500/10 dark:text-purple-400 dark:border-purple-500/20', label: 'Pickup Scheduled' },
+  item_received:       { bg: 'bg-indigo-50 text-indigo-700 border-indigo-100 dark:bg-indigo-500/10 dark:text-indigo-400 dark:border-indigo-500/20', label: 'Item Received' },
+  refund_approved:     { bg: 'bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20', label: 'Refund Approved' },
+  refund_rejected:     { bg: 'bg-rose-50 text-rose-700 border-rose-100 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20', label: 'Refund Rejected' },
+  refund_processed:    { bg: 'bg-teal-50 text-teal-700 border-teal-100 dark:bg-teal-500/10 dark:text-teal-400 dark:border-teal-500/20', label: 'Refund Processed' },
+  exchange_dispatched: { bg: 'bg-purple-50 text-purple-700 border-purple-100 dark:bg-purple-500/10 dark:text-purple-400 dark:border-purple-500/20', label: 'Dispatched' },
+  exchange_delivered:  { bg: 'bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20', label: 'Exchange Delivered' },
+  cancelled:           { bg: 'bg-slate-50 text-slate-700 border-slate-100 dark:bg-slate-500/10 dark:text-slate-400 dark:border-slate-500/20', label: 'Cancelled' },
 }
 
 function StatusBadge({ status }) {
-  const c = STATUS_CFG[status] || { bg:'#f3f4f6',color:'#374151',label:status }
-  return <span className="text-[11px] uppercase px-2 py-0.5 rounded font-medium" style={{ background:c.bg,color:c.color }}>{c.label}</span>
+  const c = STATUS_CFG[status] || { bg: 'bg-slate-50 text-slate-700 border-slate-100 dark:bg-slate-500/10 dark:text-slate-400 dark:border-slate-500/20', label: status }
+  return (
+    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border uppercase tracking-wider ${c.bg}`}>
+      {c.label}
+    </span>
+  )
 }
 
 function getTransitions(currentStatus, type) {
@@ -52,12 +74,36 @@ const LABEL = {
   exchange_delivered:'Marking delivered',
 }
 
+const getStepIndex = (status, type) => {
+  const returnMapping = {
+    requested: 0,
+    approved: 1,
+    payment_pending: 1,
+    pickup_scheduled: 2,
+    item_received: 3,
+    refund_approved: 4,
+    refund_processed: 5,
+  }
+  const exchangeMapping = {
+    requested: 0,
+    approved: 1,
+    payment_pending: 1,
+    pickup_scheduled: 2,
+    item_received: 3,
+    exchange_dispatched: 4,
+    exchange_delivered: 5,
+  }
+  const mapping = type === 'return' ? returnMapping : exchangeMapping
+  return mapping[status] ?? -1
+}
+
 export default function AdminReturnDetail() {
   const { returnId } = useParams()
   const navigate     = useNavigate()
   const [req,      setReq]      = useState(null)
   const [loading,  setLoading]  = useState(true)
   const [updating, setUpdating] = useState(false)
+  const [copied,   setCopied]   = useState(false)
 
   const [newStatus,              setNewStatus]              = useState('')
   const [adminNote,              setAdminNote]              = useState('')
@@ -82,6 +128,13 @@ export default function AdminReturnDetail() {
   }
 
   useEffect(() => { load() }, [returnId])
+
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text)
+    setCopied(true)
+    toast.success('Copied Return ID')
+    setTimeout(() => setCopied(false), 2000)
+  }
 
   const handleUpdate = async () => {
     if (!newStatus) { toast.error('Select a status'); return }
@@ -115,261 +168,617 @@ export default function AdminReturnDetail() {
     }
   }
 
-  if (loading) return <div className="p-8 text-center text-gray-400">Loading...</div>
-  if (!req)    return <div className="p-8 text-center text-gray-400">Request not found</div>
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[500px]">
+        <Loader2 size={32} className="animate-spin text-primary" />
+      </div>
+    )
+  }
+  if (!req) {
+    return (
+      <div className="p-8 text-center text-gray-500 dark:text-gray-400">
+        <AlertCircle className="mx-auto text-gray-400 mb-2" size={32} />
+        <p className="font-semibold text-lg">Request not found</p>
+      </div>
+    )
+  }
 
   const transitions = getTransitions(req.status, req.type)
   const terminal    = transitions.length === 0
 
+  const steps = req.type === 'return' 
+    ? [
+        { label: 'Requested', desc: 'Pending review' },
+        { label: 'Approved', desc: 'Request approved' },
+        { label: 'Pickup', desc: 'Item collection' },
+        { label: 'Received', desc: 'Quality check' },
+        { label: 'Refund Approved', desc: 'Refund authorized' },
+        { label: 'Completed', desc: 'Refund processed' }
+      ]
+    : [
+        { label: 'Requested', desc: 'Pending review' },
+        { label: 'Approved', desc: 'Request approved' },
+        { label: 'Pickup', desc: 'Item collection' },
+        { label: 'Received', desc: 'Quality check' },
+        { label: 'Dispatched', desc: 'Replacement sent' },
+        { label: 'Delivered', desc: 'Exchange complete' }
+      ]
+
+  const currentStep = getStepIndex(req.status, req.type)
+  const isFailed = ['rejected', 'cancelled', 'refund_rejected'].includes(req.status)
+
   return (
-    <div className="p-8">
-      <button onClick={() => navigate('/returns')}
-        className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 mb-6 transition-colors">
-        <ArrowLeft size={14} /> All Returns
+    <div className="p-4 md:p-8 space-y-6 max-w-7xl mx-auto">
+      {/* Back button */}
+      <button 
+        onClick={() => navigate('/returns')}
+        className="group flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors"
+      >
+        <ArrowLeft size={16} className="group-hover:-translate-x-0.5 transition-transform" /> 
+        Back to Returns
       </button>
 
-      <div className="flex flex-col lg:flex-row gap-6 items-start">
-
-        {/* ── Left column ───────────────────────────────────────────── */}
-        <div className="flex-1 space-y-4 min-w-0">
-
-          {/* Request info */}
-          <div className="bg-white border border-gray-100 rounded-xl p-6">
-            <div className="flex items-center gap-3 flex-wrap mb-4">
-              <p className="font-mono text-2xl font-bold text-gray-900">{req.returnId}</p>
-              <span className="text-xs px-2 py-0.5 rounded font-medium uppercase"
-                style={{ background: req.type==='return'?'#fef2f2':'#eff6ff', color: req.type==='return'?'#b91c1c':'#1d4ed8' }}>
-                {req.type}
+      {/* Header section */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-dark-card border border-gray-100 dark:border-white/5 p-6 rounded-2xl shadow-xs">
+        <div>
+          <div className="flex items-center gap-3 flex-wrap">
+            <h1 className="font-mono text-xl md:text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+              {req.returnId}
+              <button 
+                onClick={() => copyToClipboard(req.returnId)} 
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors p-1"
+                title="Copy Return ID"
+              >
+                {copied ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
+              </button>
+            </h1>
+            <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider border ${
+              req.type === 'return' 
+                ? 'bg-rose-50 text-rose-700 border-rose-100 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20' 
+                : 'bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20'
+            }`}>
+              {req.type}
+            </span>
+            {req.exchangeType === 'different_product' && (
+              <span className="text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider bg-purple-50 text-purple-700 border border-purple-100 dark:bg-purple-500/10 dark:text-purple-400 dark:border-purple-500/20">
+                Different Product Exchange
               </span>
-              {req.exchangeType === 'different_product' && (
-                <span className="text-xs px-2 py-0.5 rounded font-medium uppercase bg-purple-50 text-purple-700">
-                  different product
-                </span>
-              )}
-              <StatusBadge status={req.status} />
+            )}
+          </div>
+          <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+            Order: <span className="font-mono font-medium">{req.orderId}</span> · Customer: {req.customerEmail}
+          </p>
+        </div>
+        <div>
+          <StatusBadge status={req.status} />
+        </div>
+      </div>
+
+      {/* Stepper progress tracker */}
+      <div className="bg-white dark:bg-dark-card border border-gray-100 dark:border-white/5 rounded-2xl p-6 shadow-xs overflow-x-auto no-scrollbar">
+        {isFailed ? (
+          <div className="flex items-center gap-3 text-rose-600 dark:text-rose-400 p-2">
+            <AlertCircle size={20} />
+            <div>
+              <p className="font-semibold text-sm">Request Terminated</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                This request is {req.status === 'rejected' ? 'rejected' : req.status === 'refund_rejected' ? 'refund rejected' : 'cancelled'}.
+              </p>
             </div>
-            <div className="grid grid-cols-2 gap-3 text-sm">
-              <div><p className="text-xs text-gray-400 uppercase mb-1">Order ID</p><p className="font-mono font-semibold">{req.orderId}</p></div>
-              <div><p className="text-xs text-gray-400 uppercase mb-1">Customer</p><p className="text-gray-700">{req.customerEmail}</p></div>
-              <div><p className="text-xs text-gray-400 uppercase mb-1">Submitted</p><p className="text-gray-700">{new Date(req.createdAt).toLocaleString('en-IN',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}</p></div>
-              {req.refundAmount > 0 && <div><p className="text-xs text-gray-400 uppercase mb-1">Refund Amount</p><p className="font-semibold text-green-700">₹{req.refundAmount.toLocaleString('en-IN')}</p></div>}
-              {req.refundMethod && <div>
-                <p className="text-xs text-gray-400 uppercase mb-1">Refund Method</p>
-                <p className="text-gray-700 capitalize">{req.refundMethod === 'bank_transfer' ? 'Bank Transfer' : 'AMRIN Wallet'}</p>
-              </div>}
-              {req.priceDifference !== 0 && <div>
-                <p className="text-xs text-gray-400 uppercase mb-1">Price Difference</p>
-                <p className={`font-semibold ${req.priceDifference > 0 ? 'text-red-600' : 'text-green-700'}`}>
-                  {req.priceDifference > 0 ? '+' : ''}₹{req.priceDifference.toLocaleString('en-IN')}
-                  {req.priceDifferencePayment?.status === 'paid' && <span className="ml-2 text-xs bg-green-50 text-green-700 px-1.5 py-0.5 rounded">Paid</span>}
-                  {req.priceDifferencePayment?.status === 'pending' && <span className="ml-2 text-xs bg-yellow-50 text-yellow-700 px-1.5 py-0.5 rounded">Awaiting payment</span>}
+          </div>
+        ) : (
+          <div className="min-w-[650px] flex items-center justify-between relative px-4 py-2">
+            {/* Background Line */}
+            <div className="absolute top-1/2 left-8 right-8 h-0.5 bg-gray-100 dark:bg-white/10 -translate-y-1/2 z-0" />
+            {/* Filled Line */}
+            <div 
+              className="absolute top-1/2 left-8 h-0.5 bg-primary -translate-y-1/2 transition-all duration-500 z-0" 
+              style={{ width: `${(Math.max(0, currentStep) / (steps.length - 1)) * 92}%` }}
+            />
+            
+            {steps.map((step, idx) => {
+              const isCompleted = idx < currentStep
+              const isActive = idx === currentStep
+              return (
+                <div key={idx} className="flex flex-col items-center relative z-10 flex-1">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${
+                    isCompleted 
+                      ? 'bg-primary border-primary text-white' 
+                      : isActive 
+                        ? 'bg-white dark:bg-dark-card border-primary text-primary shadow-sm shadow-primary/20 scale-110' 
+                        : 'bg-white dark:bg-dark-card border-gray-200 dark:border-white/10 text-gray-400 dark:text-gray-500'
+                  }`}>
+                    {isCompleted ? (
+                      <CheckCircle2 size={16} className="stroke-[3]" />
+                    ) : (
+                      <span className="text-xs font-bold">{idx + 1}</span>
+                    )}
+                  </div>
+                  <p className={`text-xs font-semibold mt-2 text-center transition-all ${
+                    isActive ? 'text-primary' : isCompleted ? 'text-gray-700 dark:text-gray-300' : 'text-gray-400'
+                  }`}>{step.label}</p>
+                  <p className="text-[9px] text-gray-400 dark:text-gray-500 mt-0.5 text-center hidden md:block">{step.desc}</p>
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </div>
+
+      <div className="flex flex-col lg:flex-row gap-6 items-start">
+        {/* Left Column (Details) */}
+        <div className="flex-1 space-y-6 min-w-0 w-full">
+          {/* General Metadata */}
+          <div className="bg-white dark:bg-dark-card border border-gray-100 dark:border-white/5 rounded-2xl p-6 shadow-xs">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-4 flex items-center gap-2">
+              <Info size={14} /> Request Overview
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-sm">
+              <div>
+                <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase mb-1">Submitted Date</p>
+                <p className="font-medium text-gray-900 dark:text-white">
+                  {new Date(req.createdAt).toLocaleString('en-IN', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
                 </p>
-              </div>}
-              {req.rejectionType && <div>
-                <p className="text-xs text-gray-400 uppercase mb-1">Rejection Type</p>
-                <p className={`font-semibold ${req.rejectionType === 'hard' ? 'text-red-600' : 'text-orange-600'}`}>
-                  {req.rejectionType === 'hard' ? 'Hard (Permanent)' : 'Soft (Resubmittable)'}
-                </p>
-              </div>}
-              {req.resubmissionCount > 0 && <div>
-                <p className="text-xs text-gray-400 uppercase mb-1">Resubmission</p>
-                <p className="text-gray-700">#{req.resubmissionCount} (of {req.originalReturnId})</p>
-              </div>}
+              </div>
+
+              {req.refundAmount > 0 && (
+                <div>
+                  <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase mb-1">Refund Amount</p>
+                  <p className="font-bold text-emerald-600 dark:text-emerald-400 text-base">
+                    ₹{req.refundAmount.toLocaleString('en-IN')}
+                  </p>
+                </div>
+              )}
+
+              {req.refundMethod && (
+                <div>
+                  <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase mb-1">Refund Method</p>
+                  <p className="font-medium text-gray-700 dark:text-gray-300 capitalize">
+                    {req.refundMethod === 'bank_transfer' ? 'Bank Transfer' : 'Zylora Wallet'}
+                  </p>
+                </div>
+              )}
+
+              {req.priceDifference !== 0 && (
+                <div>
+                  <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase mb-1">Price Difference</p>
+                  <p className={`font-bold text-base ${req.priceDifference > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
+                    {req.priceDifference > 0 ? '+' : ''}₹{req.priceDifference.toLocaleString('en-IN')}
+                    {req.priceDifferencePayment?.status === 'paid' && (
+                      <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20">Paid</span>
+                    )}
+                    {req.priceDifferencePayment?.status === 'pending' && (
+                      <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-100 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20">Awaiting</span>
+                    )}
+                  </p>
+                </div>
+              )}
+
+              {req.rejectionType && (
+                <div>
+                  <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase mb-1">Rejection Type</p>
+                  <p className={`font-semibold ${req.rejectionType === 'hard' ? 'text-rose-600 dark:text-rose-400' : 'text-orange-600 dark:text-orange-400'}`}>
+                    {req.rejectionType === 'hard' ? 'Hard (Permanent)' : 'Soft (Resubmittable)'}
+                  </p>
+                </div>
+              )}
+
+              {req.resubmissionCount > 0 && (
+                <div>
+                  <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase mb-1">Resubmission</p>
+                  <p className="font-medium text-gray-700 dark:text-gray-300">
+                    #{req.resubmissionCount} <span className="text-gray-400 dark:text-gray-500">(Original: {req.originalReturnId})</span>
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Bank details (if bank transfer) */}
-          {req.refundMethod === 'bank_transfer' && req.bankDetails?.accountNumber && (
-            <div className="bg-white border border-gray-100 rounded-xl p-6">
-              <h3 className="text-xs font-semibold uppercase text-gray-400 tracking-wide mb-3">Bank Details</h3>
-              <div className="grid grid-cols-2 gap-2 text-sm">
-                <div><p className="text-xs text-gray-400">Name</p><p>{req.bankDetails.accountHolderName}</p></div>
-                <div><p className="text-xs text-gray-400">Account No.</p><p className="font-mono">{req.bankDetails.accountNumber}</p></div>
-                <div><p className="text-xs text-gray-400">IFSC</p><p className="font-mono">{req.bankDetails.ifscCode}</p></div>
-                <div><p className="text-xs text-gray-400">Bank</p><p>{req.bankDetails.bankName}</p></div>
-              </div>
-            </div>
-          )}
-
-          {/* New product (different_product exchange) */}
+          {/* Replacement product (different_product exchange) */}
           {req.newProduct?.name && (
-            <div className="bg-white border border-gray-100 rounded-xl p-6">
-              <h3 className="text-xs font-semibold uppercase text-gray-400 tracking-wide mb-3">Replacement Product</h3>
-              <div className="flex gap-4">
-                {req.newProduct.image && <img src={req.newProduct.image} alt={req.newProduct.name} className="w-16 h-20 object-cover border border-gray-100 flex-shrink-0" />}
+            <div className="bg-white dark:bg-dark-card border border-gray-100 dark:border-white/5 rounded-2xl p-6 shadow-xs">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-4 flex items-center gap-2">
+                <Truck size={14} /> Replacement Product
+              </h3>
+              <div className="flex gap-4 p-4 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5">
+                {req.newProduct.image ? (
+                  <img 
+                    src={req.newProduct.image} 
+                    alt={req.newProduct.name} 
+                    className="w-16 h-20 object-cover border border-gray-200 dark:border-white/10 rounded-lg flex-shrink-0" 
+                  />
+                ) : (
+                  <div className="w-16 h-20 bg-gray-100 dark:bg-white/5 rounded-lg flex-shrink-0 flex items-center justify-center text-gray-400"><Package size={20} /></div>
+                )}
                 <div>
-                  <p className="font-medium text-gray-900">{req.newProduct.name}</p>
-                  <p className="text-sm text-gray-500 mt-0.5">Size: {req.newProduct.size} · ₹{req.newProduct.price?.toLocaleString('en-IN')}</p>
-                  {req.priceDifference > 0 && <p className="text-xs text-red-600 mt-1">Customer pays +₹{req.priceDifference.toLocaleString('en-IN')}</p>}
-                  {req.priceDifference < 0 && <p className="text-xs text-green-600 mt-1">Refund ₹{Math.abs(req.priceDifference).toLocaleString('en-IN')} to customer</p>}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Items */}
-          <div className="bg-white border border-gray-100 rounded-xl p-6">
-            <h3 className="text-xs font-semibold uppercase text-gray-400 tracking-wide mb-4">Items Requested</h3>
-            {req.items.map((item, i) => (
-              <div key={i} className={`flex gap-4 ${i > 0 ? 'mt-4 pt-4 border-t border-gray-50' : ''}`}>
-                {item.image
-                  ? <img src={item.image} alt={item.name} className="w-16 h-20 object-cover border border-gray-100 flex-shrink-0" />
-                  : <div className="w-16 h-20 bg-gray-50 flex-shrink-0" />
-                }
-                <div className="flex-1">
-                  <p className="font-medium text-gray-900">{item.name}</p>
-                  <p className="text-sm text-gray-500 mt-0.5">Size: {item.orderedSize} · Qty: {item.qty} · ₹{(item.price*item.qty).toLocaleString('en-IN')}</p>
-                  <span className="inline-block mt-1.5 text-xs bg-gray-50 text-gray-600 px-2 py-0.5 rounded">{item.reason}</span>
-                  {req.type === 'exchange' && req.exchangeType !== 'different_product' && item.exchangeSize && (
-                    <span className="ml-2 text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded">→ {item.exchangeSize}</span>
+                  <p className="font-semibold text-gray-900 dark:text-white">{req.newProduct.name}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    Size: <span className="font-medium text-gray-700 dark:text-gray-300">{req.newProduct.size}</span> · Price: <span className="font-medium text-gray-700 dark:text-gray-300">₹{req.newProduct.price?.toLocaleString('en-IN')}</span>
+                  </p>
+                  {req.priceDifference > 0 && (
+                    <p className="text-xs text-rose-600 dark:text-rose-400 mt-1 font-medium">Customer pays additional +₹{req.priceDifference.toLocaleString('en-IN')}</p>
+                  )}
+                  {req.priceDifference < 0 && (
+                    <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1 font-medium">Refund ₹{Math.abs(req.priceDifference).toLocaleString('en-IN')} to customer</p>
                   )}
                 </div>
               </div>
-            ))}
-          </div>
-
-          {/* Comment */}
-          {req.comment && (
-            <div className="bg-white border border-gray-100 rounded-xl p-6">
-              <h3 className="text-xs font-semibold uppercase text-gray-400 tracking-wide mb-3">Customer Comment</h3>
-              <p className="text-sm text-gray-700 italic">"{req.comment}"</p>
             </div>
           )}
 
-          {/* Status history */}
-          <div className="bg-white border border-gray-100 rounded-xl p-6">
-            <h3 className="text-xs font-semibold uppercase text-gray-400 tracking-wide mb-4">Status History</h3>
-            {req.statusHistory?.map((h, i) => (
-              <div key={i} className="flex items-start gap-3 mb-3">
-                <StatusBadge status={h.status} />
-                <div>
-                  <p className="text-xs text-gray-500">{new Date(h.timestamp).toLocaleString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</p>
-                  {h.note && <p className="text-xs text-gray-600 mt-0.5">{h.note}</p>}
-                  <p className="text-xs text-gray-400 mt-0.5">By: {h.updatedBy}</p>
+          {/* Items Requested */}
+          <div className="bg-white dark:bg-dark-card border border-gray-100 dark:border-white/5 rounded-2xl p-6 shadow-xs">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-4 flex items-center gap-2">
+              <Package size={14} /> Items Requested
+            </h3>
+            <div className="space-y-4">
+              {req.items.map((item, i) => (
+                <div 
+                  key={i} 
+                  className={`flex gap-4 p-4 rounded-xl bg-gray-50/50 dark:bg-white/5 border border-gray-100 dark:border-white/5 ${
+                    i > 0 ? '' : ''
+                  }`}
+                >
+                  {item.image ? (
+                    <img 
+                      src={item.image} 
+                      alt={item.name} 
+                      className="w-16 h-20 object-cover border border-gray-200 dark:border-white/10 rounded-lg flex-shrink-0" 
+                    />
+                  ) : (
+                    <div className="w-16 h-20 bg-gray-100 dark:bg-white/5 rounded-lg flex-shrink-0 flex items-center justify-center text-gray-400"><Package size={20} /></div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-gray-900 dark:text-white truncate">{item.name}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      Size: <span className="font-medium text-gray-700 dark:text-gray-300">{item.orderedSize}</span> · Qty: <span className="font-medium text-gray-700 dark:text-gray-300">{item.qty}</span> · Total: <span className="font-medium text-gray-700 dark:text-gray-300">₹{(item.price * item.qty).toLocaleString('en-IN')}</span>
+                    </p>
+                    
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-300 border border-gray-200/50 dark:border-white/5">
+                        Reason: {item.reason}
+                      </span>
+                      {req.type === 'exchange' && req.exchangeType !== 'different_product' && item.exchangeSize && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 border border-blue-100 dark:border-blue-500/20">
+                          Exchanged Size: {item.exchangeSize}
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
 
+          {/* Bank Details */}
+          {req.refundMethod === 'bank_transfer' && req.bankDetails?.accountNumber && (
+            <div className="bg-white dark:bg-dark-card border border-gray-100 dark:border-white/5 rounded-2xl p-6 shadow-xs">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-4 flex items-center gap-2">
+                <Building size={14} /> Bank Details
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 dark:bg-white/5 p-4 rounded-xl border border-gray-100 dark:border-white/5 text-sm">
+                <div>
+                  <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase">Account Holder</p>
+                  <p className="font-medium text-gray-900 dark:text-white mt-0.5">{req.bankDetails.accountHolderName}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase">Account Number</p>
+                  <p className="font-mono font-medium text-gray-900 dark:text-white mt-0.5">{req.bankDetails.accountNumber}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase">IFSC Code</p>
+                  <p className="font-mono font-medium text-gray-900 dark:text-white mt-0.5">{req.bankDetails.ifscCode}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase">Bank Name</p>
+                  <p className="font-medium text-gray-900 dark:text-white mt-0.5">{req.bankDetails.bankName}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Customer Comment */}
+          {req.comment && (
+            <div className="bg-white dark:bg-dark-card border border-gray-100 dark:border-white/5 rounded-2xl p-6 shadow-xs">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-2 flex items-center gap-2">
+                <FileText size={14} /> Customer Comment
+              </h3>
+              <p className="text-sm text-gray-700 dark:text-gray-300 italic border-l-2 border-primary/40 pl-4 py-1">
+                "{req.comment}"
+              </p>
+            </div>
+          )}
+
+          {/* Status History */}
+          <div className="bg-white dark:bg-dark-card border border-gray-100 dark:border-white/5 rounded-2xl p-6 shadow-xs">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-4 flex items-center gap-2">
+              <History size={14} /> Status Log
+            </h3>
+            <div className="flow-root">
+              <ul className="-mb-8">
+                {req.statusHistory?.map((h, i) => (
+                  <li key={i}>
+                    <div className="relative pb-8">
+                      {i !== req.statusHistory.length - 1 ? (
+                        <span className="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200 dark:bg-white/10" aria-hidden="true" />
+                      ) : null}
+                      <div className="relative flex space-x-3">
+                        <div>
+                          <span className="h-8 w-8 rounded-full bg-gray-100 dark:bg-white/5 flex items-center justify-center ring-8 ring-white dark:ring-dark-card">
+                            <ClockIcon status={h.status} />
+                          </span>
+                        </div>
+                        <div className="flex-1 min-w-0 pt-1.5 flex justify-between space-x-4">
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <StatusBadge status={h.status} />
+                              <span className="text-xs text-gray-400 dark:text-gray-500">by {h.updatedBy}</span>
+                            </div>
+                            {h.note && (
+                              <p className="text-xs text-gray-600 dark:text-gray-300 mt-1 bg-gray-50 dark:bg-white/5 p-2 rounded-lg border border-gray-100/50 dark:border-white/5">
+                                {h.note}
+                              </p>
+                            )}
+                          </div>
+                          <div className="text-right text-xs whitespace-nowrap text-gray-400 dark:text-gray-500 font-medium">
+                            {new Date(h.timestamp).toLocaleString('en-IN', {
+                              day: 'numeric',
+                              month: 'short',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
         </div>
 
-        {/* ── Right column ──────────────────────────────────────────── */}
-        <div className="lg:w-80 flex-shrink-0 space-y-4">
+        {/* Right Column (Actions & Internal Notes) */}
+        <div className="lg:w-85 flex-shrink-0 w-full space-y-6">
+          {/* Update Status Card */}
+          <div className="bg-white dark:bg-dark-card border border-gray-100 dark:border-white/5 rounded-2xl p-6 shadow-xs">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-4 flex items-center gap-2">
+              <CheckCircle2 size={14} /> Update Request Status
+            </h3>
 
-          {/* Update status */}
-          <div className="bg-white border border-gray-100 rounded-xl p-6">
-            <h3 className="text-xs font-semibold uppercase text-gray-400 tracking-wide mb-4">Update Request Status</h3>
-            <div className="mb-3 flex items-center gap-2">
-              <span className="text-xs text-gray-500">Current:</span>
+            <div className="mb-4 flex items-center gap-2">
+              <span className="text-xs text-gray-400 dark:text-gray-500">Current Status:</span>
               <StatusBadge status={req.status} />
             </div>
 
             {terminal ? (
-              <p className="text-sm text-gray-400 italic">No further actions available.</p>
+              <div className="p-4 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 text-center text-sm text-gray-400 dark:text-gray-500 italic">
+                No further actions available.
+              </div>
             ) : (
-              <>
-                <select value={newStatus} onChange={e => setNewStatus(e.target.value)}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#C9A96E] bg-white mb-3">
-                  <option value="">Select next status</option>
-                  {transitions.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
-                </select>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-2">
+                    Next Status
+                  </label>
+                  <select 
+                    value={newStatus} 
+                    onChange={e => setNewStatus(e.target.value)}
+                    className="w-full border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-dark-bg text-gray-900 dark:text-white transition-all"
+                  >
+                    <option value="">Select next status</option>
+                    {transitions.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+                  </select>
+                </div>
 
-                {/* Rejection type selector */}
+                {/* Rejection Type Radios */}
                 {newStatus === 'rejected' && (
-                  <div className="mb-3">
-                    <p className="text-xs text-gray-500 mb-2 font-medium">Rejection Type *</p>
+                  <div className="space-y-3">
+                    <p className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                      Rejection Type *
+                    </p>
                     <div className="space-y-2">
-                      <label className={`flex gap-3 p-3 border rounded-lg cursor-pointer transition-colors ${rejectionType === 'soft' ? 'border-orange-400 bg-orange-50' : 'border-gray-200'}`}>
-                        <input type="radio" name="rejType" value="soft" checked={rejectionType === 'soft'} onChange={() => setRejectionType('soft')} />
+                      <label className={`flex gap-3 p-4 border rounded-xl cursor-pointer transition-all ${
+                        rejectionType === 'soft' 
+                          ? 'border-orange-500/50 bg-orange-500/5 dark:bg-orange-500/10' 
+                          : 'border-gray-200 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20'
+                      }`}>
+                        <input 
+                          type="radio" 
+                          name="rejType" 
+                          value="soft" 
+                          checked={rejectionType === 'soft'} 
+                          onChange={() => setRejectionType('soft')}
+                          className="accent-primary mt-1"
+                        />
                         <div>
-                          <p className="text-sm font-medium text-gray-900">Soft Reject</p>
-                          <p className="text-xs text-gray-500">Customer can resubmit once. Use when more info is needed.</p>
+                          <p className="text-sm font-semibold text-gray-900 dark:text-white">Soft Reject</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                            Customer can resubmit once. Use when more info or action is needed.
+                          </p>
                         </div>
                       </label>
-                      <label className={`flex gap-3 p-3 border rounded-lg cursor-pointer transition-colors ${rejectionType === 'hard' ? 'border-red-400 bg-red-50' : 'border-gray-200'}`}>
-                        <input type="radio" name="rejType" value="hard" checked={rejectionType === 'hard'} onChange={() => setRejectionType('hard')} />
+                      <label className={`flex gap-3 p-4 border rounded-xl cursor-pointer transition-all ${
+                        rejectionType === 'hard' 
+                          ? 'border-rose-500/50 bg-rose-500/5 dark:bg-rose-500/10' 
+                          : 'border-gray-200 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20'
+                      }`}>
+                        <input 
+                          type="radio" 
+                          name="rejType" 
+                          value="hard" 
+                          checked={rejectionType === 'hard'} 
+                          onChange={() => setRejectionType('hard')}
+                          className="accent-primary mt-1"
+                        />
                         <div>
-                          <p className="text-sm font-medium text-gray-900">Hard Reject</p>
-                          <p className="text-xs text-gray-500">Permanently close. Use when request clearly violates policy.</p>
+                          <p className="text-sm font-semibold text-gray-900 dark:text-white">Hard Reject</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                            Permanently close this request. Use when it violates return policy.
+                          </p>
                         </div>
                       </label>
                     </div>
+
                     <div className="mt-3">
-                      <label className="text-xs text-gray-500 block mb-1">Reason for rejection (shown to customer) *</label>
-                      <textarea value={adminNote} onChange={e => setAdminNote(e.target.value)} rows={3}
-                        placeholder="Explain reason to customer..."
-                        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#C9A96E] resize-none" />
+                      <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-2">
+                        Reason for Rejection (Shown to Customer) *
+                      </label>
+                      <textarea 
+                        value={adminNote} 
+                        onChange={e => setAdminNote(e.target.value)} 
+                        rows={3}
+                        placeholder="Explain to customer..."
+                        className="w-full border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-dark-bg text-gray-900 dark:text-white resize-none" 
+                      />
                     </div>
                   </div>
                 )}
 
-                {/* Other conditional fields */}
+                {/* Conditional pickup input */}
                 {newStatus === 'pickup_scheduled' && (
-                  <div className="mb-3">
-                    <label className="text-xs text-gray-500 block mb-1">Pickup Date *</label>
-                    <input type="date" value={pickupDate} onChange={e => setPickupDate(e.target.value)}
-                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#C9A96E]" />
+                  <div>
+                    <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-2">
+                      Pickup Date *
+                    </label>
+                    <input 
+                      type="date" 
+                      value={pickupDate} 
+                      onChange={e => setPickupDate(e.target.value)}
+                      className="w-full border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-dark-bg text-gray-900 dark:text-white" 
+                    />
                   </div>
                 )}
+
+                {/* Conditional refund amount input */}
                 {newStatus === 'refund_approved' && (
-                  <div className="mb-3">
-                    <label className="text-xs text-gray-500 block mb-1">Refund Amount (₹) *</label>
-                    <input type="number" value={refundAmount} onChange={e => setRefundAmount(e.target.value)} min={0}
-                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#C9A96E]" />
+                  <div>
+                    <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-2">
+                      Refund Amount (₹) *
+                    </label>
+                    <input 
+                      type="number" 
+                      value={refundAmount} 
+                      onChange={e => setRefundAmount(e.target.value)} 
+                      min={0}
+                      className="w-full border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-dark-bg text-gray-900 dark:text-white" 
+                    />
                     {req.refundMethod === 'wallet' && refundAmount && (
-                      <p className="text-xs text-green-600 mt-1">Wallet credit: ₹{(Number(refundAmount) * 1.10).toFixed(2)} (incl. 10% bonus) — pending your approval</p>
+                      <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-2 font-medium bg-emerald-50 dark:bg-emerald-500/10 p-2 rounded-lg border border-emerald-100 dark:border-emerald-500/20">
+                        Zylora Wallet credit: ₹{(Number(refundAmount) * 1.10).toFixed(2)} (includes 10% bonus) — pending wallet approval
+                      </p>
                     )}
                   </div>
                 )}
+
+                {/* Conditional references */}
                 {newStatus === 'refund_processed' && (
-                  <div className="mb-3">
-                    <label className="text-xs text-gray-500 block mb-1">
+                  <div>
+                    <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-2">
                       {req.refundMethod === 'wallet' ? 'Wallet Credit Reference' : 'UPI / Bank Reference'} *
                     </label>
-                    <input value={refundReference} onChange={e => setRefundReference(e.target.value)}
-                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#C9A96E]" />
-                  </div>
-                )}
-                {newStatus === 'exchange_dispatched' && (
-                  <div className="mb-3">
-                    <label className="text-xs text-gray-500 block mb-1">Courier Tracking Number *</label>
-                    <input value={exchangeTrackingNumber} onChange={e => setExchangeTrackingNumber(e.target.value)}
-                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#C9A96E]" />
-                  </div>
-                )}
-                {newStatus && newStatus !== 'rejected' && (
-                  <div className="mb-3">
-                    <label className="text-xs text-gray-500 block mb-1">Note to customer (optional)</label>
-                    <textarea value={adminNote} onChange={e => setAdminNote(e.target.value)} rows={2}
-                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#C9A96E] resize-none" />
+                    <input 
+                      value={refundReference} 
+                      onChange={e => setRefundReference(e.target.value)}
+                      placeholder="Transaction Reference No."
+                      className="w-full border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-dark-bg text-gray-900 dark:text-white" 
+                    />
                   </div>
                 )}
 
-                <div className="mb-4">
-                  <label className="text-xs text-gray-500 block mb-1">Internal note (not shown to customer)</label>
-                  <textarea value={internalNote} onChange={e => setInternalNote(e.target.value)} rows={2}
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#C9A96E] resize-none" />
+                {/* Conditional tracking number input */}
+                {newStatus === 'exchange_dispatched' && (
+                  <div>
+                    <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-2">
+                      Courier Tracking Number *
+                    </label>
+                    <input 
+                      value={exchangeTrackingNumber} 
+                      onChange={e => setExchangeTrackingNumber(e.target.value)}
+                      placeholder="e.g. Bluedart: 123456789"
+                      className="w-full border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-dark-bg text-gray-900 dark:text-white" 
+                    />
+                  </div>
+                )}
+
+                {/* Optional public note */}
+                {newStatus && newStatus !== 'rejected' && (
+                  <div>
+                    <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-2">
+                      Note to Customer (Optional)
+                    </label>
+                    <textarea 
+                      value={adminNote} 
+                      onChange={e => setAdminNote(e.target.value)} 
+                      rows={2}
+                      placeholder="Include a message for the customer..."
+                      className="w-full border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-dark-bg text-gray-900 dark:text-white resize-none" 
+                    />
+                  </div>
+                )}
+
+                {/* Internal note */}
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-2">
+                    Internal Note (Private)
+                  </label>
+                  <textarea 
+                    value={internalNote} 
+                    onChange={e => setInternalNote(e.target.value)} 
+                    rows={2}
+                    placeholder="For team members only..."
+                    className="w-full border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-dark-bg text-gray-900 dark:text-white resize-none" 
+                  />
                 </div>
 
-                <button onClick={handleUpdate} disabled={updating || !newStatus}
-                  className="w-full h-12 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
-                  {updating && <Loader2 size={14} className="animate-spin" />}
-                  {updating ? `${LABEL[newStatus] || 'Updating'}...` : 'Update Status'}
+                <button 
+                  onClick={handleUpdate} 
+                  disabled={updating || !newStatus}
+                  className="w-full h-12 bg-primary hover:bg-primary-hover text-white rounded-xl text-sm font-semibold transition-all shadow-md shadow-primary/10 hover:shadow-lg disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {updating ? (
+                    <>
+                      <Loader2 size={16} className="animate-spin" />
+                      {LABEL[newStatus] || 'Updating'}...
+                    </>
+                  ) : (
+                    'Update Status'
+                  )}
                 </button>
-              </>
+              </div>
             )}
           </div>
 
           {/* Internal note display */}
           {req.internalNote && (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
-              <p className="text-xs font-semibold text-yellow-800 uppercase mb-1">Internal Note</p>
-              <p className="text-sm text-yellow-700">{req.internalNote}</p>
+            <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-5 text-sm">
+              <h4 className="text-xs font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                <AlertCircle size={14} /> Internal Team Note
+              </h4>
+              <p className="text-gray-700 dark:text-gray-300 leading-relaxed font-medium">
+                {req.internalNote}
+              </p>
             </div>
           )}
-
         </div>
       </div>
     </div>
   )
+}
+
+function ClockIcon({ status }) {
+  if (['rejected', 'refund_rejected'].includes(status)) {
+    return <XCircle className="text-rose-500" size={16} />
+  }
+  if (['refund_processed', 'exchange_delivered'].includes(status)) {
+    return <CheckCircle2 className="text-emerald-500" size={16} />
+  }
+  return <Info className="text-gray-400 dark:text-gray-500" size={16} />
 }

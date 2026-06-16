@@ -1,7 +1,5 @@
 import { Link } from 'react-router-dom'
 
-/* Brand icons — this lucide-react version has no Instagram/Facebook glyphs,
-   so we use inline SVGs that match the lucide stroke style. */
 const InstagramIcon = (props) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
     <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
@@ -24,12 +22,12 @@ const MailIcon = (props) => (
 )
 
 const SHOP_LINKS = [
-  { label: 'Women', href: '/products?category=Women' },
-  { label: 'Men', href: '/products?category=Men' },
-  { label: 'Accessories', href: '/products?category=Accessories' },
-  { label: 'Footwear', href: '/products?category=Footwear' },
-  { label: 'Sale', href: '/products?category=sale' },
-  { label: 'New Arrivals', href: '/products?filter=new' },
+  { label: 'Earrings', href: '/products?category=Earrings' },
+  { label: 'Necklaces', href: '/products?category=Necklaces' },
+  { label: 'Rings', href: '/products?category=Rings' },
+  { label: 'Bracelets', href: '/products?category=Bracelets' },
+  { label: 'Anklets', href: '/products?category=Anklets' },
+  { label: 'Jewelry Sets', href: '/products?category=Sets' },
 ]
 
 const HELP_LINKS = [
@@ -44,28 +42,27 @@ const HELP_LINKS = [
 const SOCIAL = [
   {
     Icon: InstagramIcon,
-    href: 'https://www.instagram.com/luxora.jewellery',
+    href: 'https://www.instagram.com/zylora.jewellery',
     label: 'Instagram',
     external: true,
   },
-  // TODO: Update Facebook link when available
   { Icon: FacebookIcon, href: '#', label: 'Facebook', external: true },
-  { Icon: MailIcon, href: 'mailto:support@luxorajewellery.com', label: 'Email', external: false },
+  { Icon: MailIcon, href: 'mailto:support@zylorajewellery.com', label: 'Email', external: false },
 ]
 
 export default function Footer() {
   return (
-    <footer className="bg-[#0A0A0A] text-white mt-24">
+    <footer className="bg-[#0D0D0D] border-t border-[#2A2A2A] text-white mt-24">
       <div className="px-6 md:px-12 lg:px-20 py-20">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-12 lg:gap-16">
           {/* Brand */}
-          <div className="text-center sm:text-left">
-            <div className="flex flex-col items-center sm:items-start mb-5 select-none">
-              <span className="font-display text-[2rem] tracking-[0.22em] leading-none text-white">LUXORA</span>
-              <span className="text-[9px] uppercase tracking-[0.38em] text-white/40 mt-1.5 leading-none pl-[0.38em]">JEWELLERY</span>
+          <div className="text-center sm:text-left space-y-5">
+            <div className="flex flex-col items-center sm:items-start select-none group">
+              <span className="font-serif text-[1.85rem] tracking-[0.22em] leading-none text-white transition-colors group-hover:text-[#C9A86A]">ZYLORA</span>
+              <span className="text-[8.5px] uppercase tracking-[0.38em] text-[#C9A86A] mt-1.5 leading-none pl-[0.38em]">JEWELLERY</span>
             </div>
-            <p className="text-[14px] text-white/50 leading-relaxed font-light mb-8">
-              Curated fine jewelry for the discerning collector. Timeless design, always.
+            <p className="text-[13px] text-[#B3B3B3] leading-relaxed font-light">
+              Crafting timeless fine jewelry for the modern collector. Fine 925 sterling silver, lab-grown diamonds, and luxury designs made to shine forever.
             </p>
             <div className="flex gap-3 justify-center sm:justify-start">
               {SOCIAL.map(({ Icon, href, label, external }) => (
@@ -75,9 +72,9 @@ export default function Footer() {
                   aria-label={label}
                   title={label}
                   {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                  className="w-10 h-10 border border-white/15 flex items-center justify-center hover:border-white hover:bg-white/8 transition-all duration-200 text-white/60 hover:text-white"
+                  className="w-10 h-10 border border-[#2A2A2A] rounded-lg flex items-center justify-center hover:border-[#C9A86A] hover:bg-white/5 transition-all duration-300 text-[#B3B3B3] hover:text-white"
                 >
-                  <Icon width={15} height={15} className="transition-colors" />
+                  <Icon width={16} height={16} className="transition-colors" />
                 </a>
               ))}
             </div>
@@ -85,13 +82,13 @@ export default function Footer() {
 
           {/* Shop */}
           <div className="text-center sm:text-left">
-            <h3 className="text-[11px] uppercase tracking-[0.15em] font-semibold text-white/35 mb-3 sm:mb-6">Shop</h3>
-            <ul className="grid grid-cols-3 gap-x-3 gap-y-2 sm:block sm:space-y-3.5">
+            <h3 className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#C9A86A] mb-4 sm:mb-6">Shop Collections</h3>
+            <ul className="grid grid-cols-2 gap-x-3 gap-y-3 sm:block sm:space-y-3.5">
               {SHOP_LINKS.map((l) => (
                 <li key={l.label}>
                   <Link
                     to={l.href}
-                    className="text-[13px] sm:text-[14px] text-white/60 hover:text-white transition-colors duration-200 font-light"
+                    className="text-[13px] text-[#B3B3B3] hover:text-[#EE6B83] transition-colors duration-200 font-medium"
                   >
                     {l.label}
                   </Link>
@@ -102,13 +99,13 @@ export default function Footer() {
 
           {/* Help */}
           <div className="text-center sm:text-left">
-            <h3 className="text-[11px] uppercase tracking-[0.15em] font-semibold text-white/35 mb-3 sm:mb-6">Help</h3>
-            <ul className="grid grid-cols-3 gap-x-3 gap-y-2 sm:block sm:space-y-3.5">
+            <h3 className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#C9A86A] mb-4 sm:mb-6">Customer Care</h3>
+            <ul className="grid grid-cols-2 gap-x-3 gap-y-3 sm:block sm:space-y-3.5">
               {HELP_LINKS.map((l) => (
                 <li key={l.label}>
                   <Link
                     to={l.href}
-                    className="text-[13px] sm:text-[14px] text-white/60 hover:text-white transition-colors duration-200 font-light"
+                    className="text-[13px] text-[#B3B3B3] hover:text-[#EE6B83] transition-colors duration-200 font-medium"
                   >
                     {l.label}
                   </Link>
@@ -119,12 +116,12 @@ export default function Footer() {
 
           {/* Contact */}
           <div className="text-center sm:text-left">
-            <h3 className="text-[11px] uppercase tracking-[0.15em] font-semibold text-white/35 mb-3 sm:mb-6">Contact</h3>
-            <div className="space-y-2 sm:space-y-3.5 text-[14px] text-white/50 font-light leading-relaxed">
-              <p>support@luxorajewellery.com</p>
-              <p>+91 98765 43210</p>
-              <p>
-                42, Fashion Street<br />
+            <h3 className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#C9A86A] mb-4 sm:mb-6">Our Boutique</h3>
+            <div className="space-y-3 text-[13px] text-[#B3B3B3] font-medium leading-relaxed">
+              <p className="hover:text-[#EE6B83] transition-colors">support@zylorajewellery.com</p>
+              <p className="hover:text-[#EE6B83] transition-colors">+91 98765 43210</p>
+              <p className="text-white/60 leading-relaxed font-light mt-2">
+                42, Luxury Fashion Street<br />
                 Bandra West, Mumbai<br />
                 Maharashtra 400050
               </p>
@@ -134,17 +131,17 @@ export default function Footer() {
       </div>
 
       {/* Bottom bar */}
-      <div className="border-t border-white/8 px-6 md:px-12 lg:px-20 py-6">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-[12px] text-white/30 tracking-wide">© 2026 LUXORA Jewellery. All rights reserved.</p>
-          <div className="flex items-center gap-2 text-[12px] text-white/30">
-            <Link to="/shipping-policy" className="hover:text-white/60 transition-colors">Shipping Policy</Link>
+      <div className="border-t border-[#2A2A2A] px-6 md:px-12 lg:px-20 py-6 bg-[#090909]">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+          <p className="text-[11px] text-[#B3B3B3]/40 tracking-wider">© 2026 ZYLORA Jewellery. All rights reserved.</p>
+          <div className="flex items-center gap-3 text-[11px] text-[#B3B3B3]/40 flex-wrap justify-center">
+            <Link to="/shipping-policy" className="hover:text-[#EE6B83] transition-colors">Shipping</Link>
             <span>·</span>
-            <Link to="/returns-policy" className="hover:text-white/60 transition-colors">Returns &amp; Exchanges</Link>
+            <Link to="/returns-policy" className="hover:text-[#EE6B83] transition-colors">Returns &amp; Warranty</Link>
             <span>·</span>
-            <Link to="/privacy-policy" className="hover:text-white/60 transition-colors">Privacy Policy</Link>
+            <Link to="/privacy-policy" className="hover:text-[#EE6B83] transition-colors">Privacy Policy</Link>
           </div>
-          <p className="text-[12px] text-white/30 tracking-[0.08em]">
+          <p className="text-[11px] text-[#B3B3B3]/35 tracking-[0.12em] font-mono uppercase">
             VISA &nbsp;·&nbsp; MASTERCARD &nbsp;·&nbsp; UPI &nbsp;·&nbsp; COD
           </p>
         </div>

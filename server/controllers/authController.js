@@ -94,13 +94,18 @@ exports.sendOTP = async (req, res) => {
   try {
     await sendLoginOTPEmail(user.email, user.name, otp)
   } catch (error) {
-    if (user.role !== 'admin') {
+    console.error(`[SMTP Error] Failed to send OTP email to ${user.email}:`, error.message)
+    const isDev = process.env.NODE_ENV !== 'production'
+    const mailUser = process.env.EMAIL_USER || process.env.SMTP_USER
+    const mailPass = process.env.EMAIL_PASS || process.env.SMTP_PASS
+    const smtpNotConfigured = !mailUser || !mailPass
+    if (!isDev && !smtpNotConfigured && user.role !== 'admin') {
       return res.status(500).json({ success: false, error: 'Failed to send OTP email' })
     }
-    console.log(`[Admin Login] SMTP failed to send email to ${user.email}, but allowing progression. OTP: ${otp}`)
+    console.log(`\n\x1b[33m[OTP Bypass] Here is the login OTP for ${user.email}: ${otp}\x1b[0m\n`)
   }
 
-  res.json({ success: true, message: 'OTP sent to your email address' })
+  res.json({ success: true, message: 'OTP sent to your email address (check server console if email failed)' })
 }
 
 /* ── Verify OTP ────────────────────────────────────────────────────────────── */

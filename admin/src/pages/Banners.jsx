@@ -1,9 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import api from '../lib/api'
 import toast from 'react-hot-toast'
-import { Plus, Pencil, Trash2, X, ToggleLeft, ToggleRight } from 'lucide-react'
+import { Plus, Pencil, Trash2, X, ToggleLeft, ToggleRight, Laptop, Smartphone, Image as ImageIcon, Link2, ListOrdered } from 'lucide-react'
 
 const empty = { title: '', subtitle: '', ctaText: '', ctaLink: '', displayOrder: 0 }
+
+function inputCls() {
+  return 'mt-1.5 w-full bg-gray-50 dark:bg-dark-bg border border-gray-150 dark:border-white/5 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:text-white transition-all duration-200'
+}
 
 export default function Banners() {
   const [banners, setBanners] = useState([])
@@ -15,6 +19,9 @@ export default function Banners() {
   const [file, setFile] = useState(null)
   const [imageUrl, setImageUrl] = useState('')
   const fileRef = useRef()
+
+  // Track preview modes per banner card (default is desktop)
+  const [previewModes, setPreviewModes] = useState({})
 
   const load = async () => {
     setLoading(true)
@@ -29,6 +36,7 @@ export default function Banners() {
   const openAdd = () => {
     setForm(empty); setFile(null); setImageUrl(''); setEditId(null); setModal('add')
   }
+  
   const openEdit = (b) => {
     setForm({
       title: b.title || '',
@@ -65,7 +73,9 @@ export default function Banners() {
       setModal(null); load()
     } catch (err) {
       toast.error(err.response?.data?.error || 'Save failed')
-    } finally { setSaving(false) }
+    } finally {
+      setSaving(false)
+    }
   }
 
   const remove = async (b) => {
@@ -85,110 +95,239 @@ export default function Banners() {
 
   const f = (k, v) => setForm(prev => ({ ...prev, [k]: v }))
 
+  const setPreviewMode = (bannerId, mode) => {
+    setPreviewModes(prev => ({ ...prev, [bannerId]: mode }))
+  }
+
   return (
-    <div className="p-8">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">Banners</h2>
-        <button onClick={openAdd} className="flex items-center gap-2 bg-[#C9A96E] text-white px-4 py-2.5 rounded-lg text-sm font-semibold hover:bg-[#b8935a]">
+    <div className="space-y-6 pb-12">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 className="font-serif text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Banners</h2>
+          <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">Manage homepage advertisements, promotional slider elements, and CTA navigation</p>
+        </div>
+        <button 
+          onClick={openAdd} 
+          className="flex items-center gap-2 bg-primary hover:bg-primary-hover text-white px-4 py-2.5 rounded-xl text-sm font-semibold hover:shadow-lg hover:shadow-primary/20 transition-all cursor-pointer"
+        >
           <Plus size={16} /> Add Banner
         </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {loading ? (
-          <p className="text-gray-400">Loading...</p>
-        ) : banners.length === 0 ? (
-          <p className="text-gray-400">No banners yet. Add one above.</p>
-        ) : banners.map(b => (
-          <div key={b._id} className="bg-white rounded-xl shadow-sm border border-black/5 overflow-hidden">
-            {b.image?.url && (
-              <img src={b.image.url} alt={b.title} className="w-full h-48 object-cover" />
-            )}
-            <div className="p-4 flex items-start justify-between">
-              <div>
-                <p className="font-semibold text-gray-900">{b.title}</p>
-                {b.subtitle && <p className="text-xs text-gray-500 mt-0.5">{b.subtitle}</p>}
-                {b.ctaText && (
-                  <p className="text-xs text-[#C9A96E] mt-1">CTA: {b.ctaText} → {b.ctaLink}</p>
-                )}
-                <p className="text-xs text-gray-300 mt-1">Order: {b.displayOrder}</p>
-              </div>
-              <div className="flex gap-1 items-center">
-                <button onClick={() => toggle(b)}>
-                  {b.isActive
-                    ? <ToggleRight size={22} className="text-green-500" />
-                    : <ToggleLeft size={22} className="text-gray-300" />}
-                </button>
-                <button onClick={() => openEdit(b)} className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-400 hover:text-[#C9A96E]">
-                  <Pencil size={14} />
-                </button>
-                <button onClick={() => remove(b)} className="p-1.5 hover:bg-red-50 rounded-lg text-gray-400 hover:text-red-500">
-                  <Trash2 size={14} />
-                </button>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
+      {/* Banner list */}
+      {loading ? (
+        <div className="flex flex-col items-center justify-center min-h-[30vh]">
+          <div className="inline-block h-6 w-6 border-2 border-primary/20 border-t-primary rounded-full animate-spin mb-2" />
+          <p className="text-xs text-gray-400 dark:text-gray-500">Loading banners...</p>
+        </div>
+      ) : banners.length === 0 ? (
+        <div className="text-center py-20 bg-white dark:bg-dark-card border border-gray-100 dark:border-white/5 rounded-2xl">
+          <p className="text-sm text-gray-400 dark:text-gray-500 font-medium">No active banners. Click Add Banner to create one.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {banners.map(b => {
+            const currentMode = previewModes[b._id] || 'desktop'
+            return (
+              <div key={b._id} className="bg-white dark:bg-dark-card rounded-2xl shadow-xs border border-gray-100 dark:border-white/5 overflow-hidden flex flex-col justify-between group transition-all duration-300 hover:shadow-md">
+                
+                {/* Visual Banner Preview section */}
+                <div className="relative bg-gray-50 dark:bg-[#151515] border-b border-gray-50 dark:border-white/2 flex items-center justify-center p-4 min-h-[220px]">
+                  {b.image?.url ? (
+                    currentMode === 'desktop' ? (
+                      /* Desktop Mockup Frame */
+                      <div className="w-full aspect-[21/9] rounded-xl overflow-hidden border border-gray-200 dark:border-white/10 shadow-xs relative">
+                        <img src={b.image.url} alt={b.title} className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-black/25 flex flex-col justify-center px-6 text-left text-white">
+                          <span className="text-[8px] tracking-[0.2em] font-bold text-white/80 uppercase">{b.subtitle}</span>
+                          <h4 className="font-serif text-sm font-bold mt-1 line-clamp-2 leading-tight">{b.title}</h4>
+                        </div>
+                      </div>
+                    ) : (
+                      /* Mobile Mockup Frame */
+                      <div className="w-[120px] aspect-[9/16] rounded-xl overflow-hidden border-[3px] border-gray-800 dark:border-gray-700 shadow-lg relative bg-white flex flex-col justify-center">
+                        <img src={b.image.url} alt={b.title} className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-black/30 flex flex-col justify-center px-2 text-center text-white">
+                          <span className="text-[6px] tracking-[0.2em] font-bold text-white/80 uppercase">{b.subtitle?.slice(0, 15)}</span>
+                          <h4 className="font-serif text-[8px] font-bold mt-0.5 leading-tight">{b.title?.slice(0, 30)}</h4>
+                        </div>
+                      </div>
+                    )
+                  ) : (
+                    <div className="text-gray-300 dark:text-gray-700 flex flex-col items-center gap-1">
+                      <ImageIcon size={32} />
+                      <span className="text-xs">No Image Loaded</span>
+                    </div>
+                  )}
 
+                  {/* Desktop/Mobile Switcher Controls */}
+                  {b.image?.url && (
+                    <div className="absolute top-3 right-3 flex items-center bg-white/80 dark:bg-dark-card/90 backdrop-blur-xs p-1 rounded-xl shadow-2xs border border-gray-100 dark:border-white/5">
+                      <button 
+                        onClick={() => setPreviewMode(b._id, 'desktop')}
+                        className={`p-1.5 rounded-lg transition-colors cursor-pointer ${currentMode === 'desktop' ? 'bg-primary text-white shadow-3xs' : 'text-gray-400 hover:text-gray-600 dark:hover:text-white'}`}
+                      >
+                        <Laptop size={12} />
+                      </button>
+                      <button 
+                        onClick={() => setPreviewMode(b._id, 'mobile')}
+                        className={`p-1.5 rounded-lg transition-colors cursor-pointer ${currentMode === 'mobile' ? 'bg-primary text-white shadow-3xs' : 'text-gray-400 hover:text-gray-600 dark:hover:text-white'}`}
+                      >
+                        <Smartphone size={12} />
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Banner Metadata & Actions */}
+                <div className="p-5 flex items-start justify-between gap-4">
+                  <div className="min-w-0">
+                    <p className="font-bold text-gray-900 dark:text-white truncate">{b.title || 'Untitled Banner'}</p>
+                    {b.subtitle && <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 line-clamp-1">{b.subtitle}</p>}
+                    {b.ctaText && b.ctaLink && (
+                      <p className="text-[10px] text-primary bg-brand-pink dark:bg-primary/10 font-bold px-2 py-0.5 rounded-md uppercase tracking-wider inline-block mt-3.5">
+                        CTA: {b.ctaText} → {b.ctaLink}
+                      </p>
+                    )}
+                    <p className="text-[9px] text-gray-400 dark:text-gray-500 uppercase font-bold tracking-wider mt-2.5">Display Order: {b.displayOrder ?? 0}</p>
+                  </div>
+                  <div className="flex items-center gap-1.5 flex-shrink-0">
+                    <button onClick={() => toggle(b)} className="text-gray-400 hover:text-gray-600 dark:hover:text-white transition-colors cursor-pointer">
+                      {b.isActive
+                        ? <ToggleRight size={26} className="text-primary" />
+                        : <ToggleLeft size={26} className="text-gray-300 dark:text-gray-700" />}
+                    </button>
+                    <button onClick={() => openEdit(b)} className="p-2 bg-gray-50 hover:bg-brand-pink dark:bg-white/2 dark:hover:bg-primary/10 rounded-xl text-gray-500 hover:text-primary transition-all cursor-pointer">
+                      <Pencil size={13} />
+                    </button>
+                    <button onClick={() => remove(b)} className="p-2 bg-gray-50 hover:bg-rose-50 dark:bg-white/2 dark:hover:bg-rose-950/20 rounded-xl text-gray-500 hover:text-rose-600 transition-all cursor-pointer">
+                      <Trash2 size={13} />
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* ── Add/Edit Modal ── */}
       {modal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-6 border-b sticky top-0 bg-white">
-              <h3 className="font-bold text-lg">{modal === 'add' ? 'Add Banner' : 'Edit Banner'}</h3>
-              <button onClick={() => setModal(null)} className="p-1 hover:bg-gray-100 rounded-lg"><X size={18} /></button>
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-dark-card rounded-2xl w-full max-w-md shadow-2xl border border-gray-100 dark:border-white/5 overflow-hidden max-h-[90vh] flex flex-col no-scrollbar">
+            
+            <div className="flex items-center justify-between p-6 border-b border-gray-100 dark:border-white/5">
+              <h3 className="font-bold text-lg text-gray-900 dark:text-white">{modal === 'add' ? 'Create Banner' : 'Edit Banner'}</h3>
+              <button 
+                onClick={() => setModal(null)} 
+                className="p-2 hover:bg-gray-50 dark:hover:bg-white/5 rounded-xl text-gray-400 hover:text-gray-950 dark:hover:text-white transition-colors cursor-pointer"
+              >
+                <X size={18} />
+              </button>
             </div>
-            <div className="p-6 space-y-4">
+
+            <div className="p-6 space-y-4 overflow-y-auto">
               <div>
-                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Title *</label>
-                <input value={form.title} onChange={e => f('title', e.target.value)} className="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#C9A96E]" />
+                <label className="text-[10px] uppercase font-bold text-gray-400 dark:text-gray-500 tracking-wider">Title *</label>
+                <input 
+                  value={form.title} 
+                  onChange={e => f('title', e.target.value)} 
+                  placeholder="e.g. Elegant Silver Collections"
+                  className={inputCls()} 
+                />
               </div>
+
               <div>
-                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Subtitle</label>
-                <input value={form.subtitle} onChange={e => f('subtitle', e.target.value)} className="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#C9A96E]" />
+                <label className="text-[10px] uppercase font-bold text-gray-400 dark:text-gray-500 tracking-wider">Subtitle</label>
+                <input 
+                  value={form.subtitle} 
+                  onChange={e => f('subtitle', e.target.value)} 
+                  placeholder="e.g. Crafted to shine every day"
+                  className={inputCls()} 
+                />
               </div>
+
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Button Text</label>
-                  <input value={form.ctaText} onChange={e => f('ctaText', e.target.value)} placeholder="Shop Now" className="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#C9A96E]" />
+                  <label className="text-[10px] uppercase font-bold text-gray-400 dark:text-gray-500 tracking-wider">Button Text</label>
+                  <input 
+                    value={form.ctaText} 
+                    onChange={e => f('ctaText', e.target.value)} 
+                    placeholder="e.g. Shop Now" 
+                    className={inputCls()} 
+                  />
                 </div>
                 <div>
-                  <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Button Link</label>
-                  <input value={form.ctaLink} onChange={e => f('ctaLink', e.target.value)} placeholder="/products" className="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#C9A96E]" />
+                  <label className="text-[10px] uppercase font-bold text-gray-400 dark:text-gray-500 tracking-wider">Button Link</label>
+                  <div className="relative mt-1">
+                    <Link2 size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <input 
+                      value={form.ctaLink} 
+                      onChange={e => f('ctaLink', e.target.value)} 
+                      placeholder="e.g. /products" 
+                      className={`${inputCls()} pl-9`} 
+                    />
+                  </div>
                 </div>
-              </div>
-              <div>
-                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Display Order</label>
-                <input type="number" value={form.displayOrder} onChange={e => f('displayOrder', e.target.value)} className="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#C9A96E]" />
               </div>
 
-              {/* Image — file upload OR direct URL */}
-              <div className="space-y-2">
-                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Image {modal === 'add' ? '*' : '(leave blank to keep current)'}
-                </label>
-                <div>
-                  <p className="text-xs text-gray-400 mb-1">Upload file (via Cloudinary):</p>
-                  <input ref={fileRef} type="file" accept="image/*"
-                    onChange={e => { setFile(e.target.files[0]); setImageUrl('') }}
-                    className="block text-sm text-gray-500" />
-                </div>
-                <div>
-                  <p className="text-xs text-gray-400 mb-1">— or paste an image URL:</p>
-                  <input
-                    value={imageUrl}
-                    onChange={e => { setImageUrl(e.target.value); setFile(null); if (fileRef.current) fileRef.current.value = '' }}
-                    placeholder="https://example.com/banner.jpg"
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#C9A96E]"
+              <div>
+                <label className="text-[10px] uppercase font-bold text-gray-400 dark:text-gray-500 tracking-wider">Display Order</label>
+                <div className="relative mt-1">
+                  <ListOrdered size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <input 
+                    type="number" 
+                    value={form.displayOrder} 
+                    onChange={e => f('displayOrder', e.target.value)} 
+                    className={`${inputCls()} pl-9`} 
                   />
                 </div>
               </div>
 
-              <button onClick={save} disabled={saving}
-                className="w-full bg-[#C9A96E] text-white py-3 rounded-lg text-sm font-semibold hover:bg-[#b8935a] disabled:opacity-60">
+              {/* Image Input Options */}
+              <div className="space-y-3 bg-gray-50/50 dark:bg-white/1 border border-gray-100 dark:border-white/2 p-4 rounded-2xl">
+                <label className="text-[10px] uppercase font-bold text-gray-400 dark:text-gray-500 tracking-wider block">
+                  Image file {modal === 'add' ? '*' : '(leave blank to keep current)'}
+                </label>
+                
+                <div>
+                  <p className="text-[10px] uppercase font-bold text-gray-400 dark:text-gray-500 mb-1.5">Upload file:</p>
+                  <input 
+                    ref={fileRef} 
+                    type="file" 
+                    accept="image/*"
+                    onChange={e => { setFile(e.target.files[0]); setImageUrl('') }}
+                    className="block text-xs text-gray-500" 
+                  />
+                </div>
+                
+                <div className="relative flex items-center justify-center py-1.5">
+                  <span className="h-px bg-gray-100 dark:bg-white/5 w-full absolute" />
+                  <span className="text-[9px] uppercase font-bold bg-gray-50 dark:bg-dark-card px-2 text-gray-400 dark:text-gray-500 relative z-10">or</span>
+                </div>
+                
+                <div>
+                  <p className="text-[10px] uppercase font-bold text-gray-400 dark:text-gray-500 mb-1.5">Image URL:</p>
+                  <input
+                    value={imageUrl}
+                    onChange={e => { setImageUrl(e.target.value); setFile(null); if (fileRef.current) fileRef.current.value = '' }}
+                    placeholder="https://example.com/banner.jpg"
+                    className="w-full bg-white dark:bg-dark-bg border border-gray-150 dark:border-white/5 rounded-xl px-3 py-2 text-xs focus:outline-none dark:text-white"
+                  />
+                </div>
+              </div>
+
+              <button 
+                onClick={save} 
+                disabled={saving}
+                className="w-full bg-primary hover:bg-primary-hover text-white py-3.5 rounded-xl text-sm font-semibold hover:shadow-lg hover:shadow-primary/20 transition-all active:scale-98 disabled:opacity-60 cursor-pointer"
+              >
                 {saving ? 'Saving...' : modal === 'add' ? 'Create Banner' : 'Save Changes'}
               </button>
             </div>
+
           </div>
         </div>
       )}
