@@ -8,33 +8,28 @@ import OrderSummary from '../components/checkout/OrderSummary'
 
 function SavedAddressPicker({ addresses, selected, onSelect }) {
   return (
-    <div style={{ marginBottom: '32px' }}>
-      <p style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 500, color: '#0A0A0A', marginBottom: '12px' }}>
+    <div className="mb-8">
+      <p className="text-xs uppercase tracking-[0.1em] font-medium text-[#9A9A9A] mb-4">
         Saved Addresses
       </p>
-      <div style={{ display: 'flex', gap: '12px', overflowX: 'auto', paddingBottom: '4px' }}>
+      <div className="flex gap-4 overflow-x-auto no-scrollbar pb-2">
         {addresses.map((addr) => {
           const isSelected = selected?._id === addr._id
           return (
             <button
               key={addr._id}
               onClick={() => onSelect(addr)}
-              style={{
-                minWidth: '250px',
-                border: `1px solid ${isSelected ? '#EE6B83' : '#E5E5E5'}`,
-                background: isSelected ? '#FCD4DB' : '#fff',
-                padding: '16px',
-                textAlign: 'left',
-                cursor: 'pointer',
-                flexShrink: 0,
-                transition: 'all 200ms',
-              }}
+              className={`min-w-[260px] border rounded-2xl p-5 text-left cursor-pointer flex-shrink-0 transition-all duration-300 ${
+                isSelected
+                  ? 'border-[#B8976A] bg-[#B8976A]/5'
+                  : 'border-[#242424] bg-[#141414] hover:border-[#B8976A]/30'
+              }`}
             >
-              <span style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.06em', background: '#FCD4DB', padding: '2px 8px', display: 'inline-block', marginBottom: '6px' }}>
+              <span className="text-[9px] uppercase tracking-[0.08em] bg-[#242424] px-2.5 py-1 rounded-md text-[#9A9A9A] inline-block mb-3">
                 {addr.label}
               </span>
-              <p style={{ fontSize: '14px', fontWeight: 500, color: '#0A0A0A', margin: '0 0 2px' }}>{addr.fullName}</p>
-              <p style={{ fontSize: '12px', color: '#6B6B6B', margin: 0 }}>{addr.city}, {addr.state}</p>
+              <p className="text-sm font-medium text-white mb-1">{addr.fullName}</p>
+              <p className="text-xs text-[#5C5C5C]">{addr.city}, {addr.state}</p>
             </button>
           )
         })}
@@ -42,7 +37,7 @@ function SavedAddressPicker({ addresses, selected, onSelect }) {
       {selected && (
         <button
           onClick={() => onSelect(null)}
-          style={{ marginTop: '10px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '13px', color: '#6B6B6B', padding: 0, textDecoration: 'underline' }}
+          className="mt-3 text-xs text-[#5C5C5C] hover:text-[#B8976A] transition-colors underline"
         >
           Enter a new address instead
         </button>
@@ -70,8 +65,8 @@ export default function Checkout() {
   return (
     <div className="min-h-screen">
       <div className="px-4 md:px-8 lg:px-16 py-10">
-        <h1 className="text-2xl md:text-3xl font-semibold mb-10">Checkout</h1>
-        <div className="flex flex-col lg:flex-row gap-12">
+        <h1 className="font-serif text-2xl md:text-3xl text-white mb-10 font-light">Checkout</h1>
+        <div className="flex flex-col lg:flex-row gap-6 lg:gap-12">
           <div className="flex-1">
             {hasSaved && (
               <SavedAddressPicker

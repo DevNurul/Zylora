@@ -7,18 +7,6 @@ import { sendOTP, verifyOTP } from '../../utils/authApi'
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-const inputStyle = (hasError) => ({
-  width: '100%',
-  border: 'none',
-  borderBottom: `1px solid ${hasError ? '#EF4444' : '#E5E5E5'}`,
-  padding: '10px 0',
-  fontSize: '15px',
-  background: 'transparent',
-  outline: 'none',
-  color: '#0A0A0A',
-  boxSizing: 'border-box',
-})
-
 function OTPBoxes({ value, onChange, inputRefs }) {
   const handleKey = (index, e) => {
     if (e.key === 'Backspace') {
@@ -57,7 +45,7 @@ function OTPBoxes({ value, onChange, inputRefs }) {
   }
 
   return (
-    <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginBottom: '24px' }}>
+    <div className="flex gap-3 justify-center mb-6">
       {value.map((digit, i) => (
         <input
           key={i}
@@ -69,18 +57,7 @@ function OTPBoxes({ value, onChange, inputRefs }) {
           onChange={(e) => handleChange(i, e)}
           onKeyDown={(e) => handleKey(i, e)}
           onPaste={handlePaste}
-          style={{
-            width: '40px',
-            height: '48px',
-            border: 'none',
-            borderBottom: '2px solid #E5E5E5',
-            textAlign: 'center',
-            fontSize: '20px',
-            fontWeight: 600,
-            background: 'transparent',
-            outline: 'none',
-            color: '#0A0A0A',
-          }}
+          className="w-10 h-12 border-b-2 border-[#242424] text-center text-xl font-semibold bg-transparent outline-none text-white focus:border-[#B8976A] transition-colors"
         />
       ))}
     </div>
@@ -182,25 +159,21 @@ export default function OtpLoginForm({ onSwitchTab }) {
     }
   }
 
+  const inputClass = (hasError) =>
+    `w-full border-b ${hasError ? 'border-[#E8A0B0]' : 'border-[#242424]'} py-2.5 text-sm bg-transparent outline-none text-white focus:border-[#B8976A] transition-colors`
+
   if (step === 1) {
     return (
       <form onSubmit={handleSendOTP} noValidate>
-        <p style={{ fontSize: '16px', fontWeight: 500, color: '#0A0A0A', margin: '0 0 8px' }}>
+        <p className="text-base font-medium text-white mb-2">
           Login with OTP
         </p>
-        <p style={{ fontSize: '13px', color: '#6B6B6B', marginBottom: '24px' }}>
+        <p className="text-xs text-[#5C5C5C] mb-6">
           We'll send a 6-digit OTP to your registered email address
         </p>
 
-        <div style={{ marginBottom: '20px' }}>
-          <label style={{
-            display: 'block',
-            fontSize: '11px',
-            textTransform: 'uppercase',
-            letterSpacing: '0.06em',
-            color: '#6B6B6B',
-            marginBottom: '4px',
-          }}>
+        <div className="mb-5">
+          <label className="block text-[11px] uppercase tracking-[0.06em] text-[#5C5C5C] mb-1.5">
             Email Address
           </label>
           <input
@@ -208,37 +181,18 @@ export default function OtpLoginForm({ onSwitchTab }) {
             value={email}
             onChange={(e) => { setEmail(e.target.value); setEmailError('') }}
             placeholder="your@email.com"
-            style={inputStyle(!!emailError)}
+            className={inputClass(!!emailError)}
             autoFocus
           />
           {emailError && (
-            <span style={{ fontSize: '12px', color: '#EF4444', marginTop: '4px', display: 'block' }}>
-              {emailError}
-            </span>
+            <span className="text-xs text-[#E8A0B0] mt-1 block">{emailError}</span>
           )}
         </div>
 
         <button
           type="submit"
           disabled={loading}
-          style={{
-            width: '100%',
-            height: '48px',
-            background: '#EE6B83',
-            color: '#fff',
-            fontSize: '13px',
-            letterSpacing: '0.1em',
-            textTransform: 'uppercase',
-            border: 'none',
-            cursor: loading ? 'not-allowed' : 'pointer',
-            borderRadius: '8px',
-            marginTop: '24px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '8px',
-            opacity: loading ? 0.7 : 1,
-          }}
+          className="w-full h-12 bg-gradient-to-r from-[#E8A0B0] to-[#D48A9A] text-white text-xs uppercase tracking-[0.1em] font-semibold border-none rounded-xl mt-6 cursor-pointer flex items-center justify-center gap-2 disabled:opacity-60 transition-all hover:shadow-[0_8px_30px_rgba(238,107,131,0.3)]"
         >
           {loading && <Loader2 size={14} className="animate-spin" />}
           {loading ? 'Sending...' : 'Send OTP'}
@@ -249,37 +203,28 @@ export default function OtpLoginForm({ onSwitchTab }) {
 
   return (
     <form onSubmit={handleVerify} noValidate>
-      <p style={{ fontSize: '16px', fontWeight: 500, color: '#0A0A0A', margin: '0 0 6px' }}>
+      <p className="text-base font-medium text-white mb-1">
         Enter OTP
       </p>
-      <p style={{ fontSize: '13px', color: '#6B6B6B', margin: '0 0 4px' }}>
+      <p className="text-xs text-[#5C5C5C] mb-1">
         We sent a 6-digit code to
       </p>
-      <p style={{ fontSize: '13px', color: '#0A0A0A', fontWeight: 500, marginBottom: '8px' }}>
+      <p className="text-xs text-white font-medium mb-2">
         {email}
       </p>
       <button
         type="button"
         onClick={() => { setStep(1); setOtpDigits(Array(6).fill('')); setTimer(0) }}
-        style={{
-          background: 'none',
-          border: 'none',
-          cursor: 'pointer',
-          fontSize: '12px',
-          color: '#6B6B6B',
-          padding: 0,
-          marginBottom: '24px',
-          textDecoration: 'underline',
-        }}
+        className="bg-transparent border-none cursor-pointer text-[11px] text-[#5C5C5C] p-0 mb-6 underline hover:text-white transition-colors"
       >
         Change email
       </button>
 
       <OTPBoxes value={otpDigits} onChange={setOtpDigits} inputRefs={inputRefs} />
 
-      <div style={{ textAlign: 'center', marginBottom: '16px', fontSize: '13px' }}>
+      <div className="text-center mb-4 text-xs">
         {timer > 0 ? (
-          <span style={{ color: '#6B6B6B' }}>
+          <span className="text-[#5C5C5C]">
             Resend OTP in 0:{String(timer).padStart(2, '0')}
           </span>
         ) : (
@@ -287,15 +232,7 @@ export default function OtpLoginForm({ onSwitchTab }) {
             type="button"
             onClick={handleResend}
             disabled={loading}
-            style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              color: '#EE6B83',
-              fontWeight: 500,
-              fontSize: '13px',
-              textDecoration: 'underline',
-            }}
+            className="bg-transparent border-none cursor-pointer text-[#B8976A] font-semibold text-xs underline hover:text-[#E8A0B0] transition-colors"
           >
             Resend OTP
           </button>
@@ -305,23 +242,7 @@ export default function OtpLoginForm({ onSwitchTab }) {
       <button
         type="submit"
         disabled={loading || otpDigits.join('').length < 6}
-        style={{
-          width: '100%',
-          height: '48px',
-          background: '#EE6B83',
-          color: '#fff',
-          fontSize: '13px',
-          letterSpacing: '0.1em',
-          textTransform: 'uppercase',
-          border: 'none',
-          cursor: (loading || otpDigits.join('').length < 6) ? 'not-allowed' : 'pointer',
-          borderRadius: '8px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '8px',
-          opacity: (loading || otpDigits.join('').length < 6) ? 0.7 : 1,
-        }}
+        className="w-full h-12 bg-gradient-to-r from-[#E8A0B0] to-[#D48A9A] text-white text-xs uppercase tracking-[0.1em] font-semibold border-none rounded-xl cursor-pointer flex items-center justify-center gap-2 disabled:opacity-60 transition-all hover:shadow-[0_8px_30px_rgba(238,107,131,0.3)]"
       >
         {loading && <Loader2 size={14} className="animate-spin" />}
         {loading ? 'Verifying...' : 'Verify & Login'}

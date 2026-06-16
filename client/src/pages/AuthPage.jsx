@@ -20,79 +20,41 @@ export default function AuthPage() {
   }
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: '#FCD4DB',
-      display: 'flex',
-      alignItems: 'flex-start',
-      justifyContent: 'center',
-      padding: '0 16px 40px',
-    }}>
-      <div style={{
-        background: '#fff',
-        width: '100%',
-        maxWidth: '448px',
-        marginTop: '64px',
-        padding: '40px',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
-      }}>
+    <div className="min-h-screen bg-[#0A0A0A] flex items-start justify-center px-4 py-16">
+      <div className="w-full max-w-md">
         {/* Brand header */}
-        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <div style={{
-            fontFamily: '"Playfair Display", Georgia, serif',
-            fontSize: '28px',
-            letterSpacing: '0.3em',
-            color: '#0A0A0A',
-            marginBottom: '8px',
-          }}>
-            LUXORA
+        <div className="text-center mb-10">
+          <div className="flex flex-col items-center select-none mb-6">
+            <span className="font-serif text-[2rem] tracking-[0.2em] font-light leading-none text-white">ZYLARA</span>
+            <span className="text-[8px] uppercase tracking-[0.35em] text-[#B8976A] mt-2 leading-none pl-[0.35em]">JEWELLERY</span>
           </div>
-          <div style={{
-            fontSize: '12px',
-            textTransform: 'uppercase',
-            letterSpacing: '0.1em',
-            color: '#6B6B6B',
-          }}>
-            JEWELLERY
-          </div>
+          <div className="w-12 h-[1px] bg-gradient-to-r from-transparent via-[#B8976A] to-transparent mx-auto" />
         </div>
 
-        {/* Tab switcher */}
-        <div style={{
-          display: 'flex',
-          borderBottom: '1px solid #E5E5E5',
-          marginBottom: '32px',
-        }}>
-          {TABS.map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              style={{
-                flex: 1,
-                background: 'none',
-                border: 'none',
-                borderBottom: activeTab === tab.key ? '2px solid #EE6B83' : '2px solid transparent',
-                padding: '10px 4px',
-                fontSize: '13px',
-                textTransform: 'uppercase',
-                letterSpacing: '0.06em',
-                fontWeight: activeTab === tab.key ? 500 : 400,
-                color: activeTab === tab.key ? '#EE6B83' : '#6B6B6B',
-                cursor: 'pointer',
-                marginBottom: '-1px',
-                transition: 'color 200ms',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
+        {/* Card */}
+        <div className="bg-[#141414] border border-[#242424] rounded-2xl p-6 md:p-8 shadow-[0_10px_40px_rgba(0,0,0,0.3)]">
+          {/* Tab switcher */}
+          <div className="flex border-b border-[#242424] mb-8">
+            {TABS.map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                className={`flex-1 py-3 text-xs uppercase tracking-[0.08em] font-medium transition-all duration-300 border-b-2 -mb-[1px] ${
+                  activeTab === tab.key
+                    ? 'text-[#B8976A] border-[#B8976A]'
+                    : 'text-[#5C5C5C] border-transparent hover:text-[#9A9A9A]'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
 
-        {/* Active form */}
-        {activeTab === 'signup' && <SignupForm onSwitchTab={setActiveTab} />}
-        {activeTab === 'login'  && <LoginForm  onSwitchTab={setActiveTab} />}
-        {activeTab === 'otp'    && <OtpLoginForm onSwitchTab={setActiveTab} />}
+          {/* Active form */}
+          {activeTab === 'signup' && <SignupForm onSwitchTab={setActiveTab} />}
+          {activeTab === 'login'  && <LoginForm  onSwitchTab={setActiveTab} />}
+          {activeTab === 'otp'    && <OtpLoginForm onSwitchTab={setActiveTab} />}
+        </div>
       </div>
     </div>
   )

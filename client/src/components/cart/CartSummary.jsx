@@ -6,7 +6,7 @@ import { applyCoupon, removeCoupon } from '../../store/slices/cartSlice'
 import { useDispatch } from 'react-redux'
 import api from '../../utils/api'
 import toast from 'react-hot-toast'
-import { Check, X } from 'lucide-react'
+import { Check, X, Tag } from 'lucide-react'
 
 export default function CartSummary({ hasOutOfStockItems = false }) {
   const navigate = useNavigate()
@@ -41,85 +41,86 @@ export default function CartSummary({ hasOutOfStockItems = false }) {
   }
 
   return (
-    <div className="border border-gray-200 p-6">
-      <h2 className="text-lg font-semibold mb-6">Order Summary</h2>
+    <div className="bg-[#141414] border border-[#242424] p-6 rounded-2xl">
+      <h2 className="font-serif text-lg text-white mb-6 font-light">Order Summary</h2>
 
       {/* Line items */}
       <div className="space-y-3 mb-5">
-        <div className="flex justify-between text-[14px]">
-          <span className="text-[#6B6B6B]">Subtotal</span>
-          <span>{formatPrice(total)}</span>
+        <div className="flex justify-between text-sm">
+          <span className="text-[#5C5C5C]">Subtotal</span>
+          <span className="text-white">{formatPrice(total)}</span>
         </div>
 
         {coupon.code && (
-          <div className="flex justify-between text-[14px] text-green-600">
+          <div className="flex justify-between text-sm text-[#2E7D32]">
             <span>Discount ({coupon.code})</span>
-            <span>−{formatPrice(coupon.discountAmount)}</span>
+            <span>-{formatPrice(coupon.discountAmount)}</span>
           </div>
         )}
 
-        <div className="flex justify-between text-[14px]">
-          <span className="text-[#6B6B6B]">Shipping</span>
-          <span className={shipping === 0 ? 'text-green-600 font-medium' : ''}>
+        <div className="flex justify-between text-sm">
+          <span className="text-[#5C5C5C]">Shipping</span>
+          <span className={shipping === 0 ? 'text-[#2E7D32] font-medium' : 'text-white'}>
             {shipping === 0 ? 'Free' : formatPrice(shipping)}
           </span>
         </div>
       </div>
 
-      <div className="border-t border-gray-200 pt-4 mb-6">
+      <div className="border-t border-[#242424] pt-4 mb-6">
         <div className="flex justify-between items-baseline">
-          <span className="text-[13px] font-medium uppercase tracking-[0.08em]">Total</span>
-          <span className="text-[1.4rem] font-semibold">{formatPrice(finalTotal)}</span>
+          <span className="text-xs font-medium uppercase tracking-[0.1em] text-[#9A9A9A]">Total</span>
+          <span className="font-serif text-2xl text-white font-light">{formatPrice(finalTotal)}</span>
         </div>
       </div>
 
       {/* Coupon */}
       {!coupon.code ? (
         <div className="mb-6">
-          <div className="flex border-b border-[#c5bdb4] pb-1 focus-within:border-[#EE6B83] transition-colors">
+          <div className="flex items-center border border-[#242424] rounded-xl px-4 py-3 focus-within:border-[#B8976A] transition-colors bg-[#0A0A0A]">
+            <Tag size={14} className="text-[#5C5C5C] mr-3" />
             <input
               type="text"
               placeholder="Coupon code"
               value={couponInput}
               onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
               onKeyDown={(e) => e.key === 'Enter' && handleApplyCoupon()}
-              className="flex-1 bg-transparent text-[13px] focus:outline-none uppercase placeholder:normal-case placeholder:text-[#9CA3AF]"
+              className="flex-1 bg-transparent text-sm focus:outline-none uppercase placeholder:normal-case placeholder:text-[#5C5C5C] text-white"
             />
             <button
               onClick={handleApplyCoupon}
               disabled={validating}
-              className="text-[11px] uppercase tracking-[0.1em] font-semibold text-[#0A0A0A] hover:text-[#EE6B83] transition-colors disabled:opacity-40 ml-3"
+              className="text-[11px] uppercase tracking-[0.1em] font-medium text-[#B8976A] hover:text-[#E8A0B0] transition-colors disabled:opacity-40 ml-3"
             >
               {validating ? '...' : 'Apply'}
             </button>
           </div>
         </div>
       ) : (
-        <div className="flex items-center justify-between bg-green-50 border border-green-200 px-3 py-2.5 mb-6">
+        <div className="flex items-center justify-between bg-[#2E7D32]/10 border border-[#2E7D32]/20 px-4 py-3 rounded-xl mb-6">
           <div className="flex items-center gap-2">
-            <Check size={13} className="text-green-600" />
-            <span className="text-[12px] text-green-700">
+            <Check size={14} className="text-[#2E7D32]" />
+            <span className="text-xs text-[#2E7D32]">
               <strong>{coupon.code}</strong> — {formatPrice(coupon.discountAmount)} off
             </span>
           </div>
-          <button onClick={handleRemoveCoupon} className="text-gray-400 hover:text-red-500 transition-colors">
-            <X size={13} />
+          <button onClick={handleRemoveCoupon} className="text-[#5C5C5C] hover:text-[#E8A0B0] transition-colors">
+            <X size={14} />
           </button>
         </div>
       )}
 
       {hasOutOfStockItems && (
-        <p className="text-xs text-red-500 mb-3 text-center">
+        <p className="text-xs text-[#E8A0B0] mb-3 text-center">
           Remove out of stock items before checkout
         </p>
       )}
       <button
         onClick={() => navigate('/checkout')}
         disabled={hasOutOfStockItems}
-        className={`w-full h-14 text-[12px] uppercase tracking-[0.15em] font-medium transition-all duration-300 active:scale-[0.99] mb-3 rounded-lg ${
+        className={`w-full h-14 text-xs uppercase tracking-[0.15em] font-medium transition-all duration-500 active:scale-[0.99] mb-3 rounded-xl ${
           hasOutOfStockItems
-            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-            : 'bg-[#EE6B83] text-white hover:bg-[#D9506A]'
+            ? 'bg-[#242424] text-[#5C5C5C] cursor-not-allowed'
+            : 'bg-gradient-to-r from-[#E8A0B0] to-[#D48A9A] text-white hover:shadow-[0_8px_30px_rgba(238,107,131,0.3)]'
         }`}
       >
         Proceed to Checkout
@@ -127,7 +128,7 @@ export default function CartSummary({ hasOutOfStockItems = false }) {
 
       <button
         onClick={() => navigate('/products')}
-        className="w-full text-center text-[11px] uppercase tracking-[0.08em] text-[#9CA3AF] hover:text-[#EE6B83] transition-colors"
+        className="w-full text-center text-[11px] uppercase tracking-[0.1em] text-[#5C5C5C] hover:text-[#B8976A] transition-colors py-2"
       >
         Continue Shopping
       </button>

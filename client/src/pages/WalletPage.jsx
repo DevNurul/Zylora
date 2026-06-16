@@ -4,24 +4,23 @@ import { ArrowDownLeft, ArrowUpRight, Clock } from 'lucide-react'
 import { fetchWallet } from '../store/slices/walletSlice'
 
 function TxnIcon({ type }) {
-  if (type === 'credit')  return <ArrowDownLeft size={16} color="#15803d" />
-  if (type === 'debit')   return <ArrowUpRight  size={16} color="#b91c1c" />
-  return <Clock size={16} color="#6b7280" />
+  if (type === 'credit')  return <ArrowDownLeft size={16} className="text-[#2E7D32]" />
+  if (type === 'debit')   return <ArrowUpRight  size={16} className="text-[#E8A0B0]" />
+  return <Clock size={16} className="text-[#5C5C5C]" />
 }
 
 function StatusBadge({ status }) {
   const map = {
-    pending:  { bg: '#fefce8', color: '#a16207', label: 'Pending Approval' },
-    approved: { bg: '#f0fdf4', color: '#15803d', label: 'Credited'         },
-    rejected: { bg: '#fef2f2', color: '#b91c1c', label: 'Rejected'         },
-    expired:  { bg: '#f9fafb', color: '#6b7280', label: 'Expired'          },
+    pending:  { bg: 'rgba(238,107,131,0.1)', color: '#E8A0B0', label: 'Pending Approval' },
+    approved: { bg: 'rgba(46,125,50,0.1)', color: '#2E7D32', label: 'Credited' },
+    rejected: { bg: 'rgba(238,107,131,0.1)', color: '#E8A0B0', label: 'Rejected' },
+    expired:  { bg: 'rgba(107,107,107,0.1)', color: '#5C5C5C', label: 'Expired' },
   }
-  const cfg = map[status] || { bg: '#f3f4f6', color: '#374151', label: status }
+  const cfg = map[status] || { bg: 'rgba(107,107,107,0.1)', color: '#5C5C5C', label: status }
   return (
-    <span style={{
-      fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 500,
-      padding: '2px 8px', background: cfg.bg, color: cfg.color, borderRadius: 3,
-    }}>{cfg.label}</span>
+    <span className="text-[10px] uppercase tracking-[0.06em] font-medium px-2 py-1 rounded-lg" style={{ background: cfg.bg, color: cfg.color }}>
+      {cfg.label}
+    </span>
   )
 }
 
@@ -33,41 +32,41 @@ export default function WalletPage() {
 
   if (loading) {
     return (
-      <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ width: 32, height: 32, border: '2px solid #EE6B83', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <div className="w-9 h-10 border-2 border-[#B8976A] border-t-transparent rounded-full animate-spin" />
       </div>
     )
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#FCD4DB', padding: '48px 16px' }}>
-      <div style={{ maxWidth: 600, margin: '0 auto' }}>
+    <div className="min-h-screen bg-[#0A0A0A] px-4 py-12">
+      <div className="max-w-xl mx-auto">
 
         {/* Heading */}
-        <div style={{ marginBottom: 32 }}>
-          <h1 style={{ fontFamily: 'Georgia, serif', fontSize: 32, fontWeight: 400, color: '#0A0A0A', margin: '0 0 4px', letterSpacing: '0.04em' }}>
+        <div className="mb-10">
+          <h1 className="font-serif text-3xl text-white mb-2 font-light">
             My Wallet
           </h1>
-          <p style={{ fontSize: 14, color: '#6B6B6B', margin: 0 }}>LUXORA Store Credit</p>
+          <p className="text-sm text-[#5C5C5C]">ZYLARA Store Credit</p>
         </div>
 
         {/* Balance card */}
-        <div style={{ background: '#fff', padding: 32, marginBottom: 24, textAlign: 'center' }}>
-          <p style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#6B6B6B', margin: '0 0 8px' }}>
+        <div className="bg-[#141414] border border-[#242424] rounded-2xl p-5 md:p-8 mb-6 text-center">
+          <p className="text-[10px] uppercase tracking-[0.12em] text-[#5C5C5C] mb-3">
             Available Balance
           </p>
           {balance > 0 ? (
-            <p style={{ fontFamily: 'Georgia, serif', fontSize: 48, fontWeight: 600, color: '#0A0A0A', margin: '0 0 4px' }}>
+            <p className="font-serif text-4xl md:text-5xl text-white mb-2 font-light break-words">
               ₹{balance.toLocaleString('en-IN')}
             </p>
           ) : (
-            <p style={{ fontSize: 18, color: '#9CA3AF', margin: '0 0 4px' }}>No balance yet</p>
+            <p className="text-lg text-[#5C5C5C] mb-2">No balance yet</p>
           )}
-          <p style={{ fontSize: 13, color: '#6B6B6B', margin: '0 0 24px' }}>
+          <p className="text-sm text-[#5C5C5C] mb-6">
             Earn more by choosing wallet refund on returns
           </p>
-          <div style={{ background: '#FCD4DB', padding: 16, textAlign: 'left' }}>
-            <p style={{ fontSize: 12, color: '#6B6B6B', margin: 0, lineHeight: 1.7 }}>
+          <div className="bg-[#0A0A0A] border border-[#242424] rounded-xl p-4 text-left">
+            <p className="text-xs text-[#5C5C5C] leading-relaxed">
               Wallet balance can be used on your next purchase.
               Valid for 6 months from credit date.
               Covers up to 80% of any order total.
@@ -76,46 +75,47 @@ export default function WalletPage() {
         </div>
 
         {/* Transaction history */}
-        <p style={{ fontSize: 13, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#6B6B6B', margin: '0 0 16px', fontWeight: 500 }}>
+        <p className="text-xs uppercase tracking-[0.1em] text-[#5C5C5C] mb-4 font-medium">
           Transaction History
         </p>
 
         {transactions.length === 0 ? (
-          <div style={{ background: '#fff', padding: 40, textAlign: 'center' }}>
-            <p style={{ fontSize: 14, color: '#9CA3AF', margin: 0 }}>No transactions yet</p>
+          <div className="bg-[#141414] border border-[#242424] rounded-2xl p-10 text-center">
+            <p className="text-sm text-[#5C5C5C]">No transactions yet</p>
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div className="flex flex-col gap-3">
             {transactions.map((txn, i) => (
-              <div key={txn._id || i} style={{ background: '#fff', padding: 16, border: '1px solid #E5E5E5' }}>
-                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1 }}>
-                    <TxnIcon type={txn.type} />
+              <div key={txn._id || i} className="bg-[#141414] border border-[#242424] rounded-2xl p-5">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3 flex-1">
+                    <div className="p-2 bg-[#0A0A0A] rounded-xl">
+                      <TxnIcon type={txn.type} />
+                    </div>
                     <div>
-                      <p style={{ fontSize: 14, fontWeight: 500, color: '#0A0A0A', margin: '0 0 2px' }}>
+                      <p className="text-sm font-medium text-white mb-0.5">
                         {txn.description || (txn.type === 'credit' ? 'Wallet Credit' : 'Wallet Debit')}
                       </p>
-                      <p style={{ fontSize: 12, color: '#9CA3AF', margin: 0 }}>
+                      <p className="text-xs text-[#5C5C5C]">
                         {new Date(txn.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                       </p>
                     </div>
                   </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <p style={{
-                      fontSize: 14, fontWeight: 600, margin: '0 0 2px',
-                      color: txn.type === 'credit' ? '#15803d' : txn.type === 'debit' ? '#b91c1c' : '#6b7280',
-                    }}>
+                  <div className="text-right">
+                    <p className={`text-sm font-semibold mb-1 ${
+                      txn.type === 'credit' ? 'text-[#2E7D32]' : txn.type === 'debit' ? 'text-[#E8A0B0]' : 'text-[#5C5C5C]'
+                    }`}>
                       {txn.type === 'credit' ? '+' : txn.type === 'debit' ? '-' : ''}
                       ₹{txn.amount?.toLocaleString('en-IN')}
                     </p>
                     {txn.bonusAmount > 0 && (
-                      <p style={{ fontSize: 11, color: '#15803d', margin: '0 0 4px' }}>
+                      <p className="text-[10px] text-[#2E7D32] mb-1">
                         Incl. ₹{txn.bonusAmount?.toLocaleString('en-IN')} bonus
                       </p>
                     )}
                     <StatusBadge status={txn.status} />
                     {txn.status === 'approved' && txn.expiresAt && (
-                      <p style={{ fontSize: 11, color: '#9CA3AF', margin: '4px 0 0' }}>
+                      <p className="text-[10px] text-[#5C5C5C] mt-1">
                         Expires: {new Date(txn.expiresAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                       </p>
                     )}

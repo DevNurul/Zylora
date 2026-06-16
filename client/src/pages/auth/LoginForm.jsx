@@ -9,38 +9,17 @@ const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 function Field({ label, error, children }) {
   return (
-    <div style={{ marginBottom: '20px' }}>
-      <label style={{
-        display: 'block',
-        fontSize: '11px',
-        textTransform: 'uppercase',
-        letterSpacing: '0.06em',
-        color: '#6B6B6B',
-        marginBottom: '4px',
-      }}>
+    <div className="mb-5">
+      <label className="block text-[11px] uppercase tracking-[0.06em] text-[#5C5C5C] mb-1.5">
         {label}
       </label>
       {children}
       {error && (
-        <span style={{ fontSize: '12px', color: '#EF4444', marginTop: '4px', display: 'block' }}>
-          {error}
-        </span>
+        <span className="text-xs text-[#E8A0B0] mt-1 block">{error}</span>
       )}
     </div>
   )
 }
-
-const inputStyle = (hasError) => ({
-  width: '100%',
-  border: 'none',
-  borderBottom: `1px solid ${hasError ? '#EF4444' : '#E5E5E5'}`,
-  padding: '10px 0',
-  fontSize: '15px',
-  background: 'transparent',
-  outline: 'none',
-  color: '#0A0A0A',
-  boxSizing: 'border-box',
-})
 
 export default function LoginForm({ onSwitchTab }) {
   const { login } = useAuth()
@@ -98,6 +77,9 @@ export default function LoginForm({ onSwitchTab }) {
     }
   }
 
+  const inputClass = (hasError) =>
+    `w-full border-b ${hasError ? 'border-[#E8A0B0]' : 'border-[#242424]'} py-2.5 text-sm bg-transparent outline-none text-white focus:border-[#B8976A] transition-colors`
+
   return (
     <form onSubmit={handleSubmit} noValidate>
       <Field label="Email Address" error={errors.email}>
@@ -107,35 +89,24 @@ export default function LoginForm({ onSwitchTab }) {
           onChange={(e) => { setEmail(e.target.value); setErrors((err) => ({ ...err, email: '' })) }}
           onBlur={handleBlurEmail}
           placeholder="your@email.com"
-          style={inputStyle(!!errors.email)}
+          className={inputClass(!!errors.email)}
         />
       </Field>
 
       <Field label="Password" error={errors.password}>
-        <div style={{ position: 'relative' }}>
+        <div className="relative">
           <input
             type={showPw ? 'text' : 'password'}
             value={password}
             onChange={(e) => { setPassword(e.target.value); setErrors((err) => ({ ...err, password: '' })) }}
             onBlur={handleBlurPassword}
             placeholder="Enter your password"
-            style={{ ...inputStyle(!!errors.password), paddingRight: '32px' }}
+            className={`${inputClass(!!errors.password)} pr-8`}
           />
           <button
             type="button"
             onClick={() => setShowPw((v) => !v)}
-            style={{
-              position: 'absolute',
-              right: 0,
-              top: '50%',
-              transform: 'translateY(-50%)',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              color: '#6B6B6B',
-              padding: 0,
-              lineHeight: 0,
-            }}
+            className="absolute right-0 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer text-[#5C5C5C] hover:text-white transition-colors p-0"
           >
             {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
           </button>
@@ -145,46 +116,28 @@ export default function LoginForm({ onSwitchTab }) {
       <button
         type="submit"
         disabled={loading}
-        style={{
-          width: '100%',
-          height: '48px',
-          background: '#EE6B83',
-          color: '#fff',
-          fontSize: '13px',
-          letterSpacing: '0.1em',
-          textTransform: 'uppercase',
-          border: 'none',
-          cursor: loading ? 'not-allowed' : 'pointer',
-          borderRadius: '8px',
-          marginTop: '24px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '8px',
-          opacity: loading ? 0.7 : 1,
-          transition: 'background 200ms',
-        }}
+        className="w-full h-12 bg-gradient-to-r from-[#E8A0B0] to-[#D48A9A] text-white text-xs uppercase tracking-[0.1em] font-semibold border-none rounded-xl mt-6 cursor-pointer flex items-center justify-center gap-2 disabled:opacity-60 transition-all hover:shadow-[0_8px_30px_rgba(238,107,131,0.3)]"
       >
         {loading && <Loader2 size={14} className="animate-spin" />}
         {loading ? 'Logging In...' : 'Login'}
       </button>
 
-      <div style={{ textAlign: 'center', marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-        <p style={{ fontSize: '13px', color: '#6B6B6B', margin: 0 }}>
+      <div className="text-center mt-5 flex flex-col gap-2">
+        <p className="text-xs text-[#5C5C5C] m-0">
           Don't have an account?{' '}
           <button
             type="button"
             onClick={() => onSwitchTab('signup')}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#EE6B83', fontWeight: 500 }}
+            className="bg-transparent border-none cursor-pointer text-[#B8976A] font-semibold hover:text-[#E8A0B0] transition-colors"
           >
             Sign Up →
           </button>
         </p>
-        <p style={{ fontSize: '13px', color: '#6B6B6B', margin: 0 }}>
+        <p className="text-xs text-[#5C5C5C] m-0">
           <button
             type="button"
             onClick={() => onSwitchTab('otp')}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#EE6B83' }}
+            className="bg-transparent border-none cursor-pointer text-[#B8976A] hover:text-[#E8A0B0] transition-colors"
           >
             Login with OTP instead →
           </button>

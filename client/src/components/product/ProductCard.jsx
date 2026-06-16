@@ -50,46 +50,46 @@ export default function ProductCard({ product }) {
 
   return (
     <div
-      className="group bg-[#171717] border border-[#2A2A2A] hover:border-[#C9A86A] rounded-2xl p-3 flex flex-col justify-between transition-all duration-300 hover:shadow-[0_8px_30px_rgba(0,0,0,0.6)] hover:-translate-y-1 cursor-pointer select-none"
+      className="group bg-[#141414] border border-[#242424] hover:border-[#B8976A]/30 rounded-2xl p-3 flex flex-col justify-between transition-all duration-500 hover:shadow-[0_10px_40px_rgba(0,0,0,0.4)] hover:-translate-y-1 cursor-pointer select-none"
       onMouseLeave={() => { setShowSizes(false); setSelectedSize('') }}
       onClick={() => navigate(`/products/${product.id}`)}
     >
       <div>
         {/* Image Frame */}
-        <div className="relative overflow-hidden bg-[#0D0D0D] rounded-xl aspect-[4/5] w-full">
+        <div className="relative overflow-hidden bg-[#0A0A0A] rounded-xl aspect-[4/5] w-full">
           {product.images?.[0] ? (
             <img
               src={product.images[0]}
               alt={product.name}
               loading="lazy"
-              className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+              className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
             />
           ) : (
-            <div className="absolute inset-0 flex items-center justify-center text-gray-600 bg-white/5"><ShoppingBag size={24} /></div>
+            <div className="absolute inset-0 flex items-center justify-center text-[#5C5C5C] bg-white/5"><ShoppingBag size={24} /></div>
           )}
           {product.images?.[1] && (
             <img
               src={product.images[1]}
               alt={product.name}
               loading="lazy"
-              className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+              className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-700"
             />
           )}
 
           {/* Badges */}
           <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10">
             {!product.inStock && (
-              <span className="bg-[#2A2A2A]/90 backdrop-blur-xs text-[#B3B3B3] text-[8px] uppercase tracking-[0.12em] font-extrabold px-2.5 py-1 rounded">
+              <span className="bg-[#0A0A0A]/80 backdrop-blur-sm text-[#5C5C5C] text-[8px] uppercase tracking-[0.12em] font-semibold px-2.5 py-1 rounded-lg border border-[#242424]">
                 Sold Out
               </span>
             )}
             {product.inStock && product.isNew && (
-              <span className="bg-[#C9A86A] text-[#0D0D0D] text-[8px] uppercase tracking-[0.12em] font-extrabold px-2.5 py-1 rounded">
+              <span className="bg-gradient-to-r from-[#B8976A] to-[#A88345] text-white text-[8px] uppercase tracking-[0.12em] font-semibold px-2.5 py-1 rounded-lg">
                 New
               </span>
             )}
             {product.isSale && (
-              <span className="bg-[#EE6B83] text-white text-[8px] uppercase tracking-[0.12em] font-extrabold px-2.5 py-1 rounded">
+              <span className="bg-gradient-to-r from-[#EE6B83] to-[#D48A9A] text-white text-[8px] uppercase tracking-[0.12em] font-semibold px-2.5 py-1 rounded-lg">
                 Sale
               </span>
             )}
@@ -97,36 +97,36 @@ export default function ProductCard({ product }) {
 
           {/* Wishlist Button */}
           <button
-            className="absolute top-3 right-3 z-10 p-2 bg-[#0D0D0D]/60 hover:bg-[#EE6B83]/10 border border-white/10 hover:border-[#EE6B83] text-white rounded-xl backdrop-blur-xs opacity-0 group-hover:opacity-100 transition-all duration-300 active:scale-95 cursor-pointer"
+            className="absolute top-3 right-3 z-10 w-10 h-10 flex items-center justify-center bg-[#0A0A0A]/60 hover:bg-[#E8A0B0]/20 border border-white/10 hover:border-[#E8A0B0]/50 text-white rounded-xl backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300 active:scale-95 cursor-pointer"
             onClick={(e) => { e.stopPropagation(); toggle(product) }}
             aria-label={liked ? 'Remove from wishlist' : 'Add to wishlist'}
           >
             <Heart
               size={14}
-              className={liked ? 'fill-red-500 stroke-red-500 animate-scale-in' : 'stroke-white fill-transparent'}
+              className={liked ? 'fill-[#E8A0B0] stroke-[#E8A0B0] animate-scale-in' : 'stroke-white fill-transparent'}
             />
           </button>
 
           {/* Quick Add Overlay */}
           <div
-            className="absolute bottom-0 inset-x-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out z-10"
+            className="absolute bottom-0 inset-x-0 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out z-10"
             onClick={(e) => e.stopPropagation()}
           >
             {!product.inStock ? (
-              <div className="w-full bg-[#2A2A2A] text-white/50 text-[10px] py-3 text-center uppercase tracking-[0.15em] font-bold">
+              <div className="w-full bg-[#0A0A0A]/90 backdrop-blur-sm text-[#5C5C5C] text-[10px] py-3.5 text-center uppercase tracking-[0.15em] font-medium border-t border-[#242424]">
                 Out of Stock
               </div>
             ) : showSizes && product.sizes?.length > 0 ? (
-              <div className="bg-[#171717]/95 backdrop-blur-md border-t border-[#2A2A2A] p-3">
-                <div className="flex gap-1.5 flex-wrap justify-center mb-2.5">
+              <div className="bg-[#141414]/95 backdrop-blur-xl border-t border-[#242424] p-4">
+                <div className="flex gap-1.5 flex-wrap justify-center mb-3">
                   {product.sizes.map((s) => (
                     <button
                       key={s}
                       onClick={() => setSelectedSize(s)}
-                      className={`min-w-[34px] h-7 px-1.5 text-[10px] uppercase tracking-wide border transition-all duration-150 rounded-lg font-bold cursor-pointer ${
+                      className={`min-w-[40px] h-10 px-2 text-[10px] uppercase tracking-wide border transition-all duration-300 rounded-lg font-medium cursor-pointer ${
                         selectedSize === s
-                          ? 'bg-[#EE6B83] text-white border-[#EE6B83]'
-                          : 'border-[#2A2A2A] text-[#B3B3B3] hover:border-[#EE6B83] hover:text-white'
+                          ? 'bg-gradient-to-r from-[#B8976A] to-[#A88345] text-white border-transparent'
+                          : 'border-[#242424] text-[#9A9A9A] hover:border-[#B8976A] hover:text-white'
                       }`}
                     >
                       {s}
@@ -135,7 +135,7 @@ export default function ProductCard({ product }) {
                 </div>
                 <button
                   onClick={handleQuickAdd}
-                  className="w-full bg-[#EE6B83] hover:bg-[#D9506A] text-white text-[10px] py-2 uppercase tracking-[0.15em] font-bold transition-colors rounded-lg cursor-pointer"
+                  className="w-full bg-gradient-to-r from-[#E8A0B0] to-[#D48A9A] text-white text-[10px] py-2.5 uppercase tracking-[0.14em] font-medium transition-all rounded-lg cursor-pointer hover:shadow-[0_4px_20px_rgba(238,107,131,0.3)]"
                 >
                   Add to Bag
                 </button>
@@ -143,7 +143,7 @@ export default function ProductCard({ product }) {
             ) : (
               <button
                 onClick={handleQuickAdd}
-                className="w-full bg-[#EE6B83]/90 backdrop-blur-md text-white text-[10px] py-3.5 uppercase tracking-[0.15em] font-bold hover:bg-[#D9506A] transition-all duration-200 rounded-b-xl cursor-pointer"
+                className="w-full bg-gradient-to-r from-[#EE6B83] to-[#D48A9A] backdrop-blur-sm text-white text-[10px] py-3.5 uppercase tracking-[0.14em] font-medium transition-all duration-300 rounded-b-xl cursor-pointer hover:shadow-[0_4px_20px_rgba(238,107,131,0.3)]"
               >
                 Quick Add
               </button>
@@ -152,26 +152,26 @@ export default function ProductCard({ product }) {
         </div>
 
         {/* Info */}
-        <div className="pt-3.5 space-y-1">
-          <p className="text-[9px] uppercase tracking-[0.15em] font-bold text-[#C9A86A]">{product.category}</p>
-          <h3 className="text-sm font-light text-white leading-snug line-clamp-1 font-sans">{product.name}</h3>
+        <div className="pt-3.5 space-y-1.5">
+          <p className="text-[9px] uppercase tracking-[0.14em] font-medium text-[#B8976A]">{product.category}</p>
+          <h3 className="text-[13px] font-normal text-white leading-snug line-clamp-1 font-sans">{product.name}</h3>
           
           {product.rating > 0 && (
             <div className="flex items-center gap-1">
-              <Star size={10} className="fill-[#C9A86A] stroke-[#C9A86A]" />
-              <span className="text-[10px] text-[#B3B3B3] font-semibold">{product.rating}</span>
+              <Star size={10} className="fill-[#B8976A] stroke-[#B8976A]" />
+              <span className="text-[10px] text-[#5C5C5C] font-medium">{product.rating}</span>
             </div>
           )}
         </div>
       </div>
 
-      <div className="flex items-center gap-2 flex-wrap mt-2">
-        <span className="text-sm font-bold text-white">{formatPrice(product.price)}</span>
+      <div className="flex items-center gap-2 flex-wrap mt-2.5">
+        <span className="text-[13px] font-medium text-white">{formatPrice(product.price)}</span>
         {product.originalPrice && product.originalPrice > product.price && (
           <>
-            <span className="text-xs text-[#B3B3B3] line-through font-light">{formatPrice(product.originalPrice)}</span>
+            <span className="text-[11px] text-[#5C5C5C] line-through font-light">{formatPrice(product.originalPrice)}</span>
             {discountPct > 0 && (
-              <span className="text-[10px] text-[#EE6B83] font-bold">{discountPct}% OFF</span>
+            <span className="text-[10px] text-[#E8A0B0] font-medium">{discountPct}% OFF</span>
             )}
           </>
         )}

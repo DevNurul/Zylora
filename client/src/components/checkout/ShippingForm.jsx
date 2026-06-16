@@ -30,10 +30,10 @@ function validate(fields, values) {
 }
 
 function field(label, name, type, placeholder, values, errors, handleChange, handleBlur) {
-  const base = `border ${errors[name] ? 'border-red-400' : 'border-gray-200'} px-3 py-2.5 w-full text-[15px] focus:outline-none focus:border-[#EE6B83] transition-colors`
+  const base = `border ${errors[name] ? 'border-[#E8A0B0]' : 'border-[#242424]'} bg-[#0A0A0A] px-4 py-3 w-full text-sm focus:outline-none focus:border-[#B8976A] transition-colors text-white placeholder-[#5C5C5C] rounded-xl`
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+      <label className="block text-[11px] font-semibold uppercase tracking-[0.1em] text-[#9A9A9A] mb-2">{label}</label>
       <input
         type={type || 'text'}
         name={name}
@@ -43,7 +43,7 @@ function field(label, name, type, placeholder, values, errors, handleChange, han
         placeholder={placeholder}
         className={base}
       />
-      {errors[name] && <p className="text-xs text-red-500 mt-1">{errors[name]}</p>}
+      {errors[name] && <p className="text-xs text-[#E8A0B0] mt-1">{errors[name]}</p>}
     </div>
   )
 }
@@ -113,7 +113,6 @@ export default function ShippingForm({ prefill }) {
       })
 
       if (data.paymentMethod === 'ONLINE') {
-        // Clear cart before leaving the site; order is already created in DB
         clearCart()
         window.location.href = data.redirectUrl
         return
@@ -142,30 +141,30 @@ export default function ShippingForm({ prefill }) {
   }
 
   const selectCls = (name) =>
-    `border ${errors[name] ? 'border-red-400' : 'border-gray-200'} px-3 py-2.5 w-full text-[15px] focus:outline-none focus:border-[#EE6B83] transition-colors bg-white`
+    `border ${errors[name] ? 'border-[#E8A0B0]' : 'border-[#242424]'} bg-[#0A0A0A] px-4 py-3 w-full text-sm focus:outline-none focus:border-[#B8976A] transition-colors text-white rounded-xl`
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 max-w-xl">
+    <form onSubmit={handleSubmit} className="space-y-8 max-w-xl">
       {stockError && (
-        <div className="bg-red-50 border border-red-200 p-4">
-          <p className="text-sm text-red-600 font-medium flex items-center gap-2">
+        <div className="bg-[#E8A0B0]/10 border border-[#E8A0B0]/20 p-5 rounded-2xl">
+          <p className="text-sm text-[#E8A0B0] font-semibold flex items-center gap-2">
             <span>⚠</span>
             {stockError}
           </p>
-          <p className="text-xs text-red-400 mt-1">
+          <p className="text-xs text-[#E8A0B0]/70 mt-1">
             Please go back to your cart and update the quantities.
           </p>
           <button
             type="button"
             onClick={() => navigate('/cart')}
-            className="text-xs underline text-red-500 mt-2"
+            className="text-xs underline text-[#E8A0B0] mt-2"
           >
             Go to Cart →
           </button>
         </div>
       )}
       <div>
-        <h2 className="text-base font-semibold mb-4">Contact Information</h2>
+        <h2 className="font-serif text-lg text-white mb-5">Contact Information</h2>
         <div className="space-y-4">
           {field('Full Name', 'fullName', 'text', 'Your full name', values, errors, handleChange, handleBlur)}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -176,19 +175,19 @@ export default function ShippingForm({ prefill }) {
       </div>
 
       <div>
-        <h2 className="text-base font-semibold mb-4">Shipping Address</h2>
+        <h2 className="font-serif text-lg text-white mb-5">Shipping Address</h2>
         <div className="space-y-4">
           {field('Address Line 1', 'address1', 'text', 'House / Flat no., Street', values, errors, handleChange, handleBlur)}
           {field('Address Line 2 (optional)', 'address2', 'text', 'Landmark, Colony', values, errors, handleChange, handleBlur)}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {field('City', 'city', 'text', 'Mumbai', values, errors, handleChange, handleBlur)}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">State</label>
+              <label className="block text-[11px] font-semibold uppercase tracking-[0.1em] text-[#9A9A9A] mb-2">State</label>
               <select name="state" value={values.state} onChange={handleChange} onBlur={handleBlur} className={selectCls('state')}>
                 <option value="">Select State</option>
                 {INDIAN_STATES.map((s) => <option key={s} value={s}>{s}</option>)}
               </select>
-              {errors.state && <p className="text-xs text-red-500 mt-1">{errors.state}</p>}
+              {errors.state && <p className="text-xs text-[#E8A0B0] mt-1">{errors.state}</p>}
             </div>
             {field('Pincode', 'pincode', 'text', '400001', values, errors, handleChange, handleBlur)}
           </div>
@@ -196,21 +195,21 @@ export default function ShippingForm({ prefill }) {
       </div>
 
       <div>
-        <h2 className="text-base font-semibold mb-4">Payment Method</h2>
+        <h2 className="font-serif text-lg text-white mb-5">Payment Method</h2>
         <div className="space-y-3">
-          <label className={`flex items-center gap-3 border p-4 cursor-pointer transition-colors ${values.payment === 'cod' ? 'border-[#EE6B83]' : 'border-gray-200 hover:border-gray-300'}`}>
-            <input type="radio" name="payment" value="cod" checked={values.payment === 'cod'} onChange={handleChange} className="accent-[#EE6B83]" />
+          <label className={`flex items-center gap-4 border p-5 cursor-pointer transition-all rounded-xl ${values.payment === 'cod' ? 'border-[#B8976A] bg-[#B8976A]/5' : 'border-[#242424] bg-[#141414] hover:border-[#B8976A]/30'}`}>
+            <input type="radio" name="payment" value="cod" checked={values.payment === 'cod'} onChange={handleChange} className="accent-[#B8976A]" />
             <div>
-              <p className="text-sm font-medium">Cash on Delivery</p>
-              <p className="text-xs text-gray-400 mt-0.5">Pay when your order arrives</p>
+              <p className="text-sm font-medium text-white">Cash on Delivery</p>
+              <p className="text-xs text-[#5C5C5C] mt-0.5">Pay when your order arrives</p>
             </div>
           </label>
 
-          <label className={`flex items-center gap-3 border p-4 cursor-pointer transition-colors ${values.payment === 'online' ? 'border-[#EE6B83]' : 'border-gray-200 hover:border-gray-300'}`}>
-            <input type="radio" name="payment" value="online" checked={values.payment === 'online'} onChange={handleChange} className="accent-[#EE6B83]" />
+          <label className={`flex items-center gap-4 border p-5 cursor-pointer transition-all rounded-xl ${values.payment === 'online' ? 'border-[#B8976A] bg-[#B8976A]/5' : 'border-[#242424] bg-[#141414] hover:border-[#B8976A]/30'}`}>
+            <input type="radio" name="payment" value="online" checked={values.payment === 'online'} onChange={handleChange} className="accent-[#B8976A]" />
             <div>
-              <p className="text-sm font-medium">Online Payment</p>
-              <p className="text-xs text-gray-400 mt-0.5">UPI, Cards, Net Banking via PhonePe</p>
+              <p className="text-sm font-medium text-white">Online Payment</p>
+              <p className="text-xs text-[#5C5C5C] mt-0.5">UPI, Cards, Net Banking via PhonePe</p>
             </div>
           </label>
         </div>
@@ -219,10 +218,10 @@ export default function ShippingForm({ prefill }) {
       <button
         type="submit"
         disabled={loading}
-        className="w-full bg-[#EE6B83] text-white py-4 text-sm uppercase tracking-widest font-medium hover:bg-[#D9506A] transition-colors disabled:opacity-60 disabled:cursor-not-allowed rounded-lg"
+        className="w-full bg-gradient-to-r from-[#E8A0B0] to-[#D48A9A] text-white py-4 text-xs uppercase tracking-[0.15em] font-semibold hover:shadow-[0_8px_30px_rgba(238,107,131,0.3)] transition-all disabled:opacity-60 disabled:cursor-not-allowed rounded-xl"
       >
         {loading
-          ? (values.payment === 'online' ? 'Redirecting to PhonePe…' : 'Placing Order…')
+          ? (values.payment === 'online' ? 'Redirecting to PhonePe...' : 'Placing Order...')
           : 'Place Order'}
       </button>
     </form>

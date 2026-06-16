@@ -67,14 +67,14 @@ export default function Products() {
             </h1>
             <button
               onClick={handleClearSearch}
-              className="mt-2 inline-flex items-center gap-1.5 text-xs uppercase tracking-wider text-[#6B6B6B] hover:text-[#0A0A0A] transition-colors"
+              className="mt-2 inline-flex items-center gap-1.5 text-xs uppercase tracking-wider text-[#5C5C5C] hover:text-[#0A0A0A] transition-colors"
             >
               <X size={12} />
               Clear search
             </button>
           </div>
         ) : (
-          <h1 className="text-2xl md:text-3xl font-semibold">{title}</h1>
+          <h1 className="text-2xl md:text-3xl font-light">{title}</h1>
         )}
       </div>
 

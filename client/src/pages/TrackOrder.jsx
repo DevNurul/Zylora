@@ -34,44 +34,44 @@ export default function TrackOrder() {
     }
   }
 
-  const inputCls = 'border border-gray-200 px-3 py-2.5 w-full text-[15px] focus:outline-none focus:border-[#EE6B83] transition-colors'
+  const inputCls = 'w-full border-b border-[#242424] bg-transparent py-2.5 text-[15px] text-white outline-none focus:border-[#B8976A] transition-colors font-mono'
 
   return (
     <div className="min-h-screen">
       <div className="px-4 md:px-8 lg:px-16 py-10">
         {isAuthenticated && (
-          <div className="mb-6 bg-[#FCD4DB] px-4 py-3 flex items-center justify-between gap-4 max-w-lg">
-            <span className="text-[13px] text-[#6B6B6B]">Looking for your recent orders?</span>
-            <Link to="/my-orders" className="text-[13px] font-medium text-[#EE6B83] hover:text-[#D9506A] transition-colors whitespace-nowrap">
+          <div className="mb-6 bg-[#1C1C1C] border border-[#242424] px-4 py-3 flex items-center justify-between gap-4 max-w-lg rounded-lg">
+            <span className="text-[13px] text-[#5C5C5C]">Looking for your recent orders?</span>
+            <Link to="/my-orders" className="text-[13px] font-medium text-[#B8976A] hover:text-[#E8A0B0] transition-colors whitespace-nowrap">
               View My Orders →
             </Link>
           </div>
         )}
 
         <div className="flex items-center gap-3 mb-10">
-          <Package size={24} className="text-[#EE6B83]" />
-          <h1 className="text-2xl md:text-3xl font-semibold">Track Order</h1>
+          <Package size={24} className="text-[#B8976A]" />
+          <h1 className="text-2xl md:text-3xl font-light text-white">Track Order</h1>
         </div>
 
         <div className="max-w-lg">
-          <p className="text-[14px] text-[#6B6B6B] mb-8">
+          <p className="text-[14px] text-[#9A9A9A] mb-8">
             Enter your Order ID and email to check delivery status.
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Order ID</label>
+              <label className="block text-sm font-medium text-[#9A9A9A] mb-1">Order ID</label>
               <input
                 type="text"
                 placeholder="ORD-XXXXXX"
                 value={orderId}
                 onChange={(e) => setOrderId(e.target.value)}
-                className={inputCls + ' font-mono uppercase'}
+                className={inputCls + ' uppercase'}
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+              <label className="block text-sm font-medium text-[#9A9A9A] mb-1">Email Address</label>
               <input
                 type="email"
                 placeholder="you@example.com"
@@ -82,13 +82,13 @@ export default function TrackOrder() {
             </div>
 
             {error && (
-              <p className="text-[13px] text-red-500 bg-red-50 border border-red-200 px-4 py-3">{error}</p>
+              <p className="text-[13px] text-[#E8A0B0] bg-[#E8A0B010] border border-[#E8A0B030] px-4 py-3 rounded-lg">{error}</p>
             )}
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#EE6B83] text-white py-4 text-sm uppercase tracking-widest font-medium hover:bg-[#D9506A] hover:text-white transition-colors disabled:opacity-60 flex items-center justify-center gap-2 rounded-lg"
+              className="w-full bg-gradient-to-r from-[#E8A0B0] to-[#D48A9A] text-white py-4 text-sm uppercase tracking-widest font-medium hover:shadow-[0_8px_30px_rgba(238,107,131,0.3)] transition-all disabled:opacity-60 flex items-center justify-center gap-2 rounded-xl"
             >
               {loading && (
                 <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />

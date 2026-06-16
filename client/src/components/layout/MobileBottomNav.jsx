@@ -48,7 +48,6 @@ const MobileBottomNav = () => {
     if (path === '/') {
       return location.pathname === '/'
     }
-    // Handle auth path checking as well
     if (path === '/auth') {
       return location.pathname.startsWith('/auth')
     }
@@ -63,9 +62,10 @@ const MobileBottomNav = () => {
   if (isHidden) return null
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-[998] md:hidden px-4 pb-4 bg-gradient-to-t from-black via-black/20 to-transparent pt-10 pointer-events-none">
+    <div className="fixed bottom-0 left-0 right-0 z-[998] md:hidden px-3 pb-3 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/80 to-transparent pt-8 pointer-events-none">
       <nav
-        className="w-full max-w-md mx-auto bg-[#171717]/85 backdrop-blur-md border border-[#2A2A2A] flex items-center justify-around h-16 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] pointer-events-auto px-2 relative"
+        className="w-full max-w-md mx-auto bg-[#141414]/90 backdrop-blur-xl border border-[#B8976A]/10 flex items-center justify-around h-16 rounded-2xl shadow-[0_-4px_30px_rgba(0,0,0,0.5)] pointer-events-auto px-2 relative"
+        style={{ boxShadow: '0 -4px 30px rgba(0,0,0,0.5), inset 0 1px 0 rgba(201,168,106,0.1)' }}
       >
         {tabs.map(tab => {
           const Icon = tab.icon
@@ -75,35 +75,35 @@ const MobileBottomNav = () => {
             <button
               key={tab.id}
               onClick={() => navigate(tab.path)}
-              className="flex-1 flex flex-col items-center justify-center h-full gap-1 relative transition-all duration-150 active:scale-95 cursor-pointer"
+              className="flex-1 flex flex-col items-center justify-center h-full gap-1.5 relative transition-all duration-300 active:scale-95 cursor-pointer"
               aria-label={tab.label}
             >
               <div className="relative">
                 {tab.badge && (
-                  <span className="absolute -top-1.5 -right-2.5 bg-[#EE6B83] text-white text-[8px] font-bold min-w-[15px] h-3.5 flex items-center justify-center rounded-full px-1 leading-none border border-[#171717]">
+                  <span className="absolute -top-2 -right-3 bg-gradient-to-r from-[#E8A0B0] to-[#D48A9A] text-white text-[7px] font-bold min-w-[16px] h-4 flex items-center justify-center rounded-full px-1 leading-none">
                     {tab.badge > 99 ? '99+' : tab.badge}
                   </span>
                 )}
 
                 <Icon
                   size={20}
-                  strokeWidth={active ? 2.5 : 1.8}
-                  className={`transition-colors duration-200 ${
-                    active ? 'text-[#EE6B83]' : 'text-[#B3B3B3]'
+                  strokeWidth={active ? 2.2 : 1.5}
+                  className={`transition-colors duration-300 ${
+                    active ? 'text-[#B8976A]' : 'text-[#5C5C5C]'
                   }`}
                 />
               </div>
 
               <span
-                className={`text-[9px] uppercase tracking-wider transition-colors duration-200 font-semibold leading-none ${
-                  active ? 'text-[#EE6B83]' : 'text-[#B3B3B3]'
+                className={`text-[9px] uppercase tracking-wider transition-colors duration-300 font-medium leading-none ${
+                  active ? 'text-[#B8976A]' : 'text-[#5C5C5C]'
                 }`}
               >
                 {tab.label}
               </span>
 
               {active && (
-                <span className="absolute bottom-1 w-1 h-1 bg-[#EE6B83] rounded-full shadow-lg shadow-[#EE6B83]/55" />
+                <span className="absolute top-0 w-8 h-[2px] bg-gradient-to-r from-[#B8976A] to-[#E8A0B0] rounded-full" />
               )}
             </button>
           )

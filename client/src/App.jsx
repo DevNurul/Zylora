@@ -40,7 +40,7 @@ import PrivacyPolicyPage        from './pages/PrivacyPolicyPage'
 
 function Layout({ children }) {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col overflow-x-hidden">
       <Navbar />
       <main className="flex-1 pb-16 md:pb-0">{children}</main>
       <Footer />
@@ -73,7 +73,7 @@ function AppInner() {
 
       <RouteProgressBar />
 
-      <div className={appLoading ? 'invisible' : 'visible'}>
+      <div className={`overflow-x-hidden ${appLoading ? 'invisible' : 'visible'}`}>
         <Toaster
           position="top-right"
           toastOptions={{

@@ -22,11 +22,10 @@ const STATUS_CFG = {
 function Badge({ status }) {
   const cfg = STATUS_CFG[status] || { bg: '#f3f4f6', color: '#374151', border: '#d1d5db', label: status }
   return (
-    <span style={{
-      display: 'inline-block', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.06em',
-      fontWeight: 500, padding: '3px 10px', borderRadius: 3,
-      border: `1px solid ${cfg.border}`, background: cfg.bg, color: cfg.color,
-    }}>{cfg.label}</span>
+    <span className="inline-block text-[11px] uppercase tracking-[0.06em] font-medium px-2.5 py-0.5 rounded"
+      style={{ border: `1px solid ${cfg.border}`, background: cfg.bg, color: cfg.color }}>
+      {cfg.label}
+    </span>
   )
 }
 
@@ -56,17 +55,17 @@ const TERMINAL = new Set(['exchange_dispatched', 'exchange_delivered', 'refund_p
 
 function canCancel(req) {
   if (TERMINAL.has(req.status)) return false
-  if (req.status === 'cancelled')   return false
-  if (req.type === 'return')    return ['requested', 'approved'].includes(req.status)
-  if (req.type === 'exchange')  return ['requested', 'approved', 'pickup_scheduled'].includes(req.status)
+  if (req.status === 'cancelled') return false
+  if (req.type === 'return') return ['requested', 'approved'].includes(req.status)
+  if (req.type === 'exchange') return ['requested', 'approved', 'pickup_scheduled'].includes(req.status)
   return false
 }
 
 export default function ReturnStatusCard({ request, onResubmit }) {
   const dispatch = useDispatch()
-  const [showTimeline,   setShowTimeline]   = useState(false)
-  const [confirmCancel,  setConfirmCancel]  = useState(false)
-  const [payLoading,     setPayLoading]     = useState(false)
+  const [showTimeline, setShowTimeline] = useState(false)
+  const [confirmCancel, setConfirmCancel] = useState(false)
+  const [payLoading, setPayLoading] = useState(false)
 
   const handleCancel = async () => {
     const result = await dispatch(cancelReturn(request.returnId))
@@ -84,11 +83,8 @@ export default function ReturnStatusCard({ request, onResubmit }) {
     setPayLoading(false)
     if (initiateReturnPaymentThunk.fulfilled.match(result)) {
       const { redirectUrl } = result.payload
-      if (redirectUrl) {
-        window.location.href = redirectUrl
-      } else {
-        toast.error('Payment gateway unavailable. Please try later.')
-      }
+      if (redirectUrl) window.location.href = redirectUrl
+      else toast.error('Payment gateway unavailable. Please try later.')
     } else {
       toast.error(result.payload || 'Failed to initiate payment')
     }
@@ -97,125 +93,97 @@ export default function ReturnStatusCard({ request, onResubmit }) {
   const canResubmit = request.status === 'rejected' && request.resubmissionAllowed && (request.resubmissionCount || 0) === 0
 
   return (
-    <div style={{
-      background: '#fff', padding: 24,
-      border: '1px solid #E5E5E5', borderLeftWidth: 4, borderLeftColor: '#EE6B83',
-      marginTop: 16,
-    }}>
-      {/* Payment Required notice */}
+    <div className="bg-[#141414] p-6 border border-[#242424] border-l-4 border-l-[#B8976A] mt-4 rounded-lg">
       {(request.status === 'payment_pending' || (request.status === 'approved' && request.priceDifference > 0)) && (
-        <div style={{ background: '#fefce8', border: '1px solid #fde68a', padding: '12px 16px', marginBottom: 16 }}>
-          <p style={{ fontSize: 13, fontWeight: 600, color: '#a16207', margin: '0 0 8px' }}>
+        <div className="bg-[#fefce8] border border-[#fde68a] p-3 px-4 mb-4 rounded-lg">
+          <p className="text-[13px] font-semibold text-[#a16207] mb-2">
             Payment Required — ₹{request.priceDifference?.toLocaleString('en-IN')}
           </p>
-          <p style={{ fontSize: 12, color: '#92400e', margin: '0 0 10px' }}>
+          <p className="text-[12px] text-[#92400e] mb-3">
             Pay the price difference to confirm your exchange.
           </p>
           <button onClick={handlePayNow} disabled={payLoading}
-            style={{
-              height: 36, background: '#EE6B83', color: '#fff', border: 'none',
-              padding: '0 20px', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.08em',
-              cursor: payLoading ? 'not-allowed' : 'pointer', opacity: payLoading ? 0.6 : 1,
-              display: 'inline-flex', alignItems: 'center', gap: 6, borderRadius: 8,
-            }}>
+            className="h-9 bg-gradient-to-r from-[#E8A0B0] to-[#D48A9A] text-white border-none px-5 text-[12px] uppercase tracking-[0.08em] cursor-pointer disabled:opacity-60 inline-flex items-center gap-1.5 rounded-lg transition-all hover:shadow-[0_8px_30px_rgba(238,107,131,0.3)]">
             {payLoading && <Loader2 size={12} className="animate-spin" />}
             Pay Now
           </button>
         </div>
       )}
 
-      {/* Top row */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
+      <div className="flex justify-between items-start flex-wrap gap-2 mb-3">
         <div>
-          <p style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#6B6B6B', margin: '0 0 4px' }}>
+          <p className="text-[11px] uppercase tracking-[0.06em] text-[#5C5C5C] mb-1">
             {request.type === 'return' ? 'Return Request' : 'Exchange Request'}
           </p>
-          <p style={{ fontFamily: 'monospace', fontSize: 16, fontWeight: 600, color: '#0A0A0A', margin: 0 }}>
-            {request.returnId}
-          </p>
+          <p className="font-mono text-[16px] font-semibold text-white m-0">{request.returnId}</p>
         </div>
-        <div style={{ textAlign: 'right' }}>
+        <div className="text-right">
           <Badge status={request.status} />
-          <p style={{ fontSize: 12, color: '#6B6B6B', margin: '4px 0 0' }}>
+          <p className="text-[12px] text-[#5C5C5C] mt-1">
             {new Date(request.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}
           </p>
         </div>
       </div>
 
-      {/* Status message */}
-      <p style={{ fontSize: 13, color: '#0A0A0A', margin: '0 0 8px' }}>{statusMessage(request)}</p>
+      <p className="text-[13px] text-white mb-2">{statusMessage(request)}</p>
 
-      {/* Admin note */}
       {(request.status === 'rejected' || request.status === 'refund_rejected') && request.adminNote && (
-        <div style={{ background: '#fef2f2', border: '1px solid #fecaca', padding: '10px 14px', marginBottom: 10 }}>
-          <p style={{ fontSize: 13, color: '#b91c1c', margin: 0 }}>Reason: {request.adminNote}</p>
+        <div className="bg-[#fef2f2] border border-[#fecaca] p-2.5 px-3.5 mb-2.5 rounded-lg">
+          <p className="text-[13px] text-[#b91c1c] m-0">Reason: {request.adminNote}</p>
         </div>
       )}
       {request.adminNote && !['rejected', 'refund_rejected'].includes(request.status) && (
-        <div style={{ background: '#FCD4DB', padding: '10px 14px', marginBottom: 10 }}>
-          <p style={{ fontSize: 13, color: '#6B6B6B', margin: 0 }}>Note from LUXORA JEWELLERY: {request.adminNote}</p>
+        <div className="bg-[#1C1C1C] p-2.5 px-3.5 mb-2.5 rounded-lg">
+          <p className="text-[13px] text-[#9A9A9A] m-0">Note from ZYLARA: {request.adminNote}</p>
         </div>
       )}
 
-      {/* Hard reject notice */}
       {request.status === 'rejected' && request.rejectionType === 'hard' && (
-        <p style={{ fontSize: 13, color: '#ef4444', margin: '0 0 10px' }}>
-          This request has been permanently closed.
-        </p>
+        <p className="text-[13px] text-[#EF4444] mb-2.5">This request has been permanently closed.</p>
       )}
 
-      {/* Refund method info */}
       {request.refundMethod && (
-        <p style={{ fontSize: 12, color: '#6B6B6B', margin: '0 0 8px' }}>
-          Refund method: <strong>{request.refundMethod === 'bank_transfer' ? 'Bank Transfer' : 'LUXORA Wallet'}</strong>
+        <p className="text-[12px] text-[#9A9A9A] mb-2">
+          Refund method: <strong className="text-white">{request.refundMethod === 'bank_transfer' ? 'Bank Transfer' : 'ZYLARA Wallet'}</strong>
           {request.refundMethod === 'wallet' && request.walletCreditAmount > 0 && (
             <span> · ₹{request.walletCreditAmount?.toLocaleString('en-IN')} (incl. 10% bonus)</span>
           )}
         </p>
       )}
 
-      {/* Wallet credit status */}
       {request.refundMethod === 'wallet' && request.status === 'refund_approved' && (
-        <div style={{ background: '#fefce8', border: '1px solid #fde68a', padding: '8px 12px', marginBottom: 8, display: 'inline-block' }}>
-          <p style={{ fontSize: 12, color: '#a16207', margin: 0 }}>
-            Wallet credit of ₹{request.walletCreditAmount?.toLocaleString('en-IN')} pending admin approval
-          </p>
+        <div className="bg-[#fefce8] border border-[#fde68a] p-2 px-3 mb-2 inline-block rounded-lg">
+          <p className="text-[12px] text-[#a16207] m-0">Wallet credit of ₹{request.walletCreditAmount?.toLocaleString('en-IN')} pending admin approval</p>
         </div>
       )}
       {request.refundMethod === 'wallet' && request.status === 'refund_processed' && (
-        <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', padding: '8px 12px', marginBottom: 8, display: 'inline-block' }}>
-          <p style={{ fontSize: 12, color: '#15803d', margin: 0 }}>
-            ₹{request.walletCreditAmount?.toLocaleString('en-IN')} credited to your LUXORA wallet
-          </p>
+        <div className="bg-[#f0fdf4] border border-[#bbf7d0] p-2 px-3 mb-2 inline-block rounded-lg">
+          <p className="text-[12px] text-[#15803d] m-0">₹{request.walletCreditAmount?.toLocaleString('en-IN')} credited to your ZYLARA wallet</p>
         </div>
       )}
 
-      {/* Items summary */}
       {request.items?.length > 0 && (
-        <div style={{ marginTop: 12, marginBottom: 8 }}>
+        <div className="mt-3 mb-2">
           {request.items.map((item, i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+            <div key={i} className="flex items-center gap-2.5 mb-2">
               {item.image
-                ? <img src={item.image} alt={item.name} style={{ width: 40, height: 48, objectFit: 'cover', border: '1px solid #E5E5E5', flexShrink: 0 }} />
-                : <div style={{ width: 40, height: 48, background: '#FCD4DB', flexShrink: 0 }} />
+                ? <img src={item.image} alt={item.name} className="w-10 h-12 object-cover border border-[#242424] rounded flex-shrink-0" />
+                : <div className="w-10 h-12 bg-[#1C1C1C] rounded flex-shrink-0" />
               }
               <div>
-                <p style={{ fontSize: 13, fontWeight: 500, color: '#0A0A0A', margin: 0 }}>{item.name}</p>
-                <p style={{ fontSize: 12, color: '#6B6B6B', margin: '2px 0 0' }}>
+                <p className="text-[13px] font-medium text-white m-0">{item.name}</p>
+                <p className="text-[12px] text-[#9A9A9A] m-0 mt-0.5">
                   {item.orderedSize}
-                  {request.type === 'exchange' && item.exchangeSize && (
-                    <span style={{ color: '#1d4ed8' }}> → {item.exchangeSize}</span>
-                  )}
+                  {request.type === 'exchange' && item.exchangeSize && <span className="text-[#1d4ed8]"> → {item.exchangeSize}</span>}
                   {' '}&nbsp;·&nbsp; Qty {item.qty}
                 </p>
               </div>
             </div>
           ))}
-          {/* New product for different_product exchange */}
           {request.newProduct?.name && (
-            <div style={{ marginTop: 8, padding: '8px 12px', background: '#eff6ff', border: '1px solid #bfdbfe' }}>
-              <p style={{ fontSize: 12, color: '#6B6B6B', margin: 0 }}>
-                Replacement: <strong style={{ color: '#1d4ed8' }}>{request.newProduct.name}</strong>
+            <div className="mt-2 p-2 px-3 bg-[#eff6ff] border border-[#bfdbfe] rounded-lg">
+              <p className="text-[12px] text-[#9A9A9A] m-0">
+                Replacement: <strong className="text-[#1d4ed8]">{request.newProduct.name}</strong>
                 {request.newProduct.size && <span> (Size: {request.newProduct.size})</span>}
               </p>
             </div>
@@ -223,26 +191,25 @@ export default function ReturnStatusCard({ request, onResubmit }) {
         </div>
       )}
 
-      {/* Timeline */}
       {request.statusHistory?.length > 0 && (
-        <div style={{ marginTop: 12 }}>
+        <div className="mt-3">
           <button onClick={() => setShowTimeline(v => !v)}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, color: '#6B6B6B', display: 'flex', alignItems: 'center', gap: 4, padding: 0 }}>
+            className="bg-transparent border-none cursor-pointer text-[13px] text-[#9A9A9A] flex items-center gap-1 p-0 hover:text-white transition-colors">
             {showTimeline ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
             {showTimeline ? 'Hide Timeline' : 'View Timeline'}
           </button>
           {showTimeline && (
-            <div style={{ marginTop: 12, paddingLeft: 8, borderLeft: '2px solid #E5E5E5' }}>
+            <div className="mt-3 pl-2 border-l-2 border-[#242424]">
               {request.statusHistory.map((h, i) => (
-                <div key={i} style={{ marginBottom: 10 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <div style={{ width: 8, height: 8, borderRadius: '50%', background: i === request.statusHistory.length - 1 ? '#EE6B83' : '#0A0A0A', flexShrink: 0, marginLeft: -12 }} />
+                <div key={i} className="mb-2.5">
+                  <div className="flex items-center gap-1.5">
+                    <div className={`w-2 h-2 rounded-full flex-shrink-0 -ml-[9px] ${i === request.statusHistory.length - 1 ? 'bg-[#B8976A]' : 'bg-white'}`} />
                     <Badge status={h.status} />
-                    <span style={{ fontSize: 11, color: '#9CA3AF' }}>
+                    <span className="text-[11px] text-[#5C5C5C]">
                       {new Date(h.timestamp).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
                     </span>
                   </div>
-                  {h.note && <p style={{ fontSize: 11, color: '#6B6B6B', margin: '2px 0 0 12px', fontStyle: 'italic' }}>{h.note}</p>}
+                  {h.note && <p className="text-[11px] text-[#9A9A9A] m-0 mt-0.5 ml-3 italic">{h.note}</p>}
                 </div>
               ))}
             </div>
@@ -250,24 +217,23 @@ export default function ReturnStatusCard({ request, onResubmit }) {
         </div>
       )}
 
-      {/* Cancel button */}
       {canCancel(request) && (
-        <div style={{ marginTop: 12 }}>
+        <div className="mt-3">
           {!confirmCancel ? (
             <button onClick={() => setConfirmCancel(true)}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: '#ef4444', padding: 0, textDecoration: 'underline' }}>
+              className="bg-transparent border-none cursor-pointer text-[12px] text-[#EF4444] p-0 underline">
               Cancel Request
             </button>
           ) : (
-            <span style={{ fontSize: 12 }}>
+            <span className="text-[12px]">
               Are you sure?{' '}
               <button onClick={handleCancel}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', fontWeight: 600, textDecoration: 'underline', padding: 0, fontSize: 12 }}>
+                className="bg-transparent border-none cursor-pointer text-[#EF4444] font-semibold underline p-0 text-[12px]">
                 Yes, Cancel
               </button>
               {' '}·{' '}
               <button onClick={() => setConfirmCancel(false)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6B6B6B', padding: 0, fontSize: 12 }}>
+                className="bg-transparent border-none cursor-pointer text-[#9A9A9A] p-0 text-[12px]">
                 Keep Request
               </button>
             </span>
@@ -275,17 +241,11 @@ export default function ReturnStatusCard({ request, onResubmit }) {
         </div>
       )}
 
-      {/* Resubmission option */}
       {canResubmit && (
-        <div style={{ marginTop: 12, background: '#f0fdf4', border: '1px solid #bbf7d0', padding: '12px 16px' }}>
-          <p style={{ fontSize: 13, color: '#15803d', margin: '0 0 8px' }}>You can resubmit this request once</p>
-          <button
-            onClick={() => onResubmit?.({ originalReturnId: request.returnId, type: request.type })}
-            style={{
-              height: 36, border: '1px solid #EE6B83', background: '#fff',
-              padding: '0 20px', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.08em',
-              cursor: 'pointer', color: '#EE6B83', borderRadius: 8
-            }}>
+        <div className="mt-3 bg-[#f0fdf4] border border-[#bbf7d0] p-3 px-4 rounded-lg">
+          <p className="text-[13px] text-[#15803d] mb-2">You can resubmit this request once</p>
+          <button onClick={() => onResubmit?.({ originalReturnId: request.returnId, type: request.type })}
+            className="h-9 border border-[#B8976A] bg-transparent px-5 text-[12px] uppercase tracking-[0.08em] cursor-pointer text-[#B8976A] rounded-lg hover:bg-[#B8976A] hover:text-white transition-colors">
             Resubmit Request
           </button>
         </div>

@@ -13,10 +13,10 @@ export default function ColorSelector({ colors, selected, onChange }) {
           key={color}
           title={color}
           onClick={() => onChange(color)}
-          className={`w-8 h-8 rounded-full border-2 transition-all ${
+          className={`w-9 h-10 rounded-full border-2 transition-all ${
             selected === color
-              ? 'border-[#EE6B83] ring-2 ring-[#EE6B83] ring-offset-2'
-              : 'border-gray-200 hover:border-gray-400'
+              ? 'border-[#B8976A] ring-2 ring-[#B8976A] ring-offset-2 ring-offset-[#141414]'
+              : 'border-[#242424] hover:border-[#5C5C5C]'
           }`}
           style={{ backgroundColor: COLOR_MAP[color] || '#ccc' }}
         />

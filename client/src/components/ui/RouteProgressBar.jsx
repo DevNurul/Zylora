@@ -47,13 +47,14 @@ const RouteProgressBar = () => {
 
   return (
     <div
-      className="fixed top-0 left-0 z-29 h-[2px] bg-[#EE6B83]"
+      className="fixed top-0 left-0 z-29 h-[2px]"
       style={{
         width: `${progress}%`,
+        background: 'linear-gradient(90deg, #B8976A, #E8A0B0)',
         transition: completing
           ? 'width 200ms ease-in, opacity 300ms ease-in 200ms'
           : 'width 400ms ease-out',
-        boxShadow: '0 0 8px rgba(238,107,131,0.6)',
+        boxShadow: '0 0 8px rgba(201,168,106,0.6)',
         opacity: completing ? 0 : 1,
       }}
     />

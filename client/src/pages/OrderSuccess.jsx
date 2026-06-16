@@ -12,7 +12,7 @@ function AnimatedCheck() {
         <circle
           cx="40" cy="40" r="36"
           fill="none"
-          stroke="#22c55e"
+          stroke="#B8976A"
           strokeWidth="2"
           strokeDasharray="226"
           strokeDashoffset="226"
@@ -21,7 +21,7 @@ function AnimatedCheck() {
         />
         <path
           fill="none"
-          stroke="#22c55e"
+          stroke="#B8976A"
           strokeWidth="3"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -45,11 +45,11 @@ export default function OrderSuccess() {
 
   if (!order) {
     return (
-      <div className="min-h-[70vh] flex flex-col items-center justify-center gap-5 px-4">
-        <h1 className="text-2xl font-semibold">No order found</h1>
+      <div className="min-h-[70vh] flex flex-col items-center justify-center gap-6 px-4">
+        <h1 className="font-serif text-2xl text-white">No order found</h1>
         <button
           onClick={() => navigate('/')}
-          className="border border-[#EE6B83] text-[#EE6B83] px-8 py-3 text-sm hover:bg-[#FCD4DB] hover:text-[#EE6B83] transition-colors rounded-lg"
+          className="bg-gradient-to-r from-[#B8976A] to-[#A88345] text-white px-8 py-3 text-xs uppercase tracking-[0.12em] font-medium hover:shadow-lg hover:shadow-[#B8976A]/20 transition-all rounded-xl"
         >
           Go Home
         </button>
@@ -64,54 +64,54 @@ export default function OrderSuccess() {
   }
 
   return (
-    <div className="min-h-screen flex items-start justify-center px-4 py-16">
+    <div className="min-h-screen flex items-start justify-center px-4 py-10 md:py-16">
       <div className="w-full max-w-lg text-center">
         <AnimatedCheck />
 
-        <h1 className="text-2xl md:text-3xl font-semibold mb-2">Order Placed!</h1>
-        <p className="text-[15px] text-[#6B6B6B] mb-10">
+        <h1 className="font-serif text-2xl md:text-3xl text-white mb-2 font-light">Order Placed!</h1>
+        <p className="text-sm text-[#5C5C5C] mb-10">
           Thank you, {order.fullName?.split(' ')[0] || 'there'}. We'll get it to you soon.
         </p>
 
-        <div className="bg-gray-50 border border-gray-200 px-6 py-5 flex items-center justify-between mb-3">
+        <div className="bg-[#141414] border border-[#242424] rounded-2xl px-6 py-5 flex items-center justify-between mb-3">
           <div className="text-left">
-            <p className="text-xs text-[#9CA3AF] mb-1 uppercase tracking-wide">Order ID</p>
-            <p className="font-mono text-lg font-bold tracking-wider">{order.orderId}</p>
+            <p className="text-[10px] text-[#5C5C5C] mb-1 uppercase tracking-wider">Order ID</p>
+            <p className="font-mono text-lg font-medium tracking-wider text-white break-all">{order.orderId}</p>
           </div>
           <button
             onClick={copyOrderId}
-            className="flex items-center gap-1.5 text-xs text-[#9CA3AF] hover:text-[#0A0A0A] transition-colors"
+            className="flex items-center gap-1.5 text-xs text-[#5C5C5C] hover:text-[#B8976A] transition-colors"
           >
-            {copied ? <Check size={13} className="text-green-500" /> : <Copy size={13} />}
+            {copied ? <Check size={13} className="text-[#2E7D32]" /> : <Copy size={13} />}
             {copied ? 'Copied!' : 'Copy'}
           </button>
         </div>
 
-        <p className="text-xs text-[#9CA3AF] mb-8">Save this ID to track your delivery</p>
+        <p className="text-xs text-[#5C5C5C] mb-8">Save this ID to track your delivery</p>
 
         {order.items?.length > 0 && (
-          <div className="border border-gray-200 text-left mb-6">
+          <div className="bg-[#141414] border border-[#242424] rounded-2xl text-left mb-6 overflow-hidden">
             <button
               onClick={() => setExpanded(!expanded)}
-              className="flex items-center justify-between w-full px-5 py-4 text-[13px] font-medium hover:bg-gray-50 transition-colors"
+              className="flex items-center justify-between w-full px-5 py-4 text-sm font-medium hover:bg-white/5 transition-colors text-white"
             >
               <span>Order Items ({order.items.length})</span>
-              {expanded ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
+              {expanded ? <ChevronUp size={15} className="text-[#5C5C5C]" /> : <ChevronDown size={15} className="text-[#5C5C5C]" />}
             </button>
             {expanded && (
-              <div className="border-t border-gray-100 px-5 py-4 space-y-3">
+              <div className="border-t border-[#242424] px-5 py-4 space-y-3">
                 {order.items.map((item) => (
-                  <div key={`${item.id}-${item.size}-${item.color}`} className="flex justify-between text-[13px]">
+                  <div key={`${item.id}-${item.size}-${item.color}`} className="flex justify-between text-sm">
                     <div>
-                      <p className="font-medium">{item.name}</p>
-                      <p className="text-[11px] text-[#9CA3AF] mt-0.5 uppercase">{item.size} · {item.color} · ×{item.qty}</p>
+                      <p className="font-medium text-white">{item.name}</p>
+                      <p className="text-[10px] text-[#5C5C5C] mt-0.5 uppercase">{item.size} · {item.color} · x{item.qty}</p>
                     </div>
-                    <span className="font-semibold">{formatPrice(item.price * item.qty)}</span>
+                    <span className="font-medium text-white">{formatPrice(item.price * item.qty)}</span>
                   </div>
                 ))}
-                <div className="border-t border-gray-100 pt-3 flex justify-between text-[14px] font-semibold">
-                  <span>Total</span>
-                  <span>{formatPrice(order.total)}</span>
+                <div className="border-t border-[#242424] pt-3 flex justify-between text-sm font-medium">
+                  <span className="text-[#9A9A9A]">Total</span>
+                  <span className="text-white">{formatPrice(order.total)}</span>
                 </div>
               </div>
             )}
@@ -121,13 +121,13 @@ export default function OrderSuccess() {
         <div className="flex flex-col sm:flex-row gap-3">
           <button
             onClick={() => navigate('/track-order')}
-            className="flex-1 border border-[#EE6B83] text-[#EE6B83] py-3.5 text-sm uppercase tracking-widest font-medium hover:bg-[#FCD4DB] hover:text-[#EE6B83] transition-colors rounded-lg"
+            className="flex-1 border border-[#B8976A]/30 text-[#B8976A] py-3.5 text-xs uppercase tracking-widest font-medium hover:bg-[#B8976A]/10 transition-all rounded-xl"
           >
             Track Order
           </button>
           <button
             onClick={() => navigate('/products')}
-            className="flex-1 bg-[#EE6B83] text-white py-3.5 text-sm uppercase tracking-widest font-medium hover:bg-[#D9506A] transition-colors rounded-lg"
+            className="flex-1 bg-gradient-to-r from-[#B8976A] to-[#A88345] text-white py-3.5 text-xs uppercase tracking-widest font-medium hover:shadow-lg hover:shadow-[#B8976A]/20 transition-all rounded-xl"
           >
             Continue Shopping
           </button>
@@ -136,7 +136,7 @@ export default function OrderSuccess() {
           <div className="mt-4 text-center">
             <Link
               to="/my-orders"
-              className="text-[13px] text-[#6B6B6B] hover:text-[#EE6B83] transition-colors"
+              className="text-sm text-[#5C5C5C] hover:text-[#B8976A] transition-colors"
             >
               View in My Orders →
             </Link>

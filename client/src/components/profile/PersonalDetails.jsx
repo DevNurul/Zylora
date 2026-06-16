@@ -6,34 +6,11 @@ import { updateUserProfile } from '../../store/slices/profileSlice'
 import { useAuth } from '../../context/AuthContext'
 import { TOKEN_KEY } from '../../utils/authApi'
 
-const labelStyle = {
-  display: 'block',
-  fontSize: '11px',
-  textTransform: 'uppercase',
-  letterSpacing: '0.06em',
-  color: '#6B6B6B',
-  marginBottom: '4px',
-}
-
-const inputStyle = (disabled, err) => ({
-  width: '100%',
-  border: 'none',
-  borderBottom: `1px solid ${err ? '#EF4444' : disabled ? '#F0F0F0' : '#E5E5E5'}`,
-  padding: '9px 0',
-  fontSize: '15px',
-  background: 'transparent',
-  outline: 'none',
-  color: disabled ? '#B0B0B0' : '#0A0A0A',
-  boxSizing: 'border-box',
-  cursor: disabled ? 'not-allowed' : 'text',
-  transition: 'border-color 200ms',
-})
-
 function ViewRow({ label, value }) {
   return (
     <div>
-      <span style={labelStyle}>{label}</span>
-      <p style={{ fontSize: '15px', fontWeight: 500, color: '#0A0A0A', margin: '4px 0 0' }}>{value || '—'}</p>
+      <span className="block text-[11px] uppercase tracking-[0.06em] text-[#5C5C5C] mb-1">{label}</span>
+      <p className="text-sm font-medium text-white m-0">{value || '—'}</p>
     </div>
   )
 }
@@ -77,7 +54,6 @@ export default function PersonalDetails() {
 
     const result = await dispatch(updateUserProfile({ name: name.trim(), phone: phone.trim() }))
     if (updateUserProfile.fulfilled.match(result)) {
-      // Sync navbar — re-use existing token, just update user object in context
       const token = localStorage.getItem(TOKEN_KEY)
       if (token) login(token, result.payload)
       toast.success('Profile updated successfully')
@@ -88,18 +64,16 @@ export default function PersonalDetails() {
   }
 
   return (
-    <div style={{ background: '#fff', padding: '32px' }}>
+    <div className="bg-[#141414] border border-[#242424] rounded-2xl p-5 md:p-8">
       {/* Section header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
-        <span style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 500, color: '#0A0A0A' }}>
+      <div className="flex items-center justify-between mb-6">
+        <span className="text-xs uppercase tracking-[0.1em] font-semibold text-white">
           Personal Details
         </span>
         {!editing && (
           <button
             onClick={startEdit}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '13px', color: '#6B6B6B' }}
-            onMouseOver={(e) => { e.target.style.color = '#0A0A0A' }}
-            onMouseOut={(e) => { e.target.style.color = '#6B6B6B' }}
+            className="text-xs text-[#5C5C5C] hover:text-[#B8976A] transition-colors"
           >
             Edit
           </button>
@@ -107,49 +81,44 @@ export default function PersonalDetails() {
       </div>
 
       {!editing ? (
-        /* ── View mode ─────────────────────────────────────────────────────── */
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <ViewRow label="Full Name" value={profileUser?.name} />
           <div>
-            <span style={labelStyle}>
+            <span className="block text-[11px] uppercase tracking-[0.06em] text-[#5C5C5C] mb-1">
               Email Address
-              <span title="Cannot be changed" style={{ marginLeft: '6px', cursor: 'help', display: 'inline-flex', verticalAlign: 'middle' }}>
-                <Lock size={10} style={{ color: '#B0B0B0' }} />
+              <span title="Cannot be changed" className="ml-1.5 inline-flex align-middle">
+                <Lock size={10} className="text-[#5C5C5C]" />
               </span>
             </span>
-            <p style={{ fontSize: '15px', fontWeight: 500, color: '#B0B0B0', margin: '4px 0 0' }}>{profileUser?.email || '—'}</p>
+            <p className="text-sm font-medium text-[#5C5C5C] m-0">{profileUser?.email || '—'}</p>
           </div>
           <ViewRow label="Phone Number" value={profileUser?.phone} />
           <ViewRow label="Member Since" value={formatMonth(profileUser?.createdAt)} />
         </div>
       ) : (
-        /* ── Edit mode ─────────────────────────────────────────────────────── */
         <form onSubmit={handleSave} noValidate>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '24px' }}>
-            {/* Full Name */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div>
-              <label style={labelStyle}>Full Name</label>
+              <label className="block text-[11px] uppercase tracking-[0.06em] text-[#5C5C5C] mb-1">Full Name</label>
               <input
                 value={name}
                 onChange={(e) => { setName(e.target.value); setErrors((er) => ({ ...er, name: '' })) }}
-                style={inputStyle(false, !!errors.name)}
+                className="w-full border-b border-[#242424] py-2.5 text-sm bg-transparent outline-none text-white focus:border-[#B8976A] transition-colors"
               />
-              {errors.name && <span style={{ fontSize: '12px', color: '#EF4444', marginTop: '3px', display: 'block' }}>{errors.name}</span>}
+              {errors.name && <span className="text-xs text-[#E8A0B0] mt-1 block">{errors.name}</span>}
             </div>
 
-            {/* Email — locked */}
             <div>
-              <label style={labelStyle}>
+              <label className="block text-[11px] uppercase tracking-[0.06em] text-[#5C5C5C] mb-1">
                 Email Address
-                <Lock size={10} style={{ marginLeft: '6px', color: '#B0B0B0', verticalAlign: 'middle' }} />
+                <Lock size={10} className="ml-1.5 text-[#5C5C5C] inline align-middle" />
               </label>
-              <input value={profileUser?.email || ''} disabled style={inputStyle(true, false)} />
-              <span style={{ fontSize: '11px', color: '#B0B0B0', marginTop: '3px', display: 'block' }}>Cannot be changed</span>
+              <input value={profileUser?.email || ''} disabled className="w-full border-b border-[#242424] py-2.5 text-sm bg-transparent outline-none text-[#5C5C5C] cursor-not-allowed" />
+              <span className="text-[10px] text-[#5C5C5C] mt-1 block">Cannot be changed</span>
             </div>
 
-            {/* Phone */}
             <div>
-              <label style={labelStyle}>Phone Number</label>
+              <label className="block text-[11px] uppercase tracking-[0.06em] text-[#5C5C5C] mb-1">Phone Number</label>
               <input
                 value={phone}
                 onChange={(e) => {
@@ -158,31 +127,16 @@ export default function PersonalDetails() {
                 }}
                 inputMode="numeric"
                 maxLength={10}
-                style={inputStyle(false, !!errors.phone)}
+                className="w-full border-b border-[#242424] py-2.5 text-sm bg-transparent outline-none text-white focus:border-[#B8976A] transition-colors"
               />
-              {errors.phone && <span style={{ fontSize: '12px', color: '#EF4444', marginTop: '3px', display: 'block' }}>{errors.phone}</span>}
+              {errors.phone && <span className="text-xs text-[#E8A0B0] mt-1 block">{errors.phone}</span>}
             </div>
           </div>
 
           <button
             type="submit"
             disabled={updating}
-            style={{
-              width: '100%',
-              height: '48px',
-              background: '#0A0A0A',
-              color: '#fff',
-              fontSize: '13px',
-              letterSpacing: '0.1em',
-              textTransform: 'uppercase',
-              border: 'none',
-              cursor: updating ? 'not-allowed' : 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px',
-              opacity: updating ? 0.7 : 1,
-            }}
+            className="w-full h-12 bg-gradient-to-r from-[#B8976A] to-[#A88345] text-white text-xs uppercase tracking-[0.1em] font-semibold border-none rounded-xl cursor-pointer flex items-center justify-center gap-2 disabled:opacity-60 transition-all"
           >
             {updating && <Loader2 size={14} className="animate-spin" />}
             {updating ? 'Saving...' : 'Save Changes'}
@@ -190,7 +144,7 @@ export default function PersonalDetails() {
           <button
             type="button"
             onClick={cancelEdit}
-            style={{ marginTop: '12px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '13px', color: '#6B6B6B', display: 'block', width: '100%', textAlign: 'center' }}
+            className="mt-3 text-xs text-[#5C5C5C] hover:text-white transition-colors w-full text-center cursor-pointer bg-transparent border-none"
           >
             Cancel
           </button>

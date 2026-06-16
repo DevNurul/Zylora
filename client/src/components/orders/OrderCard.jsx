@@ -17,59 +17,51 @@ export default function OrderCard({ order }) {
   return (
     <div
       onClick={() => navigate(`/my-orders/${order.orderId}`)}
-      style={{
-        background:  '#fff',
-        border:      '1px solid #E5E5E5',
-        padding:     '24px',
-        cursor:      'pointer',
-        transition:  'border-color 200ms',
-      }}
-      onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#EE6B83' }}
-      onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#E5E5E5' }}
+      className="bg-[#141414] border border-[#242424] rounded-2xl p-6 cursor-pointer transition-all duration-300 hover:border-[#B8976A]/30 hover:shadow-[0_0_30px_rgba(201,168,106,0.08)]"
     >
       {/* Top row */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+      <div className="flex justify-between items-start">
         <div>
-          <p style={{ fontFamily: 'monospace', fontSize: 13, fontWeight: 600, color: '#0A0A0A', margin: 0 }}>
+          <p className="font-mono text-sm font-semibold text-white m-0">
             {order.orderId}
           </p>
-          <p style={{ fontSize: 12, color: '#6B6B6B', margin: '4px 0 0' }}>{formatDate(order.createdAt)}</p>
+          <p className="text-xs text-[#5C5C5C] mt-1">{formatDate(order.createdAt)}</p>
         </div>
-        <div style={{ textAlign: 'right' }}>
+        <div className="text-right">
           <StatusBadge status={order.status} />
-          <p style={{ fontSize: 16, fontWeight: 600, color: '#0A0A0A', margin: '6px 0 0' }}>
+          <p className="text-base font-semibold text-white mt-1.5">
             {formatPrice(order.total)}
           </p>
         </div>
       </div>
 
       {/* Product image strip */}
-      <div style={{ display: 'flex', gap: 8, margin: '16px 0' }}>
+      <div className="flex gap-2 my-4">
         {preview.map((item, i) => (
           item.image
-            ? <img key={i} src={item.image} alt={item.name} style={{ width: 64, height: 64, objectFit: 'cover', border: '1px solid #E5E5E5', flexShrink: 0 }} />
-            : <div key={i} style={{ width: 64, height: 64, background: '#FCD4DB', border: '1px solid #E5E5E5', flexShrink: 0 }} />
+            ? <img key={i} src={item.image} alt={item.name} className="w-16 h-16 object-cover border border-[#242424] rounded-xl flex-shrink-0" />
+            : <div key={i} className="w-16 h-16 bg-[#0A0A0A] border border-[#242424] rounded-xl flex-shrink-0" />
         ))}
         {extra > 0 && (
-          <div style={{ width: 64, height: 64, background: '#FCD4DB', border: '1px solid #E5E5E5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, color: '#6B6B6B', flexShrink: 0 }}>
+          <div className="w-16 h-16 bg-[#0A0A0A] border border-[#242424] rounded-xl flex items-center justify-center text-xs text-[#5C5C5C] flex-shrink-0">
             +{extra} more
           </div>
         )}
       </div>
 
       {/* Bottom row */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+      <div className="flex justify-between items-end">
         <div>
-          <p style={{ fontSize: 12, color: '#6B6B6B', margin: 0 }}>
+          <p className="text-xs text-[#5C5C5C] m-0">
             {order.itemCount} {order.itemCount === 1 ? 'item' : 'items'}
           </p>
           {order.shippingAddress?.city && (
-            <p style={{ fontSize: 12, color: '#6B6B6B', margin: '4px 0 0' }}>
+            <p className="text-xs text-[#5C5C5C] mt-1">
               {order.shippingAddress.city}, {order.shippingAddress.state}
             </p>
           )}
         </div>
-        <span style={{ fontSize: 13, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#0A0A0A', transition: 'color 200ms' }}>
+        <span className="text-xs uppercase tracking-[0.06em] text-[#9A9A9A] transition-colors hover:text-[#B8976A]">
           View Details →
         </span>
       </div>

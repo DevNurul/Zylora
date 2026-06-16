@@ -1,7 +1,9 @@
 import { useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { Loader2 } from 'lucide-react'
+import { Loader2, LogOut } from 'lucide-react'
 import { fetchProfile } from '../store/slices/profileSlice'
+import { useAuth } from '../context/AuthContext'
 import PersonalDetails from '../components/profile/PersonalDetails'
 import SavedAddresses from '../components/profile/SavedAddresses'
 
@@ -10,9 +12,10 @@ function SkeletonBlock({ h = 20, w = '100%', style = {} }) {
     <div style={{
       height: h,
       width: w,
-      background: 'linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)',
+      background: 'linear-gradient(90deg, #141414 25%, #1C1C1C 50%, #141414 75%)',
       backgroundSize: '200% 100%',
       animation: 'shimmer 1.5s infinite',
+      borderRadius: '8px',
       ...style,
     }} />
   )
@@ -22,9 +25,9 @@ function ProfileSkeleton() {
   return (
     <>
       <style>{`@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }`}</style>
-      <div style={{ background: '#fff', padding: '32px' }}>
+      <div className="bg-[#141414] border border-[#242424] rounded-2xl p-8">
         <SkeletonBlock h={14} w={140} style={{ marginBottom: '24px' }} />
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {[...Array(4)].map((_, i) => (
             <div key={i}>
               <SkeletonBlock h={10} w={80} style={{ marginBottom: '8px' }} />
@@ -33,9 +36,9 @@ function ProfileSkeleton() {
           ))}
         </div>
       </div>
-      <div style={{ background: '#fff', padding: '32px', marginTop: '24px' }}>
+      <div className="bg-[#141414] border border-[#242424] rounded-2xl p-5 md:p-8 mt-6">
         <SkeletonBlock h={14} w={160} style={{ marginBottom: '24px' }} />
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {[...Array(2)].map((_, i) => (
             <SkeletonBlock key={i} h={140} />
           ))}
@@ -47,27 +50,28 @@ function ProfileSkeleton() {
 
 export default function ProfilePage() {
   const dispatch = useDispatch()
+  const navigate = useNavigate()
+  const { logout } = useAuth()
   const { loading, error } = useSelector((s) => s.profile)
 
   useEffect(() => {
     dispatch(fetchProfile())
   }, [dispatch])
 
+  const handleLogout = async () => {
+    await logout()
+    navigate('/auth')
+  }
+
   return (
-    <div style={{ minHeight: '100vh', background: '#FCD4DB', padding: '48px 16px' }}>
-      <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+    <div className="min-h-screen bg-[#0A0A0A] px-4 py-12">
+      <div className="max-w-3xl mx-auto">
         {/* Page heading */}
-        <div style={{ marginBottom: '32px' }}>
-          <h1 style={{
-            fontFamily: '"Playfair Display", Georgia, serif',
-            fontSize: '32px',
-            color: '#0A0A0A',
-            margin: '0 0 8px',
-            fontWeight: 400,
-          }}>
+        <div className="mb-10">
+          <h1 className="font-serif text-3xl text-white mb-2 font-light">
             My Profile
           </h1>
-          <p style={{ fontSize: '14px', color: '#6B6B6B', margin: 0 }}>
+          <p className="text-sm text-[#5C5C5C]">
             Manage your account details and saved addresses
           </p>
         </div>
@@ -75,11 +79,11 @@ export default function ProfilePage() {
         {loading && <ProfileSkeleton />}
 
         {!loading && error && (
-          <div style={{ background: '#fff', padding: '48px', textAlign: 'center' }}>
-            <p style={{ color: '#EF4444', marginBottom: '16px' }}>{error}</p>
+          <div className="bg-[#141414] border border-[#242424] rounded-2xl p-5 md:p-8 md:p-12 text-center">
+            <p className="text-[#E8A0B0] mb-4">{error}</p>
             <button
               onClick={() => dispatch(fetchProfile())}
-              style={{ background: '#EE6B83', color: '#fff', border: 'none', padding: '10px 24px', cursor: 'pointer', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.08em', borderRadius: 8 }}
+              className="bg-gradient-to-r from-[#B8976A] to-[#A88345] text-white border-none px-6 py-3 cursor-pointer text-xs uppercase tracking-[0.1em] font-medium rounded-xl"
             >
               Retry
             </button>
@@ -90,6 +94,15 @@ export default function ProfilePage() {
           <>
             <PersonalDetails />
             <SavedAddresses />
+            <div className="mt-8">
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 px-6 py-3 border border-[#E8A0B0]/30 text-[#E8A0B0] hover:bg-[#E8A0B0]/10 hover:border-[#E8A0B0] text-xs uppercase tracking-[0.1em] font-medium rounded-xl transition-all cursor-pointer w-full md:w-auto justify-center"
+              >
+                <LogOut size={14} />
+                Sign Out
+              </button>
+            </div>
           </>
         )}
       </div>

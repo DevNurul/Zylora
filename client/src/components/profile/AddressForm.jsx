@@ -17,34 +17,12 @@ const EMPTY = {
   isDefault: false,
 }
 
-const inputStyle = (err) => ({
-  width: '100%',
-  border: 'none',
-  borderBottom: `1px solid ${err ? '#EF4444' : '#E5E5E5'}`,
-  padding: '9px 0',
-  fontSize: '14px',
-  background: 'transparent',
-  outline: 'none',
-  color: '#0A0A0A',
-  boxSizing: 'border-box',
-  transition: 'border-color 200ms',
-})
-
-const labelStyle = {
-  display: 'block',
-  fontSize: '11px',
-  textTransform: 'uppercase',
-  letterSpacing: '0.06em',
-  color: '#6B6B6B',
-  marginBottom: '3px',
-}
-
 function FormField({ label, error, children }) {
   return (
     <div>
-      <label style={labelStyle}>{label}</label>
+      <label className="block text-[11px] uppercase tracking-[0.06em] text-[#5C5C5C] mb-1">{label}</label>
       {children}
-      {error && <span style={{ fontSize: '12px', color: '#EF4444', marginTop: '3px', display: 'block' }}>{error}</span>}
+      {error && <span className="text-xs text-[#E8A0B0] mt-1 block">{error}</span>}
     </div>
   )
 }
@@ -111,18 +89,17 @@ export default function AddressForm({ existing, onCancel, onSuccess }) {
     }
   }
 
-  const selectStyle = (err) => ({
-    ...inputStyle(err),
-    appearance: 'auto',
-    cursor: 'pointer',
-  })
+  const inputClass = (err) =>
+    `w-full border-b ${err ? 'border-[#E8A0B0]' : 'border-[#242424]'} py-2.5 text-sm bg-transparent outline-none text-white focus:border-[#B8976A] transition-colors`
+
+  const selectClass = (err) =>
+    `w-full border-b ${err ? 'border-[#E8A0B0]' : 'border-[#242424]'} py-2.5 text-sm bg-transparent outline-none text-white focus:border-[#B8976A] transition-colors appearance-auto cursor-pointer`
 
   return (
-    <form onSubmit={handleSubmit} noValidate style={{ marginTop: '16px' }}>
-      {/* Label */}
-      <div style={{ marginBottom: '16px' }}>
+    <form onSubmit={handleSubmit} noValidate className="mt-4">
+      <div className="mb-4">
         <FormField label="Label">
-          <select value={form.label} onChange={set('label')} style={selectStyle(false)}>
+          <select value={form.label} onChange={set('label')} className={selectClass(false)}>
             <option value="Home">Home</option>
             <option value="Work">Work</option>
             <option value="Other">Other</option>
@@ -130,84 +107,62 @@ export default function AddressForm({ existing, onCancel, onSuccess }) {
         </FormField>
       </div>
 
-      {/* Full Name */}
-      <div style={{ marginBottom: '16px' }}>
+      <div className="mb-4">
         <FormField label="Full Name" error={errors.fullName}>
-          <input value={form.fullName} onChange={set('fullName')} placeholder="Name for this address" style={inputStyle(!!errors.fullName)} />
+          <input value={form.fullName} onChange={set('fullName')} placeholder="Name for this address" className={inputClass(!!errors.fullName)} />
         </FormField>
       </div>
 
-      {/* Phone */}
-      <div style={{ marginBottom: '16px' }}>
+      <div className="mb-4">
         <FormField label="Phone Number" error={errors.phone}>
-          <input value={form.phone} onChange={set('phone')} placeholder="10-digit number" inputMode="numeric" maxLength={10} style={inputStyle(!!errors.phone)} />
+          <input value={form.phone} onChange={set('phone')} placeholder="10-digit number" inputMode="numeric" maxLength={10} className={inputClass(!!errors.phone)} />
         </FormField>
       </div>
 
-      {/* Address Line 1 */}
-      <div style={{ marginBottom: '16px' }}>
+      <div className="mb-4">
         <FormField label="Address Line 1" error={errors.addressLine1}>
-          <input value={form.addressLine1} onChange={set('addressLine1')} placeholder="House/Flat no, Building, Street" style={inputStyle(!!errors.addressLine1)} />
+          <input value={form.addressLine1} onChange={set('addressLine1')} placeholder="House/Flat no, Building, Street" className={inputClass(!!errors.addressLine1)} />
         </FormField>
       </div>
 
-      {/* Address Line 2 */}
-      <div style={{ marginBottom: '16px' }}>
+      <div className="mb-4">
         <FormField label="Address Line 2 (optional)">
-          <input value={form.addressLine2} onChange={set('addressLine2')} placeholder="Area, Landmark (optional)" style={inputStyle(false)} />
+          <input value={form.addressLine2} onChange={set('addressLine2')} placeholder="Area, Landmark (optional)" className={inputClass(false)} />
         </FormField>
       </div>
 
-      {/* City / State / Pincode */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', marginBottom: '16px' }}>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
         <FormField label="City" error={errors.city}>
-          <input value={form.city} onChange={set('city')} placeholder="City" style={inputStyle(!!errors.city)} />
+          <input value={form.city} onChange={set('city')} placeholder="City" className={inputClass(!!errors.city)} />
         </FormField>
         <FormField label="State" error={errors.state}>
-          <select value={form.state} onChange={set('state')} style={selectStyle(!!errors.state)}>
+          <select value={form.state} onChange={set('state')} className={selectClass(!!errors.state)}>
             <option value="">Select</option>
             {INDIAN_STATES.map((s) => <option key={s} value={s}>{s}</option>)}
           </select>
         </FormField>
         <FormField label="Pincode" error={errors.pincode}>
-          <input value={form.pincode} onChange={set('pincode')} placeholder="6-digit pincode" inputMode="numeric" maxLength={6} style={inputStyle(!!errors.pincode)} />
+          <input value={form.pincode} onChange={set('pincode')} placeholder="6-digit pincode" inputMode="numeric" maxLength={6} className={inputClass(!!errors.pincode)} />
         </FormField>
       </div>
 
-      {/* Default checkbox */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px' }}>
+      <div className="flex items-center gap-2 mb-5">
         <input
           type="checkbox"
           id="isDefault"
           checked={form.isDefault}
           onChange={setCheck('isDefault')}
-          style={{ cursor: 'pointer', accentColor: '#0A0A0A' }}
+          className="cursor-pointer accent-[#B8976A]"
         />
-        <label htmlFor="isDefault" style={{ fontSize: '13px', color: '#6B6B6B', cursor: 'pointer' }}>
+        <label htmlFor="isDefault" className="text-xs text-[#5C5C5C] cursor-pointer">
           Set as my default address
         </label>
       </div>
 
-      {/* Buttons */}
       <button
         type="submit"
         disabled={updating}
-        style={{
-          width: '100%',
-          height: '48px',
-          background: '#0A0A0A',
-          color: '#fff',
-          fontSize: '13px',
-          letterSpacing: '0.1em',
-          textTransform: 'uppercase',
-          border: 'none',
-          cursor: updating ? 'not-allowed' : 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '8px',
-          opacity: updating ? 0.7 : 1,
-        }}
+        className="w-full h-12 bg-gradient-to-r from-[#B8976A] to-[#A88345] text-white text-xs uppercase tracking-[0.1em] font-semibold border-none rounded-xl cursor-pointer flex items-center justify-center gap-2 disabled:opacity-60 transition-all"
       >
         {updating && <Loader2 size={14} className="animate-spin" />}
         {updating ? 'Saving...' : 'Save Address'}
@@ -216,7 +171,7 @@ export default function AddressForm({ existing, onCancel, onSuccess }) {
       <button
         type="button"
         onClick={onCancel}
-        style={{ marginTop: '12px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '13px', color: '#6B6B6B', width: '100%' }}
+        className="mt-3 text-xs text-[#5C5C5C] hover:text-white transition-colors w-full text-center cursor-pointer bg-transparent border-none"
       >
         Cancel
       </button>

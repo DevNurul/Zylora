@@ -5,18 +5,13 @@ import toast from 'react-hot-toast'
 import { deleteUserAddress, setUserDefaultAddress } from '../../store/slices/profileSlice'
 import AddressForm from './AddressForm'
 
-function Badge({ children, dark }) {
+function Badge({ children, active }) {
   return (
-    <span style={{
-      display: 'inline-block',
-      fontSize: '10px',
-      textTransform: 'uppercase',
-      letterSpacing: '0.06em',
-      padding: '2px 8px',
-      background: dark ? '#EE6B83' : '#FCD4DB',
-      color: dark ? '#fff' : '#EE6B83',
-      marginRight: '6px',
-    }}>
+    <span className={`inline-block text-[9px] uppercase tracking-[0.06em] px-2.5 py-1 rounded-md mr-1.5 ${
+      active
+        ? 'bg-gradient-to-r from-[#B8976A] to-[#A88345] text-white'
+        : 'bg-[#242424] text-[#9A9A9A]'
+    }`}>
       {children}
     </span>
   )
@@ -55,29 +50,27 @@ export default function AddressCard({ address }) {
   }
 
   return (
-    <div style={{
-      border: `1px solid ${address.isDefault ? '#EE6B83' : '#E5E5E5'}`,
-      padding: '20px',
-      transition: 'border-color 200ms',
-    }}>
+    <div className={`border rounded-2xl p-5 transition-all duration-300 ${
+      address.isDefault ? 'border-[#B8976A]/50 bg-[#B8976A]/5' : 'border-[#242424] bg-[#0A0A0A]'
+    }`}>
       {/* Top row: badges + action icons */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '10px' }}>
+      <div className="flex items-start justify-between mb-3">
         <div>
           <Badge>{address.label}</Badge>
-          {address.isDefault && <Badge dark>Default</Badge>}
+          {address.isDefault && <Badge active>Default</Badge>}
         </div>
-        <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
+        <div className="flex gap-2 flex-shrink-0">
           <button
             onClick={() => { setEditing((v) => !v); setConfirmDel(false) }}
             title="Edit"
-            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6B6B6B', padding: '2px', lineHeight: 0 }}
+            className="p-1.5 text-[#5C5C5C] hover:text-[#B8976A] hover:bg-[#B8976A]/10 rounded-lg transition-all"
           >
             <Pencil size={14} />
           </button>
           <button
             onClick={() => { setConfirmDel((v) => !v); setEditing(false) }}
             title="Delete"
-            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6B6B6B', padding: '2px', lineHeight: 0 }}
+            className="p-1.5 text-[#5C5C5C] hover:text-[#E8A0B0] hover:bg-[#E8A0B0]/10 rounded-lg transition-all"
           >
             <Trash2 size={14} />
           </button>
@@ -85,25 +78,16 @@ export default function AddressCard({ address }) {
       </div>
 
       {/* Address details */}
-      <p style={{ fontSize: '15px', fontWeight: 500, color: '#0A0A0A', margin: '0 0 4px' }}>{address.fullName}</p>
-      <p style={{ fontSize: '13px', color: '#6B6B6B', margin: '0 0 6px' }}>{address.phone}</p>
-      <p style={{ fontSize: '13px', color: '#6B6B6B', lineHeight: 1.6, margin: 0 }}>{fullAddressLine}</p>
+      <p className="text-sm font-medium text-white m-0 mb-1">{address.fullName}</p>
+      <p className="text-xs text-[#5C5C5C] m-0 mb-1.5">{address.phone}</p>
+      <p className="text-xs text-[#5C5C5C] leading-relaxed m-0">{fullAddressLine}</p>
 
       {/* Set as Default link */}
       {!address.isDefault && !editing && !confirmDel && (
         <button
           onClick={handleSetDefault}
           disabled={updating}
-          style={{
-            marginTop: '12px',
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            fontSize: '13px',
-            color: '#6B6B6B',
-            padding: 0,
-            textDecoration: 'underline',
-          }}
+          className="mt-3 text-xs text-[#5C5C5C] hover:text-[#B8976A] transition-colors underline cursor-pointer bg-transparent border-none p-0"
         >
           Set as Default
         </button>
@@ -111,19 +95,19 @@ export default function AddressCard({ address }) {
 
       {/* Inline delete confirmation */}
       {confirmDel && (
-        <div style={{ marginTop: '12px', fontSize: '13px', color: '#0A0A0A' }}>
+        <div className="mt-3 text-xs text-white">
           Remove this address?{' '}
           <button
             onClick={handleDelete}
             disabled={updating}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444', fontWeight: 600, textDecoration: 'underline', padding: 0 }}
+            className="bg-transparent border-none cursor-pointer text-[#E8A0B0] font-semibold underline p-0"
           >
             Yes
           </button>
           {' '}·{' '}
           <button
             onClick={() => setConfirmDel(false)}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6B6B6B', padding: 0 }}
+            className="bg-transparent border-none cursor-pointer text-[#5C5C5C] p-0"
           >
             Cancel
           </button>

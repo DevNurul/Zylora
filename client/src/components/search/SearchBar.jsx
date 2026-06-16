@@ -13,7 +13,7 @@ const SuggestionItem = memo(function SuggestionItem({ product, index, activeInde
     const parts = text.split(regex)
     return parts.map((part, i) =>
       regex.test(part) ? (
-        <mark key={i} className="bg-transparent font-semibold text-black not-italic">
+        <mark key={i} className="bg-transparent font-semibold text-[#B8976A] not-italic">
           {part}
         </mark>
       ) : (
@@ -28,12 +28,12 @@ const SuggestionItem = memo(function SuggestionItem({ product, index, activeInde
       aria-selected={isActive}
       onClick={() => onSelect(product)}
       onMouseEnter={() => onHover(index)}
-      className={`flex items-center gap-4 px-4 py-3 cursor-pointer transition-colors duration-150 ${
-        isActive ? 'bg-[#FCD4DB]' : 'hover:bg-gray-50'
-      } border-b border-gray-50 last:border-b-0`}
+      className={`flex items-center gap-4 px-4 py-3 cursor-pointer transition-colors duration-200 ${
+        isActive ? 'bg-[#B8976A]/10' : 'hover:bg-white/5'
+      } border-b border-[#242424]/50 last:border-b-0`}
     >
       {/* Product image */}
-      <div className="w-12 h-14 flex-shrink-0 overflow-hidden bg-gray-100">
+      <div className="w-12 h-14 flex-shrink-0 overflow-hidden bg-[#141414] rounded-lg">
         {product.image ? (
           <img
             src={product.image}
@@ -42,26 +42,26 @@ const SuggestionItem = memo(function SuggestionItem({ product, index, activeInde
             loading="lazy"
           />
         ) : (
-          <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-            <Search className="w-4 h-4 text-gray-400" />
+          <div className="w-full h-full bg-[#1C1C1C] flex items-center justify-center">
+            <Search className="w-4 h-4 text-[#5C5C5C]" />
           </div>
         )}
       </div>
 
       {/* Product info */}
       <div className="flex-1 min-w-0">
-        <p className="text-xs uppercase tracking-wider text-gray-400 mb-0.5">
+        <p className="text-[10px] uppercase tracking-wider text-[#5C5C5C] mb-0.5">
           {product.category?.name}
         </p>
-        <p className="text-sm font-medium text-black truncate">
+        <p className="text-sm font-medium text-white truncate">
           {highlightMatch(product.name)}
         </p>
         <div className="flex items-center gap-2 mt-1">
-          <span className="text-sm font-semibold">
+          <span className="text-sm font-semibold text-white">
             ₹{product.price.toLocaleString('en-IN')}
           </span>
           {product.isSale && product.originalPrice && (
-            <span className="text-xs text-gray-400 line-through">
+            <span className="text-xs text-[#5C5C5C] line-through">
               ₹{product.originalPrice.toLocaleString('en-IN')}
             </span>
           )}
@@ -71,12 +71,12 @@ const SuggestionItem = memo(function SuggestionItem({ product, index, activeInde
       {/* Badges */}
       <div className="flex flex-col gap-1 flex-shrink-0">
         {product.isNew && (
-          <span className="text-[10px] uppercase tracking-wider bg-black text-white px-1.5 py-0.5">
+          <span className="text-[9px] uppercase tracking-wider bg-gradient-to-r from-[#B8976A] to-[#A88345] text-white px-2 py-0.5 rounded-md">
             New
           </span>
         )}
         {product.isSale && (
-          <span className="text-[10px] uppercase tracking-wider bg-red-500 text-white px-1.5 py-0.5">
+          <span className="text-[9px] uppercase tracking-wider bg-gradient-to-r from-[#E8A0B0] to-[#D48A9A] text-white px-2 py-0.5 rounded-md">
             Sale
           </span>
         )}
@@ -169,8 +169,8 @@ const SearchBar = ({ onClose }) => {
   return (
     <div ref={containerRef} className="relative w-full max-w-xl">
       {/* Input row */}
-      <div className="flex items-center border-b border-black pb-2">
-        <Search className="w-4 h-4 text-gray-400 flex-shrink-0 mr-3" />
+      <div className="flex items-center border-b border-[#242424] pb-3">
+        <Search className="w-4 h-4 text-[#5C5C5C] flex-shrink-0 mr-3" />
 
         <input
           ref={inputRef}
@@ -184,19 +184,19 @@ const SearchBar = ({ onClose }) => {
           aria-autocomplete="list"
           aria-controls="search-suggestions"
           role="combobox"
-          className="flex-1 bg-transparent outline-none text-[15px] placeholder:text-gray-400 text-black"
+          className="flex-1 bg-transparent outline-none text-[15px] placeholder:text-[#5C5C5C] text-white"
           autoComplete="off"
           spellCheck="false"
         />
 
         {loading && (
-          <Loader2 className="w-4 h-4 text-gray-400 animate-spin flex-shrink-0 ml-2" />
+          <Loader2 className="w-4 h-4 text-[#5C5C5C] animate-spin flex-shrink-0 ml-2" />
         )}
 
         {query && !loading && (
           <button
             onClick={clearSearch}
-            className="ml-2 text-gray-400 hover:text-black transition-colors flex-shrink-0"
+            className="ml-2 text-[#5C5C5C] hover:text-white transition-colors flex-shrink-0"
             aria-label="Clear search"
           >
             <X className="w-4 h-4" />
@@ -206,7 +206,7 @@ const SearchBar = ({ onClose }) => {
 
       {/* Hint text */}
       {query.length > 0 && query.length < 3 && (
-        <p className="text-xs text-gray-400 mt-2 ml-7">Keep typing to search...</p>
+        <p className="text-xs text-[#5C5C5C] mt-2 ml-7">Keep typing to search...</p>
       )}
 
       {/* Suggestions dropdown */}
@@ -214,17 +214,17 @@ const SearchBar = ({ onClose }) => {
         <div
           id="search-suggestions"
           role="listbox"
-          className="absolute top-full left-0 right-0 bg-white border border-gray-200 border-t-0 z-50 shadow-lg max-h-[420px] overflow-y-auto animate-fadeIn [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="absolute top-full left-0 right-0 bg-[#141414] border border-[#242424] border-t-0 z-50 shadow-[0_10px_40px_rgba(0,0,0,0.5)] max-h-[420px] overflow-y-auto animate-fadeIn rounded-b-2xl [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           {/* Results header */}
           {suggestions.length > 0 && (
-            <div className="px-4 py-2 border-b border-gray-100 flex items-center justify-between">
-              <span className="text-xs uppercase tracking-wider text-gray-400">
+            <div className="px-4 py-2.5 border-b border-[#242424]/50 flex items-center justify-between">
+              <span className="text-[10px] uppercase tracking-wider text-[#5C5C5C]">
                 {suggestions.length} suggestion{suggestions.length !== 1 ? 's' : ''}
               </span>
               <button
                 onClick={() => handleFullSearch(query)}
-                className="text-xs uppercase tracking-wider text-black hover:text-gray-500 transition-colors"
+                className="text-[10px] uppercase tracking-wider text-[#B8976A] hover:text-[#E8A0B0] transition-colors"
               >
                 View all results →
               </button>
@@ -250,13 +250,13 @@ const SearchBar = ({ onClose }) => {
 
           {/* No results */}
           {!loading && suggestions.length === 0 && query.length >= 3 && (
-            <div className="px-4 py-8 text-center">
-              <Search className="w-8 h-8 text-gray-300 mx-auto mb-3" />
-              <p className="text-sm text-gray-500">No products found for</p>
-              <p className="text-sm font-medium text-black mt-1">"{query}"</p>
+            <div className="px-4 py-10 text-center">
+              <Search className="w-9 h-10 text-[#242424] mx-auto mb-3" />
+              <p className="text-sm text-[#5C5C5C]">No products found for</p>
+              <p className="text-sm font-medium text-white mt-1">"{query}"</p>
               <button
                 onClick={() => handleFullSearch(query)}
-                className="mt-4 text-xs uppercase tracking-wider border border-[#EE6B83] rounded-lg px-4 py-2 text-[#EE6B83] hover:bg-[#FCD4DB] transition-colors"
+                className="mt-4 text-[10px] uppercase tracking-wider border border-[#B8976A]/30 rounded-xl px-4 py-2 text-[#B8976A] hover:bg-[#B8976A]/10 transition-all"
               >
                 Search anyway →
               </button>
@@ -265,10 +265,10 @@ const SearchBar = ({ onClose }) => {
 
           {/* View all footer */}
           {suggestions.length > 0 && (
-            <div className="border-t border-gray-100">
+            <div className="border-t border-[#242424]/50">
               <button
                 onClick={() => handleFullSearch(query)}
-                className="w-full px-4 py-3 text-center text-xs uppercase tracking-wider text-gray-500 hover:bg-gray-50 hover:text-black transition-colors"
+                className="w-full px-4 py-3 text-center text-[10px] uppercase tracking-wider text-[#5C5C5C] hover:bg-white/5 hover:text-white transition-colors"
               >
                 See all results for "{query}"
               </button>

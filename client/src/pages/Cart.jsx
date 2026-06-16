@@ -52,16 +52,16 @@ export default function Cart() {
   if (items.length === 0) {
     return (
       <div className="min-h-[70vh] flex flex-col items-center justify-center gap-6 px-4">
-        <div className="w-20 h-20 border border-gray-100 rounded-full flex items-center justify-center">
-          <ShoppingBag size={28} className="text-gray-300" />
+        <div className="w-24 h-24 border border-[#B8976A]/20 rounded-full flex items-center justify-center">
+          <ShoppingBag size={32} className="text-[#B8976A]/40" />
         </div>
         <div className="text-center">
-          <h2 className="text-2xl font-semibold mb-2">Your bag is empty</h2>
-          <p className="text-[14px] text-[#6B6B6B]">Add items you love to get started.</p>
+          <h2 className="font-serif text-2xl text-white mb-2">Your bag is empty</h2>
+          <p className="text-sm text-[#5C5C5C]">Add items you love to get started.</p>
         </div>
         <button
           onClick={() => navigate('/products')}
-          className="mt-2 bg-[#EE6B83] text-white rounded-lg px-10 py-4 text-[12px] uppercase tracking-[0.12em] font-medium hover:bg-[#D9506A] transition-all duration-300"
+          className="mt-4 bg-gradient-to-r from-[#B8976A] to-[#A88345] text-white rounded-xl px-7 md:px-10 py-4 text-xs uppercase tracking-[0.12em] font-medium hover:shadow-lg hover:shadow-[#B8976A]/20 transition-all"
         >
           Continue Shopping
         </button>
@@ -71,17 +71,17 @@ export default function Cart() {
 
   return (
     <div className="min-h-screen">
-      <div className="px-4 md:px-8 lg:px-16 py-10">
-        <h1 className="text-2xl md:text-3xl font-semibold mb-10">
-          Shopping Cart
-          <span className="text-base text-[#9CA3AF] font-normal ml-3">
+      <div className="px-4 md:px-8 lg:px-16 py-6 md:py-10">
+        <h1 className="font-serif text-2xl md:text-3xl text-white mb-6 md:mb-10 font-light">
+          Shopping Bag
+          <span className="text-sm text-[#5C5C5C] font-sans font-light ml-3">
             ({count} {count === 1 ? 'item' : 'items'})
           </span>
         </h1>
       </div>
 
       <div className="px-4 md:px-8 lg:px-16 pb-16">
-        <div className="flex flex-col lg:flex-row gap-12">
+        <div className="flex flex-col lg:flex-row gap-6 lg:gap-12">
           {/* Cart items */}
           <div className="flex-1">
             {items.map((item) => {
@@ -91,8 +91,8 @@ export default function Cart() {
                   <CartItem item={item} />
                   {warning && (
                     <p className={`text-xs mt-1 mb-1 pl-1 ${
-                      warning.type === 'error' ? 'text-red-500' :
-                      warning.type === 'warning' ? 'text-orange-500' : 'text-orange-400'
+                      warning.type === 'error' ? 'text-[#E8A0B0]' :
+                      warning.type === 'warning' ? 'text-[#E8A0B0]' : 'text-[#E8A0B0]/70'
                     }`}>
                       ⚠ {warning.message}
                     </p>

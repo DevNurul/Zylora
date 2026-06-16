@@ -7,7 +7,7 @@ const WHATSAPP_NUMBER =
     : undefined
   || import.meta.env.VITE_WHATSAPP_NUMBER
 
-const WHATSAPP_MESSAGE = "Hi LUXORA JEWELLERY! I need help with my order."
+const WHATSAPP_MESSAGE = "Hi ZYLARA JEWELLERY! I need help with my order."
 
 const WhatsAppButton = () => {
   const location = useLocation()
@@ -51,19 +51,20 @@ const WhatsAppButton = () => {
 
       {showTooltip && (
         <div style={{
-          backgroundColor: '#EE6B83',
+          background: 'linear-gradient(135deg, #B8976A, #A88345)',
           color: 'white',
-          fontSize: '12px',
-          padding: '6px 12px',
+          fontSize: '11px',
+          padding: '8px 14px',
           whiteSpace: 'nowrap',
           letterSpacing: '0.04em',
           pointerEvents: 'none',
           opacity: 1,
           transition: 'opacity 200ms ease',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-          borderRadius: '4px'
+          boxShadow: '0 4px 20px rgba(201,168,106,0.3)',
+          borderRadius: '8px',
+          fontWeight: 500,
         }}>
-          Chat with us on WhatsApp
+          Chat with us
         </div>
       )}
 
@@ -83,7 +84,7 @@ const WhatsAppButton = () => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          boxShadow: '0 4px 16px rgba(37,211,102,0.4)',
+          boxShadow: '0 4px 20px rgba(37,211,102,0.4)',
           position: 'relative',
           transition: 'transform 200ms ease, box-shadow 200ms ease'
         }}

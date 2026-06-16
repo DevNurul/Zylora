@@ -21,7 +21,8 @@ const STATUS_CFG = {
 function StatusBadge({ status }) {
   const cfg = STATUS_CFG[status] || { bg: '#f3f4f6', color: '#374151', border: '#d1d5db', label: status }
   return (
-    <span style={{ display: 'inline-block', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 500, padding: '3px 10px', borderRadius: 3, border: `1px solid ${cfg.border}`, background: cfg.bg, color: cfg.color }}>
+    <span className="inline-block text-[11px] uppercase tracking-[0.06em] font-medium px-2.5 py-0.5 rounded"
+      style={{ border: `1px solid ${cfg.border}`, background: cfg.bg, color: cfg.color }}>
       {cfg.label}
     </span>
   )
@@ -43,110 +44,96 @@ function isDone(status) {
 }
 
 export default function MyReturnsPage() {
-  const dispatch  = useDispatch()
-  const navigate  = useNavigate()
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
   const { requests, loading } = useSelector((s) => s.returns)
   const [filter, setFilter] = useState('all')
 
   useEffect(() => { dispatch(fetchMyReturnRequests()) }, [dispatch])
 
   const filtered = requests.filter(r => {
-    if (filter === 'return')   return r.type === 'return'
+    if (filter === 'return') return r.type === 'return'
     if (filter === 'exchange') return r.type === 'exchange'
-    if (filter === 'active')   return isActive(r.status)
-    if (filter === 'done')     return isDone(r.status)
+    if (filter === 'active') return isActive(r.status)
+    if (filter === 'done') return isDone(r.status)
     return true
   })
 
   return (
-    <div style={{ minHeight: '100vh', background: '#FCD4DB', padding: '48px 16px' }}>
-      <div style={{ maxWidth: 860, margin: '0 auto' }}>
-
-        {/* Heading */}
-        <div style={{ marginBottom: 28 }}>
-          <h1 style={{ fontFamily: '"Playfair Display",Georgia,serif', fontSize: 32, fontWeight: 400, color: '#0A0A0A', margin: '0 0 6px' }}>
+    <div className="min-h-screen">
+      <div className="max-w-[860px] mx-auto py-12 px-4">
+        <div className="mb-7">
+          <h1 className="text-[28px] font-normal text-white m-0 mb-1.5" style={{ fontFamily: '"Cormorant Garamond",Georgia,serif' }}>
             Returns & Exchanges
           </h1>
-          <p style={{ fontSize: 14, color: '#6B6B6B', margin: 0 }}>Track all your return and exchange requests</p>
+          <p className="text-[14px] text-[#9A9A9A] m-0">Track all your return and exchange requests</p>
         </div>
 
-        {/* Filter tabs */}
-        <div style={{ display: 'flex', gap: 0, borderBottom: '1px solid #E5E5E5', marginBottom: 24, overflowX: 'auto' }}>
+        <div className="flex gap-0 border-b border-[#242424] mb-6 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
           {FILTERS.map(({ key, label }) => {
             const active = filter === key
             return (
-              <button key={key} onClick={() => setFilter(key)} style={{
-                background: 'none', border: 'none', borderBottom: active ? '2px solid #EE6B83' : '2px solid transparent',
-                padding: '10px 16px', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.06em',
-                fontWeight: active ? 500 : 400, color: active ? '#EE6B83' : '#6B6B6B', cursor: 'pointer',
-                whiteSpace: 'nowrap', marginBottom: -1, transition: 'color 200ms',
-              }}>{label}</button>
+              <button key={key} onClick={() => setFilter(key)}
+                className={`whitespace-nowrap px-4 py-2.5 text-[12px] uppercase tracking-[0.06em] border-none border-b-2 transition-all cursor-pointer bg-transparent ${
+                  active ? 'border-b-[#B8976A] text-[#B8976A] font-medium' : 'border-b-transparent text-[#5C5C5C] font-normal hover:text-[#B8976A]'
+                }`}>
+                {label}
+              </button>
             )
           })}
         </div>
 
-        {/* Loading */}
         {loading && (
-          <div style={{ textAlign: 'center', padding: 48, color: '#6B6B6B', fontSize: 13 }}>Loading requests...</div>
+          <div className="text-center py-12 text-[#5C5C5C] text-[13px]">Loading requests...</div>
         )}
 
-        {/* Empty */}
         {!loading && filtered.length === 0 && (
-          <div style={{ background: '#fff', padding: '64px 32px', textAlign: 'center' }}>
-            <RotateCcw size={48} style={{ color: '#D1D5DB', margin: '0 auto 16px', display: 'block' }} />
-            <p style={{ fontSize: 18, fontWeight: 500, color: '#0A0A0A', margin: '0 0 8px' }}>No requests yet</p>
-            <p style={{ fontSize: 14, color: '#6B6B6B', margin: '0 0 24px' }}>
+          <div className="bg-[#141414] p-16 text-center rounded-xl border border-[#242424]">
+            <RotateCcw size={48} className="text-[#242424] mx-auto mb-4" />
+            <p className="text-[18px] font-medium text-white m-0 mb-2">No requests yet</p>
+            <p className="text-[14px] text-[#9A9A9A] m-0 mb-6">
               {filter === 'all'
                 ? 'You have not submitted any return or exchange requests'
                 : `No ${FILTERS.find(f=>f.key===filter)?.label.toLowerCase()} found`}
             </p>
             <button onClick={() => navigate('/my-orders')}
-              style={{ background: '#EE6B83', color: '#fff', border: 'none', padding: '12px 28px', fontSize: 13, textTransform: 'uppercase', letterSpacing: '0.08em', cursor: 'pointer', borderRadius: 8 }}>
+              className="bg-gradient-to-r from-[#E8A0B0] to-[#D48A9A] text-white border-none px-7 py-3 text-[13px] uppercase tracking-[0.08em] cursor-pointer rounded-xl transition-all hover:shadow-[0_8px_30px_rgba(238,107,131,0.3)]">
               View My Orders
             </button>
           </div>
         )}
 
-        {/* Request cards */}
         {!loading && filtered.length > 0 && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div className="flex flex-col gap-3">
             {filtered.map((req) => (
               <div key={req.returnId}
                 onClick={() => navigate(`/my-orders/${req.orderId}`)}
-                style={{ background: '#fff', padding: 20, border: '1px solid #E5E5E5', cursor: 'pointer', transition: 'border-color 200ms', display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'center' }}
-                onMouseEnter={e => e.currentTarget.style.borderColor = '#EE6B83'}
-                onMouseLeave={e => e.currentTarget.style.borderColor = '#E5E5E5'}
-              >
-                {/* Left */}
-                <div style={{ flex: '0 0 auto', minWidth: 160 }}>
-                  <span style={{
-                    display: 'inline-block', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em', padding: '2px 8px',
-                    background: req.type === 'return' ? '#fef2f2' : '#eff6ff',
-                    color:      req.type === 'return' ? '#b91c1c' : '#1d4ed8',
-                    border:     `1px solid ${req.type === 'return' ? '#fecaca' : '#bfdbfe'}`,
-                    marginBottom: 6, borderRadius: 2, display: 'block', width: 'fit-content',
-                  }}>{req.type}</span>
-                  <p style={{ fontFamily: 'monospace', fontSize: 14, fontWeight: 500, color: '#0A0A0A', margin: '0 0 2px' }}>{req.returnId}</p>
-                  <p style={{ fontSize: 12, color: '#6B6B6B', margin: 0 }}>Order {req.orderId}</p>
+                className="bg-[#141414] p-5 border border-[#242424] cursor-pointer transition-all duration-200 flex gap-4 flex-wrap items-center rounded-lg hover:border-[#B8976A]">
+                <div className="flex-shrink-0 min-w-[160px]">
+                  <span className={`inline-block text-[10px] uppercase tracking-[0.06em] px-2 py-0.5 mb-1.5 rounded ${
+                    req.type === 'return' ? 'bg-[#fef2f2] text-[#b91c1c] border border-[#fecaca]' : 'bg-[#eff6ff] text-[#1d4ed8] border border-[#bfdbfe]'
+                  }`}>
+                    {req.type}
+                  </span>
+                  <p className="font-mono text-[14px] font-medium text-white m-0 mb-0.5">{req.returnId}</p>
+                  <p className="text-[12px] text-[#5C5C5C] m-0">Order {req.orderId}</p>
                 </div>
 
-                {/* Middle — item images */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, flex: 1 }}>
+                <div className="flex items-center gap-1.5 flex-1">
                   {req.items?.slice(0,2).map((item, i) => (
                     item.image
-                      ? <img key={i} src={item.image} alt={item.name} style={{ width: 40, height: 48, objectFit: 'cover', border: '1px solid #E5E5E5' }} />
-                      : <div key={i} style={{ width: 40, height: 48, background: '#FCD4DB' }} />
+                      ? <img key={i} src={item.image} alt={item.name} className="w-10 h-12 object-cover border border-[#242424] rounded" />
+                      : <div key={i} className="w-10 h-12 bg-[#1C1C1C] rounded" />
                   ))}
-                  <span style={{ fontSize: 12, color: '#6B6B6B' }}>{req.itemCount || req.items?.length || 0} item(s)</span>
+                  <span className="text-[12px] text-[#9A9A9A]">{req.itemCount || req.items?.length || 0} item(s)</span>
                 </div>
 
-                {/* Right */}
-                <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                <div className="text-right flex-shrink-0">
                   <StatusBadge status={req.status} />
-                  <p style={{ fontSize: 12, color: '#6B6B6B', margin: '4px 0 4px' }}>
+                  <p className="text-[12px] text-[#5C5C5C] m-0 mt-1">
                     {new Date(req.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                   </p>
-                  <span style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.04em', color: '#EE6B83', textDecoration: 'underline' }}>
+                  <span className="text-[12px] uppercase tracking-[0.04em] text-[#B8976A] underline">
                     View Details →
                   </span>
                 </div>
@@ -154,7 +141,6 @@ export default function MyReturnsPage() {
             ))}
           </div>
         )}
-
       </div>
     </div>
   )
