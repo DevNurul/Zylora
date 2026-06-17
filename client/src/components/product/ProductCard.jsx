@@ -34,7 +34,7 @@ export default function ProductCard({ product }) {
 
   const handleQuickAdd = (e) => {
     e.stopPropagation()
-    if (!product.inStock) return
+    if (!product.inStock || product.stock === 0) return
     if (!product.sizes?.length) {
       addToCart({ id: product.id, name: product.name, price: product.price, image: product.images?.[0], size: 'One Size', color: product.colors?.[0] || '', qty: 1 })
       toast.success('Added to bag')
@@ -42,6 +42,8 @@ export default function ProductCard({ product }) {
     }
     if (!showSizes) { setShowSizes(true); return }
     if (!selectedSize) { toast.error('Select a size'); return }
+    const sizeStock = product.sizeStock?.[selectedSize] ?? 0
+    if (sizeStock === 0) { toast.error('This size is out of stock'); return }
     addToCart({ id: product.id, name: product.name, price: product.price, image: product.images?.[0], size: selectedSize, color: product.colors?.[0] || '', qty: 1 })
     toast.success('Added to bag')
     setShowSizes(false)
@@ -103,7 +105,7 @@ export default function ProductCard({ product }) {
           >
             <Heart
               size={14}
-              className={liked ? 'fill-[#E8A0B0] stroke-[#E8A0B0] animate-scale-in' : 'stroke-white fill-transparent'}
+              className={liked ? 'fill-[#EE6B83] stroke-[#EE6B83] animate-scale-in' : 'stroke-white fill-transparent'}
             />
           </button>
 

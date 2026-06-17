@@ -4,12 +4,10 @@ import toast from 'react-hot-toast'
 import { Plus, Pencil, Trash2, X, ToggleLeft, ToggleRight, ImagePlus, Grid, List, Search, ChevronDown, Check, Sparkles, Tag as TagIcon, Eye, EyeOff } from 'lucide-react'
 import Badge from '../components/Badge'
 
-const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL']
-
 const empty = {
   name: '', description: '', price: '', originalPrice: '', category: '',
-  sizes: [], sizeStock: {}, stock: '',
-  colors: '', isFeatured: false, isNew: false, tags: '',
+  stock: '',
+  isFeatured: false, isNew: false, tags: '',
 }
 
 function inputCls() {
@@ -70,10 +68,7 @@ export default function Products() {
       price: p.price,
       originalPrice: p.originalPrice || '',
       category: p.category?._id || '',
-      sizes: p.sizes || [],
-      sizeStock: p.sizeStock || {},
       stock: p.stock || '',
-      colors: (p.colors || []).join(', '),
       isFeatured: p.isFeatured,
       isNew: p.isNew,
       tags: (p.tags || []).join(', '),
@@ -120,25 +115,6 @@ export default function Products() {
 
   const removeNewFile = (index) => setFiles(f => f.filter((_, i) => i !== index))
 
-  const toggleSize = (s) => setForm(f => {
-    const hasSizeNow = f.sizes.includes(s)
-    const newSizes = hasSizeNow ? f.sizes.filter(x => x !== s) : [...f.sizes, s]
-    const newSizeStock = { ...f.sizeStock }
-    if (hasSizeNow) {
-      delete newSizeStock[s]
-    } else {
-      if (newSizeStock[s] === undefined) newSizeStock[s] = 0
-    }
-    return { ...f, sizes: newSizes, sizeStock: newSizeStock }
-  })
-
-  const setSizeQty = (size, val) => setForm(f => ({
-    ...f,
-    sizeStock: { ...f.sizeStock, [size]: Math.max(0, Number(val) || 0) },
-  }))
-
-  const totalSizeStock = Object.values(form.sizeStock).reduce((a, b) => a + (Number(b) || 0), 0)
-
   const save = async () => {
     if (!form.name.trim() || !form.price) {
       toast.error('Name and price are required')
@@ -152,16 +128,8 @@ export default function Products() {
     try {
       const fd = new FormData()
       Object.entries(form).forEach(([k, v]) => {
-        if (k === 'sizes') {
-          fd.append(k, JSON.stringify(v))
-        } else if (k === 'colors') {
+        if (k === 'tags') {
           fd.append(k, JSON.stringify(v.split(',').map(s => s.trim()).filter(Boolean)))
-        } else if (k === 'tags') {
-          fd.append(k, JSON.stringify(v.split(',').map(s => s.trim()).filter(Boolean)))
-        } else if (k === 'sizeStock') {
-          if (form.sizes.length > 0) fd.append('sizeStock', JSON.stringify(v))
-        } else if (k === 'stock') {
-          if (form.sizes.length === 0) fd.append('stock', v || 0)
         } else {
           fd.append(k, v)
         }
@@ -284,7 +252,7 @@ export default function Products() {
             <table className="w-full text-sm text-left">
               <thead className="bg-gray-50 dark:bg-[#181818] border-b border-gray-100 dark:border-white/5">
                 <tr>
-                  {['Image', 'Product Detail', 'Category', 'Price', 'Inventory Status', 'Sizing Grid', 'Listing Status', 'Actions'].map(h => (
+                  {['Image', 'Product Detail', 'Category', 'Price', 'Inventory Status', 'Listing Status', 'Actions'].map(h => (
                     <th key={h} className="px-6 py-4 text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">{h}</th>
                   ))}
                 </tr>
@@ -292,18 +260,16 @@ export default function Products() {
               <tbody className="divide-y divide-gray-50 dark:divide-white/2">
                 {loading ? (
                   <tr>
-                    <td colSpan={8} className="py-20 text-center">
+                    <td colSpan={7} className="py-20 text-center">
                       <div className="inline-block h-6 w-6 border-2 border-primary/20 border-t-primary rounded-full animate-spin mb-2" />
                       <p className="text-xs text-gray-400 dark:text-gray-500">Loading products...</p>
                     </td>
                   </tr>
                 ) : filteredProducts.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="py-20 text-center text-gray-400 dark:text-gray-500 font-medium">No products found.</td>
+                    <td colSpan={7} className="py-20 text-center text-gray-400 dark:text-gray-500 font-medium">No products found.</td>
                   </tr>
-                ) : filteredProducts.map((p) => {
-                  const hasSizeStock = p.sizeStock && Object.keys(p.sizeStock).length > 0
-                  return (
+                ) : filteredProducts.map((p) => (
                     <tr key={p._id} className="hover:bg-gray-50/50 dark:hover:bg-white/1 transition-colors">
                       <td className="px-6 py-4">
                         {p.images?.[0] ? (
@@ -337,26 +303,6 @@ export default function Products() {
                         </span>
                       </td>
                       <td className="px-6 py-4">
-                        {hasSizeStock ? (
-                          <div className="flex flex-wrap gap-1 max-w-[200px]">
-                            {Object.entries(p.sizeStock).map(([size, qty]) => (
-                              <span
-                                key={size}
-                                className={`text-[9px] font-bold px-1.5 py-0.5 rounded-md border ${
-                                  qty === 0 
-                                    ? 'bg-rose-50/50 text-rose-500 border-rose-100 dark:bg-rose-500/5 dark:border-rose-500/10' 
-                                    : 'bg-gray-50 text-gray-500 border-gray-100 dark:bg-white/2 dark:border-white/5 dark:text-gray-400'
-                                }`}
-                              >
-                                {size}:{qty}
-                              </span>
-                            ))}
-                          </div>
-                        ) : (
-                          <span className="text-gray-400 dark:text-gray-500 text-xs font-medium">—</span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4">
                         <button onClick={() => toggle(p)} className="text-gray-400 hover:text-gray-600 dark:hover:text-white transition-colors cursor-pointer">
                           {p.isActive
                             ? <ToggleRight size={26} className="text-primary" />
@@ -374,8 +320,7 @@ export default function Products() {
                         </div>
                       </td>
                     </tr>
-                  )
-                })}
+                  ))}
               </tbody>
             </table>
           </div>
@@ -556,110 +501,28 @@ export default function Products() {
                 </div>
               </div>
 
-              {/* Sizes Selection */}
-              <div className="space-y-2">
-                <Label>Sizing Variants</Label>
-                <div className="flex gap-2 flex-wrap">
-                  {SIZES.map(s => {
-                    const isSelected = form.sizes.includes(s)
-                    return (
-                      <button
-                        key={s}
-                        type="button"
-                        onClick={() => toggleSize(s)}
-                        className={`px-3.5 py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
-                          isSelected
-                            ? 'bg-primary border-primary text-white shadow-xs'
-                            : 'border-gray-150 dark:border-white/5 text-gray-600 dark:text-gray-400 hover:border-primary/50'
-                        }`}
-                      >
-                        {s}
-                      </button>
-                    )
-                  })}
-                </div>
+              {/* Stock Management */}
+              <div>
+                <Label>Total Inventory Count</Label>
+                <input
+                  type="number"
+                  min="0"
+                  value={form.stock}
+                  onChange={e => setForm(f => ({ ...f, stock: e.target.value }))}
+                  className={inputCls()}
+                  placeholder="0"
+                />
               </div>
 
-              {/* Stock Management */}
-              {form.sizes.length > 0 ? (
-                <div className="space-y-3 bg-gray-50/50 dark:bg-white/1 border border-gray-100 dark:border-white/2 p-4 rounded-2xl">
-                  <div className="flex items-center justify-between">
-                    <Label>Inventory per Variant</Label>
-                    <span className="text-xs font-bold text-gray-500">
-                      Total Allocated: <span className="text-primary">{totalSizeStock}</span>
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-3 gap-3">
-                    {form.sizes.map(size => (
-                      <div key={size} className="bg-white dark:bg-dark-bg border border-gray-150 dark:border-white/5 rounded-xl overflow-hidden flex flex-col">
-                        <div className="bg-gray-50 dark:bg-white/2 px-3 py-1.5 border-b border-gray-100 dark:border-white/5 text-center">
-                          <span className="text-[10px] font-bold text-gray-600 dark:text-gray-400 uppercase">Size {size}</span>
-                        </div>
-                        <div className="flex items-center justify-between px-3 py-2">
-                          <button
-                            type="button"
-                            onClick={() => setSizeQty(size, (form.sizeStock[size] || 0) - 1)}
-                            className="text-gray-400 hover:text-gray-700 dark:hover:text-white font-bold w-5 h-5 flex items-center justify-center cursor-pointer"
-                          >
-                            −
-                          </button>
-                          <input
-                            type="number"
-                            min="0"
-                            value={form.sizeStock[size] ?? 0}
-                            onChange={e => setSizeQty(size, e.target.value)}
-                            className="w-10 text-xs font-bold text-center bg-transparent border-0 focus:outline-none dark:text-white"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => setSizeQty(size, (form.sizeStock[size] || 0) + 1)}
-                            className="text-gray-400 hover:text-gray-700 dark:hover:text-white font-bold w-5 h-5 flex items-center justify-center cursor-pointer"
-                          >
-                            +
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  {totalSizeStock === 0 && (
-                    <p className="text-[10px] text-rose-500 font-bold uppercase tracking-wider flex items-center gap-1.5 animate-pulse-soft">⚠ All variants have 0 stock (Sold Out)</p>
-                  )}
-                </div>
-              ) : (
-                <div>
-                  <Label>Total Inventory Count</Label>
-                  <input
-                    type="number"
-                    min="0"
-                    value={form.stock}
-                    onChange={e => setForm(f => ({ ...f, stock: e.target.value }))}
-                    className={inputCls()}
-                    placeholder="0"
-                  />
-                  <p className="text-[10px] text-gray-400 mt-1.5">Note: Enabling variant sizes above will override generic inventory counts.</p>
-                </div>
-              )}
-
-              {/* Attributes (Colors & Tags) */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <Label>Color Finishes (Comma separated)</Label>
-                  <input
-                    value={form.colors}
-                    onChange={e => setForm(f => ({ ...f, colors: e.target.value }))}
-                    placeholder="e.g. Gold, Rose Gold, Silver"
-                    className={inputCls()}
-                  />
-                </div>
-                <div>
-                  <Label>Tags (Comma separated)</Label>
-                  <input
-                    value={form.tags}
-                    onChange={e => setForm(f => ({ ...f, tags: e.target.value }))}
-                    placeholder="e.g. rings, gift, diamond"
-                    className={inputCls()}
-                  />
-                </div>
+              {/* Tags */}
+              <div>
+                <Label>Tags (Comma separated)</Label>
+                <input
+                  value={form.tags}
+                  onChange={e => setForm(f => ({ ...f, tags: e.target.value }))}
+                  placeholder="e.g. rings, gift, diamond"
+                  className={inputCls()}
+                />
               </div>
 
               {/* Badges toggler */}

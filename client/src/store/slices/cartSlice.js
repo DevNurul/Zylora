@@ -37,7 +37,7 @@ const cartSlice = createSlice({
         (item) => item.id === id && item.size === size && item.color === color
       )
       if (existing) {
-        existing.qty += 1
+        existing.qty = (action.payload.qty || 1)
       } else {
         state.items.push({ ...action.payload, qty: action.payload.qty || 1 })
       }

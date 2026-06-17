@@ -26,8 +26,8 @@ const SUBJECTS = [
 ]
 
 const CONTACT_INFO = {
-  whatsappDisplay: '+91 91083 06669',
-  email: 'support@zylara.com',
+  whatsappDisplay: '+91 86378 74951',
+  email: 'care@zylara.co.in',
   businessDays: 'Monday – Saturday',
   businessHours: '10:00 AM – 7:00 PM IST',
 }
@@ -39,9 +39,9 @@ const whatsappUrl = `https://wa.me/${(WHATSAPP_NUMBER || '').replace(/[^0-9]/g, 
 )}`
 
 const SOCIALS = [
-  { Icon: InstagramIcon, label: 'Instagram', href: 'https://www.instagram.com/zylara.jewellery', external: true },
-  { Icon: FacebookIcon, label: 'Facebook', href: '#', external: true },
-  { Icon: Mail, label: 'Email', href: 'mailto:support@zylara.com', external: false },
+  { Icon: InstagramIcon, label: 'Instagram', href: 'https://www.instagram.com/zylara_jewels/', external: true },
+  { Icon: FacebookIcon, label: 'Facebook', href: 'https://www.facebook.com/zylara.official', external: true },
+  { Icon: Mail, label: 'Email', href: 'mailto:care@zylara.co.in', external: false },
 ]
 
 const displayFont = { fontFamily: '"Cormorant Garamond", Georgia, serif' }
@@ -177,10 +177,10 @@ export default function ContactPage() {
           </div>
 
           <div className="lg:col-span-2 space-y-6">
-            <InfoCard icon={<MessageCircle size={22} className="text-[#25D366]" />} heading="WhatsApp">
+            <InfoCard icon={<MessageCircle size={22} className="text-[#EE6B83]" />} heading="WhatsApp">
               <p className="text-[14px] text-white font-medium">{CONTACT_INFO.whatsappDisplay}</p>
               <p className="text-[14px] text-[#9A9A9A] mt-1" style={{ lineHeight: 1.8 }}>Chat with us directly</p>
-              <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[#25D366] text-[13px] mt-3">
+              <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[#EE6B83] text-[13px] mt-3">
                 Open WhatsApp <ArrowRight size={13} />
               </a>
             </InfoCard>

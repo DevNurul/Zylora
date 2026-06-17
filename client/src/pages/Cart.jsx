@@ -41,9 +41,9 @@ export default function Cart() {
       if (sizeVal !== undefined) availableStock = sizeVal
     }
 
-    if (availableStock === 0) return { type: 'error', message: 'Out of stock — remove from cart' }
-    if (availableStock < item.qty) return { type: 'warning', message: `Only ${availableStock} available — reduce quantity` }
-    if (availableStock < 5) return { type: 'info', message: `Only ${availableStock} left in this size` }
+    if (availableStock === 0) return { type: 'error', message: 'Out of stock — remove from cart', availableStock }
+    if (availableStock < item.qty) return { type: 'warning', message: `Only ${availableStock} available — reduce quantity`, availableStock }
+    if (availableStock < 5) return { type: 'info', message: `Only ${availableStock} left in this size`, availableStock }
     return null
   }
 
@@ -88,7 +88,7 @@ export default function Cart() {
               const warning = getItemWarning(item)
               return (
                 <div key={`${item.id}-${item.size}-${item.color}`}>
-                  <CartItem item={item} />
+                  <CartItem item={item} stockWarning={warning} />
                   {warning && (
                     <p className={`text-xs mt-1 mb-1 pl-1 ${
                       warning.type === 'error' ? 'text-[#E8A0B0]' :

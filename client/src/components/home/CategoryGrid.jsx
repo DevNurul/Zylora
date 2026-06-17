@@ -1,22 +1,38 @@
-import { useRef } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import api from '../../utils/api'
 
-const LAUNCH_CATEGORIES = [
-  { name: 'Rings', path: '/products?category=Rings', image: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?q=80&w=500&auto=format&fit=crop' },
-  { name: 'Bracelets', path: '/products?category=Bracelets', image: 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?q=80&w=500&auto=format&fit=crop' },
-  { name: 'Anklets', path: '/products?category=Anklets', image: 'https://images.unsplash.com/photo-1543294001-f7cbfe92237e?q=80&w=500&auto=format&fit=crop' },
-  { name: 'Earrings', path: '/products?category=Earrings', image: 'https://images.unsplash.com/photo-1630019852942-f89202989a59?q=80&w=500&auto=format&fit=crop' },
-  { name: 'Pendants', path: '/products?category=Pendants', image: 'https://images.unsplash.com/photo-1611107683227-e9060eccd846?q=80&w=500&auto=format&fit=crop' },
-  { name: 'Mens', path: '/products?category=Mens', image: 'https://images.unsplash.com/photo-1602751584552-8ba73aad10e1?q=80&w=500&auto=format&fit=crop' },
-  { name: 'Perfumes', path: '/products?category=Perfumes', image: 'https://images.unsplash.com/photo-1619994403073-2cec844b8e63?q=80&w=500&auto=format&fit=crop' },
-  { name: 'Sets', path: '/products?category=Sets', image: 'https://images.unsplash.com/photo-1599643477877-530eb83abc8e?q=80&w=500&auto=format&fit=crop' },
-  { name: 'Pearls', path: '/products?category=Pearls', image: 'https://images.unsplash.com/photo-1561828995-aa79a2db86dd?q=80&w=500&auto=format&fit=crop' },
+const FALLBACK_CATEGORIES = [
+  { name: 'Rings', image: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?q=80&w=500&auto=format&fit=crop' },
+  { name: 'Bracelets', image: 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?q=80&w=500&auto=format&fit=crop' },
+  { name: 'Earrings', image: 'https://images.unsplash.com/photo-1630019852942-f89202989a59?q=80&w=500&auto=format&fit=crop' },
+  { name: 'Pendants', image: 'https://images.unsplash.com/photo-1611107683227-e9060eccd846?q=80&w=500&auto=format&fit=crop' },
 ]
 
 export default function CategoryGrid() {
   const navigate = useNavigate()
   const scrollerRef = useRef(null)
+  const [categories, setCategories] = useState([])
+
+  useEffect(() => {
+    api.get('/categories')
+      .then(({ data }) => {
+        if (data.categories?.length) {
+          setCategories(data.categories.map(c => ({
+            name: c.name,
+            slug: c.slug,
+            image: c.image?.url || FALLBACK_CATEGORIES.find(f => f.name === c.name)?.image || FALLBACK_CATEGORIES[0].image,
+            path: `/products?category=${c._id}`,
+          })))
+        } else {
+          setCategories(FALLBACK_CATEGORIES.map(c => ({ ...c, path: `/products?category=${c.name}` })))
+        }
+      })
+      .catch(() => {
+        setCategories(FALLBACK_CATEGORIES.map(c => ({ ...c, path: `/products?category=${c.name}` })))
+      })
+  }, [])
 
   const scrollByCard = (direction) => {
     const el = scrollerRef.current
@@ -51,7 +67,7 @@ export default function CategoryGrid() {
             ref={scrollerRef}
             className="no-scrollbar flex snap-x gap-6 overflow-x-auto scroll-smooth px-2 pb-4"
           >
-            {LAUNCH_CATEGORIES.map((cat) => (
+            {categories.map((cat) => (
               <button
                 key={cat.name}
                 type="button"

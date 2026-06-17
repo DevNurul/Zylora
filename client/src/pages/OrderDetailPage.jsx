@@ -6,6 +6,8 @@ import { fetchMyReturnRequests } from '../store/slices/returnSlice'
 import ReturnStatusCard from '../components/returns/ReturnStatusCard'
 import ReturnRequestForm from '../components/returns/ReturnRequestForm'
 import { RETURN_WINDOW_DAYS, EXCHANGE_WINDOW_DAYS } from '../utils/returnReasons'
+import { Printer } from 'lucide-react'
+import { downloadPdf } from '../utils/downloadPdf'
 
 function fmt(n) { return '₹' + Number(n).toLocaleString('en-IN') }
 function fmtDate(iso) { return new Date(iso).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }) }
@@ -209,6 +211,19 @@ function ReturnSection({ order }) {
 }
 
 function OrderSummaryCard({ order }) {
+  const [downloading, setDownloading] = useState(false)
+
+  const handlePrint = async () => {
+    try {
+      setDownloading(true)
+      await downloadPdf(`/api/my-orders/${order.orderId}/print`, `ZYLARA-${order.orderId}.pdf`)
+    } catch (err) {
+      console.error('Download failed:', err)
+    } finally {
+      setDownloading(false)
+    }
+  }
+
   return (
     <div className="bg-[#141414] p-6 rounded-lg border border-[#242424]">
       <p className="text-[13px] uppercase tracking-[0.08em] font-medium text-white mb-4">Order Summary</p>
@@ -241,6 +256,14 @@ function OrderSummaryCard({ order }) {
           }`}>{order.paymentStatus}</span>
         </div>
       </div>
+      <button
+        onClick={handlePrint}
+        disabled={downloading}
+        className="w-full mt-4 flex items-center justify-center gap-2 bg-gradient-to-r from-[#B8976A] to-[#A88345] text-white py-2.5 text-[12px] uppercase tracking-widest font-medium hover:shadow-lg hover:shadow-[#B8976A]/20 transition-all rounded-lg disabled:opacity-50"
+      >
+        <Printer size={13} />
+        {downloading ? 'Downloading...' : 'Print Invoice + Label'}
+      </button>
     </div>
   )
 }

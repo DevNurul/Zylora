@@ -32,6 +32,9 @@ router.get('/orders', orderCtrl.adminGetOrders)
 router.get('/orders/:orderId', orderCtrl.adminGetOrder)
 router.patch('/orders/:orderId/status', orderCtrl.updateOrderStatus)
 router.delete('/orders/:orderId', orderCtrl.deleteOrder)
+router.get('/orders/:orderId/invoice', orderCtrl.adminDownloadInvoice)
+router.get('/orders/:orderId/address-label', orderCtrl.adminDownloadAddressLabel)
+router.get('/orders/:orderId/print', orderCtrl.adminDownloadCombined)
 
 // Categories
 router.get('/categories', categoryCtrl.adminGetCategories)

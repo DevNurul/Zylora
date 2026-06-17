@@ -74,6 +74,54 @@ export default function ProductDetail() {
   const [qty, setQty] = useState(1)
   const [adding, setAdding] = useState(false)
   const [added, setAdded] = useState(false)
+  const [stockAlert, setStockAlert] = useState(null)
+
+  const fetchProduct = async (silent = false) => {
+    try {
+      const isObjectId = /^[0-9a-fA-F]{24}$/.test(id)
+      const productUrl = isObjectId ? `/products/${id}` : `/products/slug/${id}`
+      const pRes = await api.get(productUrl)
+      const p = normalizeProduct(pRes.data.product)
+
+      if (silent && product) {
+        const prevSizeStock = product.sizeStock || {}
+        const newSizeStock = p.sizeStock || {}
+        const prevTotal = Object.values(prevSizeStock).reduce((a, b) => a + b, 0)
+        const newTotal = Object.values(newSizeStock).reduce((a, b) => a + b, 0)
+
+        if (newTotal < prevTotal && newTotal > 0) {
+          setStockAlert('Stock updated — selling fast!')
+          setTimeout(() => setStockAlert(null), 3000)
+        }
+
+        if (selectedSize) {
+          const oldStock = prevSizeStock[selectedSize] ?? product.stock
+          const newStock = newSizeStock[selectedSize] ?? p.stock
+          if (newStock === 0 && oldStock > 0) {
+            setStockAlert(`Sorry, ${selectedSize} just went out of stock`)
+            setSelectedSize('')
+            setQty(1)
+            setTimeout(() => setStockAlert(null), 4000)
+          } else if (newStock > 0 && newStock < oldStock) {
+            setQty(q => Math.min(q, newStock))
+            if (newStock < 5) {
+              setStockAlert(`Hurry! Only ${newStock} left in ${selectedSize}`)
+              setTimeout(() => setStockAlert(null), 3000)
+            }
+          }
+        }
+
+        setProduct(p)
+        return
+      }
+
+      setProduct(p)
+      setSelectedColor(p.colors?.[0] || '')
+      setSelectedSize('')
+    } catch {
+      if (!silent) setProduct(null)
+    }
+  }
 
   useEffect(() => {
     let cancelled = false
@@ -82,27 +130,52 @@ export default function ProductDetail() {
     setRelated([])
     setAdded(false)
 
-    const isObjectId = /^[0-9a-fA-F]{24}$/.test(id)
-    const productUrl = isObjectId ? `/products/${id}` : `/products/slug/${id}`
-
-    api.get(productUrl)
-      .then((pRes) => {
-        if (cancelled) return null
-        const p = normalizeProduct(pRes.data.product)
-        setProduct(p)
-        setSelectedColor(p.colors?.[0] || '')
-        setSelectedSize('')
-        return api.get(`/products/${p.id}/related`)
-      })
-      .then((rRes) => {
-        if (cancelled || !rRes) return
-        setRelated((rRes.data.products || []).map(normalizeProduct))
-      })
-      .catch(() => { if (!cancelled) setProduct(null) })
-      .finally(() => { if (!cancelled) setLoading(false) })
+    fetchProduct(false).then(() => {
+      if (!cancelled) setLoading(false)
+    })
 
     return () => { cancelled = true }
   }, [id])
+
+  useEffect(() => {
+    if (!product) return
+    const interval = setInterval(() => {
+      fetchProduct(true)
+    }, 15000)
+    return () => clearInterval(interval)
+  }, [product?.id, selectedSize])
+
+  const handleIncreaseQty = async () => {
+    try {
+      const isObjectId = /^[0-9a-fA-F]{24}$/.test(id)
+      const productUrl = isObjectId ? `/products/${id}` : `/products/slug/${id}`
+      const res = await api.get(productUrl)
+      const fresh = normalizeProduct(res.data.product)
+      setProduct(fresh)
+
+      const freshStock = selectedSize
+        ? (fresh.sizeStock?.[selectedSize] ?? fresh.stock)
+        : fresh.stock
+
+      if (freshStock === 0) {
+        setStockAlert(`Sorry, ${selectedSize || 'this product'} just went out of stock`)
+        setSelectedSize('')
+        setQty(1)
+        setTimeout(() => setStockAlert(null), 4000)
+        return
+      }
+
+      if (qty >= freshStock) {
+        setStockAlert(`Only ${freshStock} available in stock`)
+        setTimeout(() => setStockAlert(null), 3000)
+        return
+      }
+
+      setQty(q => Math.min(freshStock, q + 1))
+    } catch {
+      setQty(q => Math.min(currentStock, q + 1))
+    }
+  }
 
   if (loading) return <SkeletonDetail />
 
@@ -139,6 +212,10 @@ export default function ProductDetail() {
     }
     if (selectedSize && getSizeStock(selectedSize) === 0) {
       toast.error('This size is out of stock')
+      return
+    }
+    if (qty > currentStock) {
+      toast.error(`Only ${currentStock} available in stock`)
       return
     }
     setAdding(true)
@@ -222,13 +299,19 @@ export default function ProductDetail() {
 
             {/* Size Select */}
             {product.sizes?.length > 0 && (
-              <div className="space-y-3">
-                {product.isOutOfStock && (
-                  <div className="bg-[#E8A0B0]/5 border border-[#E8A0B0]/20 p-4 rounded-xl">
-                    <p className="text-xs text-[#E8A0B0] font-medium uppercase tracking-wider">Temporarily Out of Stock</p>
-                    <p className="text-xs text-[#9A9A9A] mt-1 font-light">Check back soon or add to wishlist to receive notification.</p>
-                  </div>
-                )}
+            <div className="space-y-3">
+              {product.isOutOfStock && (
+                <div className="bg-[#E8A0B0]/5 border border-[#E8A0B0]/20 p-4 rounded-xl">
+                  <p className="text-xs text-[#E8A0B0] font-medium uppercase tracking-wider">Temporarily Out of Stock</p>
+                  <p className="text-xs text-[#9A9A9A] mt-1 font-light">Check back soon or add to wishlist to receive notification.</p>
+                </div>
+              )}
+              {stockAlert && (
+                <div className="bg-[#EE6B83]/10 border border-[#EE6B83]/30 p-3 rounded-xl flex items-center gap-2 animate-pulse">
+                  <span className="text-[#EE6B83] text-sm">!</span>
+                  <p className="text-xs text-[#EE6B83] font-medium">{stockAlert}</p>
+                </div>
+              )}
                 <div className="flex items-center justify-between">
                   <p className="text-[10px] uppercase tracking-[0.15em] font-medium text-[#B8976A]">Size Selection</p>
                   <button className="text-[10px] text-[#5C5C5C] border-b border-[#5C5C5C] hover:text-white hover:border-white transition-colors uppercase font-medium tracking-wider">
@@ -263,10 +346,10 @@ export default function ProductDetail() {
                     <p className="text-xs text-[#E8A0B0] font-bold uppercase tracking-wider flex items-center gap-1"><span>✕</span> Out of stock</p>
                   )
                   if (stock < 5) return (
-                    <p className="text-xs text-[#E8A0B0] font-bold uppercase tracking-wider flex items-center gap-1"><span>⚠</span> Only {stock} items left</p>
+                    <p className="text-xs text-[#EE6B83] font-bold uppercase tracking-wider flex items-center gap-1"><span>⚠</span> Only {stock} left — selling fast!</p>
                   )
                   return (
-                    <p className="text-xs text-[#2E7D32] font-bold uppercase tracking-wider flex items-center gap-1"><span>✓</span> Item In stock</p>
+                    <p className="text-xs text-[#2E7D32] font-bold uppercase tracking-wider flex items-center gap-1"><span>✓</span> In stock</p>
                   )
                 })()}
               </div>
@@ -287,7 +370,7 @@ export default function ProductDetail() {
                   </button>
                   <span className="px-5 py-3 text-sm font-semibold border-x border-[#242424] min-w-[50px] text-center text-white">{qty}</span>
                   <button
-                    onClick={() => setQty(Math.min(currentStock, qty + 1))}
+                    onClick={handleIncreaseQty}
                     className="px-4 py-3 hover:bg-white/5 transition-colors text-[#9A9A9A] hover:text-white"
                   >
                     <Plus size={12} />
@@ -297,11 +380,11 @@ export default function ProductDetail() {
             )}
 
             {/* Purchase Actions */}
-            <div className="flex flex-col sm:flex-row gap-4 pt-4">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4">
               {product.isOutOfStock ? (
                 <button
                   disabled
-                  className="flex-1 h-14 text-xs uppercase tracking-widest font-semibold bg-[#242424] text-[#5C5C5C] cursor-not-allowed rounded-xl"
+                  className="flex-1 h-14 sm:h-14 py-4 text-[11px] sm:text-xs uppercase tracking-widest font-semibold bg-[#242424] text-[#5C5C5C] cursor-not-allowed rounded-xl"
                 >
                   Out of Stock
                 </button>
@@ -310,7 +393,7 @@ export default function ProductDetail() {
                   <button
                     onClick={handleAddToCart}
                     disabled={adding || added || isAddToCartDisabled}
-                    className={`flex-1 h-14 text-xs uppercase tracking-widest font-semibold transition-all duration-500 rounded-xl cursor-pointer ${
+                    className={`flex-1 h-14 sm:h-14 py-4 text-[11px] sm:text-xs uppercase tracking-widest font-semibold transition-all duration-500 rounded-xl cursor-pointer ${
                       added
                         ? 'bg-gradient-to-r from-[#B8976A] to-[#A88345] text-white'
                         : isAddToCartDisabled
@@ -323,7 +406,7 @@ export default function ProductDetail() {
                   <button
                     onClick={handleBuyNow}
                     disabled={isAddToCartDisabled}
-                    className={`flex-1 h-14 text-xs uppercase tracking-widest font-semibold transition-all duration-500 rounded-xl cursor-pointer ${
+                    className={`flex-1 h-14 sm:h-14 py-4 text-[11px] sm:text-xs uppercase tracking-widest font-semibold transition-all duration-500 rounded-xl cursor-pointer ${
                       isAddToCartDisabled
                         ? 'border border-[#242424] text-[#5C5C5C] cursor-not-allowed'
                         : 'bg-transparent border border-[#B8976A] text-[#B8976A] hover:bg-[#B8976A]/10'
@@ -337,11 +420,11 @@ export default function ProductDetail() {
 
             <button
               onClick={() => product && toggle(product)}
-              className="w-full h-12 border border-[#242424] text-[10px] uppercase tracking-[0.15em] font-semibold flex items-center justify-center gap-2 hover:border-[#E8A0B0]/50 hover:bg-[#E8A0B0]/5 transition-all rounded-xl cursor-pointer text-[#9A9A9A] hover:text-[#E8A0B0]"
+              className="w-full h-14 py-4 border border-[#242424] text-[11px] uppercase tracking-[0.15em] font-semibold flex items-center justify-center gap-2 hover:border-[#E8A0B0]/50 hover:bg-[#E8A0B0]/5 transition-all rounded-xl cursor-pointer text-[#9A9A9A] hover:text-[#E8A0B0]"
             >
               <Heart
                 size={14}
-                className={isLiked(product?.id) ? 'fill-[#E8A0B0] stroke-[#E8A0B0]' : ''}
+                className={isLiked(product?.id) ? 'fill-[#EE6B83] stroke-[#EE6B83]' : ''}
               />
               {isLiked(product?.id) ? 'Wishlisted' : 'Add to Wishlist'}
             </button>
@@ -370,28 +453,6 @@ export default function ProductDetail() {
             </div>
           </div>
         </div>
-
-        {/* Sticky Mobile purchase footer bar */}
-        {!product.isOutOfStock && (
-          <div className="lg:hidden fixed bottom-0 inset-x-0 bg-[#0A0A0A]/95 backdrop-blur-xl border-t border-[#B8976A]/10 p-4 flex gap-3 z-50 shadow-[0_-8px_30px_rgba(0,0,0,0.5)]">
-            <button
-              onClick={handleAddToCart}
-              disabled={adding || added || isAddToCartDisabled}
-              className={`flex-1 h-12 text-[10px] uppercase tracking-widest font-semibold rounded-xl transition-all cursor-pointer ${
-                added ? 'bg-gradient-to-r from-[#B8976A] to-[#A88345] text-white' : 'bg-gradient-to-r from-[#E8A0B0] to-[#D48A9A] text-white active:scale-95 disabled:opacity-50'
-              }`}
-            >
-              {adding ? 'Adding...' : added ? '✓ Added' : isAddToCartDisabled ? 'Select Size' : 'Add to Bag'}
-            </button>
-            <button
-              onClick={handleBuyNow}
-              disabled={isAddToCartDisabled}
-              className="flex-1 bg-transparent border border-[#B8976A] text-[#B8976A] h-12 text-[10px] uppercase tracking-widest font-semibold rounded-xl active:scale-95 transition-all disabled:opacity-50 cursor-pointer"
-            >
-              Buy Now
-            </button>
-          </div>
-        )}
 
         {/* Related Products */}
         {related.length > 0 && (

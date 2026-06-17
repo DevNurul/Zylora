@@ -2,14 +2,19 @@ import { Minus, Plus, Trash2 } from 'lucide-react'
 import { formatPrice } from '../../utils/formatPrice'
 import { useCart } from '../../hooks/useCart'
 
-export default function CartItem({ item, compact = false }) {
+export default function CartItem({ item, compact = false, stockWarning }) {
   const { removeFromCart, updateQty } = useCart()
 
   const handleRemove = () =>
     removeFromCart({ id: item.id, size: item.size, color: item.color })
 
-  const handleQty = (delta) =>
-    updateQty({ id: item.id, size: item.size, color: item.color, qty: item.qty + delta })
+  const availableStock = stockWarning?.availableStock ?? Infinity
+
+  const handleQty = (delta) => {
+    const newQty = item.qty + delta
+    if (newQty > availableStock) return
+    updateQty({ id: item.id, size: item.size, color: item.color, qty: newQty })
+  }
 
   if (compact) {
     return (

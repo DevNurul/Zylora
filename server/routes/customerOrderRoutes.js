@@ -4,7 +4,10 @@ const authenticateUser = require('../middleware/authenticateUser')
 
 router.use(authenticateUser)
 
-router.get('/',          ctrl.getMyOrders)
-router.get('/:orderId',  ctrl.getMyOrderById)
+router.get('/',                        ctrl.getMyOrders)
+router.get('/:orderId',                ctrl.getMyOrderById)
+router.get('/:orderId/invoice',        ctrl.downloadInvoice)
+router.get('/:orderId/address-label',  ctrl.downloadAddressLabel)
+router.get('/:orderId/print',          ctrl.downloadCombined)
 
 module.exports = router

@@ -6,22 +6,23 @@ import ProductCard from '../components/product/ProductCard'
 import { useProductList } from '../hooks/useProductList'
 import { 
   ShieldCheck, 
-  Award, 
-  Sparkles, 
   Truck, 
+  Diamond, 
   RotateCcw, 
-  CheckSquare,
+  Phone,
+  PackageCheck,
+  Sparkles,
   ArrowRight
 } from 'lucide-react'
 import { formatPrice } from '../utils/formatPrice'
 
 const TRUST_ITEMS = [
-  { icon: Award, title: '925 Hallmarked', desc: 'Certified silver authenticity' },
-  { icon: ShieldCheck, title: 'Premium Quality', desc: 'Handcrafted luxury checks' },
-  { icon: Sparkles, title: 'Lifetime Plating', desc: 'Guaranteed shine & finish' },
-  { icon: Truck, title: 'Free Shipping', desc: 'On orders above ₹999' },
-  { icon: RotateCcw, title: 'Easy Returns', desc: '30-day hassle-free policy' },
-  { icon: CheckSquare, title: 'Warranty Coverage', desc: '6 months warranty included' },
+  { icon: ShieldCheck, title: 'Secure Payments', desc: 'Safe & encrypted checkout' },
+  { icon: Truck, title: 'Pan India Delivery', desc: 'We ship across India' },
+  { icon: Diamond, title: 'Premium Quality', desc: 'Fine 925 sterling silver' },
+  { icon: RotateCcw, title: 'Easy Returns', desc: 'Hassle-free returns & replacements' },
+  { icon: Phone, title: 'Customer Support', desc: 'Dedicated support team' },
+  { icon: PackageCheck, title: 'Quality Checked', desc: 'Carefully packed & inspected' },
 ]
 
 function TrustSection() {
@@ -198,8 +199,8 @@ export default function Home() {
   return (
     <div className="bg-[#0A0A0A] min-h-screen">
       <HeroBanner />
-      <TrustSection />
       <FeaturedProducts />
+      <TrustSection />
       <CategoryGrid />
       <PromotionalBanner />
       <BestSellers />

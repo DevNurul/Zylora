@@ -1,14 +1,16 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import { useAuth } from '../../context/AuthContext'
-import { Home, Grid, Heart, ShoppingBag, User } from 'lucide-react'
+import { Home, Grid, Heart, ShoppingCart, User } from 'lucide-react'
 import { selectWishlistCount } from '../../store/slices/wishlistSlice'
+import { selectCartCount } from '../../store/slices/cartSlice'
 
 const MobileBottomNav = () => {
   const location = useLocation()
   const navigate = useNavigate()
   const { isAuthenticated } = useAuth()
   const wishlistCount = useSelector(selectWishlistCount)
+  const cartCount = useSelector(selectCartCount)
 
   const tabs = [
     {
@@ -31,10 +33,11 @@ const MobileBottomNav = () => {
       badge: wishlistCount > 0 ? wishlistCount : null,
     },
     {
-      id: 'orders',
-      label: 'Orders',
-      icon: ShoppingBag,
-      path: isAuthenticated ? '/my-orders' : '/auth',
+      id: 'cart',
+      label: 'Cart',
+      icon: ShoppingCart,
+      path: '/cart',
+      badge: cartCount > 0 ? cartCount : null,
     },
     {
       id: 'account',
@@ -54,7 +57,7 @@ const MobileBottomNav = () => {
     return location.pathname.startsWith(path)
   }
 
-  const hiddenRoutes = ['/checkout', '/order-success', '/products/']
+  const hiddenRoutes = ['/checkout', '/order-success']
   const isHidden = hiddenRoutes.some(route =>
     location.pathname.startsWith(route)
   )
@@ -89,7 +92,9 @@ const MobileBottomNav = () => {
                   size={20}
                   strokeWidth={active ? 2.2 : 1.5}
                   className={`transition-colors duration-300 ${
-                    active ? 'text-[#B8976A]' : 'text-[#5C5C5C]'
+                    tab.id === 'wishlist' && wishlistCount > 0
+                      ? 'fill-[#EE6B83] stroke-[#EE6B83]'
+                      : active ? 'text-[#B8976A]' : 'text-[#5C5C5C]'
                   }`}
                 />
               </div>

@@ -5,6 +5,9 @@ const Settings = require('../models/Settings')
 const { sendOrderConfirmationEmail, sendOrderStatusEmail } = require('../utils/sendEmail')
 const generateOrderId = require('../utils/generateOrderId')
 const phonePeService = require('../utils/phonePeService')
+const generateInvoice = require('../utils/generateInvoice')
+const generateAddressLabel = require('../utils/generateAddressLabel')
+const generateCombinedPdf = require('../utils/generateCombinedPdf')
 
 const getShippingSettings = async () => {
   const settings = await Settings.findOne()
@@ -33,7 +36,7 @@ exports.createOrder = async (req, res) => {
   const productIds = Object.keys(orderByProduct)
   const productMap = {}
   if (productIds.length > 0) {
-    const products = await Product.find({ _id: { $in: productIds } }).select('name stock sizeStock isActive')
+    const products = await Product.find({ _id: { $in: productIds } }).select('name stock sizeStock isActive variantSkuMap')
     products.forEach((p) => { productMap[p._id.toString()] = p })
 
     for (const [pid, { total, bySize }] of Object.entries(orderByProduct)) {
@@ -155,7 +158,14 @@ exports.createOrder = async (req, res) => {
     email,
     phone,
     shippingAddress,
-    items,
+    items: items.map((item) => {
+      const product = productMap[item.productId]
+      const color = item.color || 'default'
+      const size = item.size || 'default'
+      const skuKey = `${color}:${size}`
+      const sku = product?.variantSkuMap?.get(skuKey) || product?.variantSkuMap?.get('default') || null
+      return { ...item, sku }
+    }),
     subtotal,
     discount,
     couponCode: appliedCouponCode,
@@ -369,4 +379,46 @@ exports.deleteOrder = async (req, res) => {
   } catch (err) {
     res.status(500).json({ success: false, error: err.message || 'Deletion failed' })
   }
+}
+
+/* ── GET /api/admin/orders/:orderId/invoice ─────────────────────────────── */
+exports.adminDownloadInvoice = async (req, res) => {
+  const order = await Order.findOne({ orderId: req.params.orderId })
+  if (!order) return res.status(404).json({ success: false, error: 'Order not found' })
+
+  const pdfBuffer = await generateInvoice(order)
+  res.set({
+    'Content-Type': 'application/pdf',
+    'Content-Disposition': `attachment; filename="INV-${order.orderId}.pdf"`,
+    'Content-Length': pdfBuffer.length,
+  })
+  res.send(pdfBuffer)
+}
+
+/* ── GET /api/admin/orders/:orderId/address-label ──────────────────────── */
+exports.adminDownloadAddressLabel = async (req, res) => {
+  const order = await Order.findOne({ orderId: req.params.orderId })
+  if (!order) return res.status(404).json({ success: false, error: 'Order not found' })
+
+  const pdfBuffer = await generateAddressLabel(order)
+  res.set({
+    'Content-Type': 'application/pdf',
+    'Content-Disposition': `attachment; filename="LABEL-${order.orderId}.pdf"`,
+    'Content-Length': pdfBuffer.length,
+  })
+  res.send(pdfBuffer)
+}
+
+/* ── GET /api/admin/orders/:orderId/print ─────────────────────────────── */
+exports.adminDownloadCombined = async (req, res) => {
+  const order = await Order.findOne({ orderId: req.params.orderId })
+  if (!order) return res.status(404).json({ success: false, error: 'Order not found' })
+
+  const pdfBuffer = await generateCombinedPdf(order)
+  res.set({
+    'Content-Type': 'application/pdf',
+    'Content-Disposition': `attachment; filename="ZYLARA-${order.orderId}.pdf"`,
+    'Content-Length': pdfBuffer.length,
+  })
+  res.send(pdfBuffer)
 }

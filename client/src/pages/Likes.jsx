@@ -45,7 +45,7 @@ function LikesCard({ product, onRemove }) {
 
   const handleAddToBag = (e) => {
     e.stopPropagation()
-    if (!product.inStock) return
+    if (!product.inStock || product.stock === 0) return
 
     if (hasSizes) {
       if (!showSizes) {
@@ -54,6 +54,11 @@ function LikesCard({ product, onRemove }) {
       }
       if (!selectedSize) {
         toast.error('Please select a size')
+        return
+      }
+      const sizeStock = product.sizeStock?.[selectedSize] ?? 0
+      if (sizeStock === 0) {
+        toast.error('This size is out of stock')
         return
       }
       addToCart(buildCartItem(selectedSize))

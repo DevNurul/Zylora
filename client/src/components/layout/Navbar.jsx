@@ -430,9 +430,9 @@ export default function Navbar() {
                 className="hidden md:flex relative w-10 h-10 items-center justify-center hover:bg-white/5 rounded-full active:scale-95 transition-all"
                 aria-label="Wishlist"
               >
-                <Heart size={18} className="text-white hover:text-[#B8976A] transition-colors" />
+                <Heart size={18} className={wishlistCount > 0 ? 'fill-[#EE6B83] stroke-[#EE6B83]' : 'text-white hover:text-[#B8976A]'} />
                 {wishlistCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-gradient-to-r from-[#E8A0B0] to-[#D48A9A] text-white text-[8px] w-4 h-4 rounded-full flex items-center justify-center font-bold leading-none">
+                  <span className="absolute -top-1 -right-1 bg-gradient-to-r from-[#EE6B83] to-[#D48A9A] text-white text-[8px] w-4 h-4 rounded-full flex items-center justify-center font-bold leading-none">
                     {wishlistCount > 9 ? '9+' : wishlistCount}
                   </span>
                 )}

@@ -11,7 +11,7 @@ const FAQS = [
   { id: 6, category: 'Orders', question: 'Can I cancel my order?', answer: 'Orders can be canceled any time before they are shipped.' },
   { id: 7, category: 'Returns', question: 'Do you offer returns or exchanges?', answer: 'Yes, we offer returns and exchanges, subject to our policy terms.' },
   { id: 8, category: 'Returns', question: 'What if I receive a damaged product?', answer: 'Please contact our support team within 24 hours of delivery.' },
-  { id: 9, category: 'General', question: 'How can I contact support?', answer: 'You can reach our support team at support@zylara.com.' },
+  { id: 9, category: 'General', question: 'How can I contact support?', answer: 'You can reach our support team at care@zylara.co.in.' },
   { id: 10, category: 'Payments', question: 'Are my payments secure?', answer: 'Yes. All payments are processed through PhonePe secure payment gateways.' },
 ]
 

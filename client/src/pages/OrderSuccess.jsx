@@ -2,8 +2,9 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import { useAuth } from '../context/AuthContext'
-import { Copy, Check, ChevronDown, ChevronUp } from 'lucide-react'
+import { Copy, Check, ChevronDown, ChevronUp, Printer } from 'lucide-react'
 import { formatPrice } from '../utils/formatPrice'
+import { downloadPdf } from '../utils/downloadPdf'
 
 function AnimatedCheck() {
   return (
@@ -42,6 +43,7 @@ export default function OrderSuccess() {
   const order = useSelector((s) => s.order.currentOrder)
   const [copied, setCopied] = useState(false)
   const [expanded, setExpanded] = useState(false)
+  const [downloading, setDownloading] = useState(false)
 
   if (!order) {
     return (
@@ -61,6 +63,17 @@ export default function OrderSuccess() {
     navigator.clipboard.writeText(order.orderId)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
+  }
+
+  const handlePrint = async () => {
+    try {
+      setDownloading(true)
+      await downloadPdf(`/api/my-orders/${order.orderId}/print`, `ZYLARA-${order.orderId}.pdf`)
+    } catch (err) {
+      console.error('Download failed:', err)
+    } finally {
+      setDownloading(false)
+    }
   }
 
   return (
@@ -88,6 +101,15 @@ export default function OrderSuccess() {
         </div>
 
         <p className="text-xs text-[#5C5C5C] mb-8">Save this ID to track your delivery</p>
+
+        <button
+          onClick={handlePrint}
+          disabled={downloading}
+          className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#B8976A] to-[#A88345] text-white py-3.5 text-xs uppercase tracking-widest font-medium hover:shadow-lg hover:shadow-[#B8976A]/20 transition-all rounded-xl disabled:opacity-50 mb-8"
+        >
+          <Printer size={14} />
+          {downloading ? 'Downloading...' : 'Print Invoice + Label'}
+        </button>
 
         {order.items?.length > 0 && (
           <div className="bg-[#141414] border border-[#242424] rounded-2xl text-left mb-6 overflow-hidden">

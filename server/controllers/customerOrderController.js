@@ -1,4 +1,7 @@
 const Order = require('../models/Order')
+const generateInvoice = require('../utils/generateInvoice')
+const generateAddressLabel = require('../utils/generateAddressLabel')
+const generateCombinedPdf = require('../utils/generateCombinedPdf')
 
 /* ── GET /api/my-orders ──────────────────────────────────────────────────────── */
 exports.getMyOrders = async (req, res) => {
@@ -98,4 +101,64 @@ exports.getMyOrderById = async (req, res) => {
       trackingNumber: order.trackingNumber,
     },
   })
+}
+
+/* ── GET /api/my-orders/:orderId/invoice ──────────────────────────────────── */
+exports.downloadInvoice = async (req, res) => {
+  const order = await Order.findOne({
+    orderId: req.params.orderId,
+    email: req.user.email,
+  })
+
+  if (!order) {
+    return res.status(404).json({ success: false, error: 'Order not found' })
+  }
+
+  const pdfBuffer = await generateInvoice(order)
+  res.set({
+    'Content-Type': 'application/pdf',
+    'Content-Disposition': `attachment; filename="INV-${order.orderId}.pdf"`,
+    'Content-Length': pdfBuffer.length,
+  })
+  res.send(pdfBuffer)
+}
+
+/* ── GET /api/my-orders/:orderId/address-label ────────────────────────────── */
+exports.downloadAddressLabel = async (req, res) => {
+  const order = await Order.findOne({
+    orderId: req.params.orderId,
+    email: req.user.email,
+  })
+
+  if (!order) {
+    return res.status(404).json({ success: false, error: 'Order not found' })
+  }
+
+  const pdfBuffer = await generateAddressLabel(order)
+  res.set({
+    'Content-Type': 'application/pdf',
+    'Content-Disposition': `attachment; filename="LABEL-${order.orderId}.pdf"`,
+    'Content-Length': pdfBuffer.length,
+  })
+  res.send(pdfBuffer)
+}
+
+/* ── GET /api/my-orders/:orderId/print ──────────────────────────────────── */
+exports.downloadCombined = async (req, res) => {
+  const order = await Order.findOne({
+    orderId: req.params.orderId,
+    email: req.user.email,
+  })
+
+  if (!order) {
+    return res.status(404).json({ success: false, error: 'Order not found' })
+  }
+
+  const pdfBuffer = await generateCombinedPdf(order)
+  res.set({
+    'Content-Type': 'application/pdf',
+    'Content-Disposition': `attachment; filename="ZYLARA-${order.orderId}.pdf"`,
+    'Content-Length': pdfBuffer.length,
+  })
+  res.send(pdfBuffer)
 }

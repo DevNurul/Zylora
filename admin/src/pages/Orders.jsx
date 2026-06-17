@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react'
 import api from '../lib/api'
 import Badge from '../components/Badge'
 import toast from 'react-hot-toast'
-import { Search, ChevronLeft, ChevronRight, X, Calendar, User, ShoppingBag, CreditCard, ChevronDown } from 'lucide-react'
+import { Search, ChevronLeft, ChevronRight, X, Calendar, User, ShoppingBag, CreditCard, ChevronDown, Printer } from 'lucide-react'
 import { formatPrice } from '../utils/formatPrice'
+import { downloadPdf } from '../utils/downloadPdf'
 
 const STATUSES = ['pending', 'confirmed', 'shipped', 'out_for_delivery', 'delivered', 'cancelled']
 
@@ -20,6 +21,7 @@ export default function Orders() {
   const [newStatus, setNewStatus] = useState('')
   const [note, setNote] = useState('')
   const [updating, setUpdating] = useState(false)
+  const [downloading, setDownloading] = useState(false)
 
   const load = async () => {
     setLoading(true)
@@ -77,6 +79,17 @@ export default function Orders() {
       if (onSuccess) onSuccess()
     } catch {
       toast.error('Failed to delete order')
+    }
+  }
+
+  const handlePrint = async (orderId) => {
+    try {
+      setDownloading(true)
+      await downloadPdf(`/admin/orders/${orderId}/print`, `ZYLARA-${orderId}.pdf`)
+    } catch (err) {
+      toast.error('Failed to download')
+    } finally {
+      setDownloading(false)
     }
   }
 
@@ -217,12 +230,22 @@ export default function Orders() {
                 <span className="text-[10px] uppercase font-bold text-gray-400 dark:text-gray-500 tracking-wider">Order Reference</span>
                 <h3 className="font-mono font-bold text-xl text-gray-900 dark:text-white mt-0.5">{selected.orderId}</h3>
               </div>
-              <button 
-                onClick={() => setSelected(null)}
-                className="p-2 hover:bg-gray-50 dark:hover:bg-white/5 rounded-xl text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer"
-              >
-                <X size={18} />
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handlePrint(selected.orderId)}
+                  disabled={downloading}
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-primary hover:bg-primary-hover text-white rounded-lg text-xs font-semibold transition-colors disabled:opacity-50 cursor-pointer"
+                >
+                  <Printer size={14} />
+                  {downloading ? 'Downloading...' : 'Print'}
+                </button>
+                <button 
+                  onClick={() => setSelected(null)}
+                  className="p-2 hover:bg-gray-50 dark:hover:bg-white/5 rounded-xl text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer"
+                >
+                  <X size={18} />
+                </button>
+              </div>
             </div>
 
             {/* Drawer Content */}
