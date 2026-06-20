@@ -10,6 +10,7 @@ const bannerSchema = new mongoose.Schema({
   },
   ctaText: String,
   ctaLink: String,
+  placement: { type: String, enum: ['hero', 'promotional'], default: 'hero' },
   displayOrder: { type: Number, default: 0 },
   isActive: { type: Boolean, default: true },
   expiresAt: { type: Date },

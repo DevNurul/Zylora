@@ -1,7 +1,10 @@
 const Order = require('../models/Order')
+const orderController = require('./orderController')
 const generateInvoice = require('../utils/generateInvoice')
 const generateAddressLabel = require('../utils/generateAddressLabel')
 const generateCombinedPdf = require('../utils/generateCombinedPdf')
+
+exports.cancelMyOrder = orderController.cancelMyOrder
 
 /* ── GET /api/my-orders ──────────────────────────────────────────────────────── */
 exports.getMyOrders = async (req, res) => {

@@ -11,6 +11,7 @@ exports.getDashboard = async (req, res) => {
     revenueResult,
     recentOrders,
     lowStockProducts,
+    topSellingProducts,
   ] = await Promise.all([
     Order.countDocuments(),
     Product.countDocuments({ isActive: true }),
@@ -24,6 +25,42 @@ exports.getDashboard = async (req, res) => {
     Product.find({ stock: { $lt: 5 }, isActive: true })
       .select('name stock images')
       .limit(10),
+    Order.aggregate([
+      { $match: { status: { $nin: ['cancelled'] } } },
+      { $unwind: '$items' },
+      {
+        $group: {
+          _id: '$items.productId',
+          name: { $first: '$items.name' },
+          image: { $first: '$items.image' },
+          unitsSold: { $sum: '$items.qty' },
+          revenue: { $sum: { $multiply: ['$items.price', '$items.qty'] } },
+          orderCount: { $addToSet: '$_id' },
+        },
+      },
+      {
+        $lookup: {
+          from: 'products',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'product',
+        },
+      },
+      { $unwind: { path: '$product', preserveNullAndEmptyArrays: true } },
+      {
+        $project: {
+          productId: '$_id',
+          name: { $ifNull: ['$product.name', '$name'] },
+          image: { $ifNull: [{ $arrayElemAt: ['$product.images.url', 0] }, '$image'] },
+          unitsSold: 1,
+          revenue: 1,
+          stock: '$product.stock',
+          orderCount: { $size: '$orderCount' },
+        },
+      },
+      { $sort: { unitsSold: -1, revenue: -1 } },
+      { $limit: 10 },
+    ]),
   ])
 
   const ordersByStatus = {
@@ -46,6 +83,7 @@ exports.getDashboard = async (req, res) => {
     recentOrders,
     totalProducts,
     lowStockProducts,
+    topSellingProducts,
     totalCategories,
   })
 }

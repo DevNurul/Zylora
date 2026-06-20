@@ -3,10 +3,18 @@ const { cloudinary } = require('../config/cloudinary')
 
 exports.getBanners = async (req, res) => {
   const now = new Date()
-  const banners = await Banner.find({
+  const query = {
     isActive: true,
     $or: [{ expiresAt: null }, { expiresAt: { $gt: now } }],
-  }).sort({ displayOrder: 1 })
+  }
+
+  if (req.query.placement === 'promotional') {
+    query.placement = 'promotional'
+  } else if (req.query.placement === 'hero') {
+    query.$and = [{ $or: [{ placement: 'hero' }, { placement: { $exists: false } }] }]
+  }
+
+  const banners = await Banner.find(query).sort({ displayOrder: 1 })
 
   res.json({ success: true, count: banners.length, banners })
 }

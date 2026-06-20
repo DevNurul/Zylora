@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ShoppingBag, Package, IndianRupee, TrendingUp, AlertTriangle, ArrowUpRight } from 'lucide-react'
+import { ShoppingBag, Package, IndianRupee, TrendingUp, AlertTriangle, ArrowUpRight, Trophy } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
 import { Link } from 'react-router-dom'
 import api from '../lib/api'
@@ -39,7 +39,7 @@ export default function Dashboard() {
 
   const {
     totalOrders, totalRevenue, totalProducts,
-    ordersByStatus = {}, recentOrders = [], lowStockProducts = [],
+    ordersByStatus = {}, recentOrders = [], lowStockProducts = [], topSellingProducts = [],
   } = data
 
   const statusData = ['pending', 'confirmed', 'shipped', 'out_for_delivery', 'delivered', 'cancelled'].map((s) => ({
@@ -139,6 +139,69 @@ export default function Dashboard() {
           </div>
         </div>
 
+      </div>
+
+      {/* Product Sales */}
+      <div className="bg-white dark:bg-dark-card rounded-2xl p-6 border border-gray-100 dark:border-white/5 shadow-xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+          <div className="flex items-center gap-2">
+            <div className="p-2 bg-primary/10 rounded-xl text-primary">
+              <Trophy size={18} className="stroke-[2.2]" />
+            </div>
+            <div>
+              <h3 className="font-bold text-sm text-gray-950 dark:text-white uppercase tracking-wider">Product Sales</h3>
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">Top products by units sold across active orders</p>
+            </div>
+          </div>
+          <Link to="/orders" className="text-primary hover:text-primary-hover text-xs font-semibold flex items-center gap-0.5 transition-colors group">
+            View Orders <ArrowUpRight size={14} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+          </Link>
+        </div>
+
+        {topSellingProducts.length === 0 ? (
+          <div className="py-10 text-center border border-dashed border-gray-100 dark:border-white/5 rounded-2xl">
+            <p className="text-xs text-gray-400 dark:text-gray-500 font-medium">No product sales recorded yet</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[680px]">
+              <thead>
+                <tr className="text-left border-b border-gray-100 dark:border-white/5">
+                  <th className="pb-3 text-[10px] uppercase tracking-wider text-gray-400 dark:text-gray-500 font-bold">Product</th>
+                  <th className="pb-3 text-[10px] uppercase tracking-wider text-gray-400 dark:text-gray-500 font-bold text-right">Units Sold</th>
+                  <th className="pb-3 text-[10px] uppercase tracking-wider text-gray-400 dark:text-gray-500 font-bold text-right">Orders</th>
+                  <th className="pb-3 text-[10px] uppercase tracking-wider text-gray-400 dark:text-gray-500 font-bold text-right">Revenue</th>
+                  <th className="pb-3 text-[10px] uppercase tracking-wider text-gray-400 dark:text-gray-500 font-bold text-right">Stock Left</th>
+                </tr>
+              </thead>
+              <tbody>
+                {topSellingProducts.map((p, idx) => (
+                  <tr key={p.productId || p.name} className="border-b border-gray-50 dark:border-white/2 last:border-0">
+                    <td className="py-4">
+                      <div className="flex items-center gap-3">
+                        <span className="w-6 text-[11px] font-bold text-gray-400 dark:text-gray-500">{idx + 1}</span>
+                        {p.image ? (
+                          <img src={p.image} alt={p.name} className="w-11 h-11 object-cover rounded-xl bg-gray-50 dark:bg-white/5 flex-shrink-0" />
+                        ) : (
+                          <div className="w-11 h-11 rounded-xl bg-gray-50 dark:bg-white/5 flex items-center justify-center text-gray-300 dark:text-gray-700 flex-shrink-0">
+                            <Package size={15} />
+                          </div>
+                        )}
+                        <p className="text-xs font-bold text-gray-900 dark:text-white truncate max-w-[280px]" title={p.name}>{p.name}</p>
+                      </div>
+                    </td>
+                    <td className="py-4 text-right text-sm font-bold text-gray-900 dark:text-white">{p.unitsSold}</td>
+                    <td className="py-4 text-right text-xs text-gray-500 dark:text-gray-400">{p.orderCount}</td>
+                    <td className="py-4 text-right text-xs font-bold text-gray-900 dark:text-white">{formatPrice(p.revenue)}</td>
+                    <td className={`py-4 text-right text-xs font-bold ${(p.stock ?? 0) < 5 ? 'text-amber-600 dark:text-amber-500' : 'text-gray-500 dark:text-gray-400'}`}>
+                      {p.stock ?? 'N/A'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {/* Low Stock Alerts */}

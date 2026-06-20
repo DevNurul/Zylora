@@ -17,6 +17,58 @@ const getShippingSettings = async () => {
   }
 }
 
+const ALLOWED_ORDER_TRANSITIONS = {
+  pending: ['pending', 'confirmed', 'cancelled'],
+  confirmed: ['confirmed', 'shipped', 'cancelled'],
+  shipped: ['shipped', 'out_for_delivery'],
+  out_for_delivery: ['out_for_delivery', 'delivered'],
+  delivered: ['delivered'],
+  cancelled: ['cancelled'],
+}
+
+const restoreOrderStock = async (order) => {
+  if (!order || order.inventoryRestoredAt) return false
+
+  const restoreByProduct = {}
+  for (const item of order.items || []) {
+    if (!item.productId) continue
+    const pid = item.productId.toString()
+    const size = item.size || 'One Size'
+    const qty = Number(item.qty) || 0
+    if (qty <= 0) continue
+
+    if (!restoreByProduct[pid]) restoreByProduct[pid] = { total: 0, bySize: {} }
+    restoreByProduct[pid].total += qty
+    restoreByProduct[pid].bySize[size] = (restoreByProduct[pid].bySize[size] || 0) + qty
+  }
+
+  const productIds = Object.keys(restoreByProduct)
+  if (productIds.length === 0) {
+    order.inventoryRestoredAt = new Date()
+    return true
+  }
+
+  const products = await Product.find({ _id: { $in: productIds } }).select('sizeStock')
+  const productMap = {}
+  products.forEach((p) => { productMap[p._id.toString()] = p })
+
+  await Promise.all(
+    Object.entries(restoreByProduct).map(([pid, { total, bySize }]) => {
+      const inc = { stock: total }
+      const product = productMap[pid]
+      if (product?.sizeStock?.size > 0) {
+        for (const [size, qty] of Object.entries(bySize)) {
+          inc[`sizeStock.${size}`] = qty
+        }
+      }
+      return Product.findByIdAndUpdate(pid, { $inc: inc })
+    })
+  )
+
+  order.inventoryRestoredAt = new Date()
+  return true
+}
+
 exports.createOrder = async (req, res) => {
   const {
     customerName, email, phone, shippingAddress,
@@ -358,12 +410,61 @@ exports.updateOrderStatus = async (req, res) => {
     return res.status(400).json({ success: false, error: 'Invalid status' })
   }
 
+  const allowedStatuses = ALLOWED_ORDER_TRANSITIONS[order.status] || []
+  if (!allowedStatuses.includes(status)) {
+    return res.status(400).json({
+      success: false,
+      error: `Cannot change order status from ${order.status.replace(/_/g, ' ')} to ${status.replace(/_/g, ' ')}`,
+    })
+  }
+
+  const previousStatus = order.status
   order.status = status
   if (trackingNumber) order.trackingNumber = trackingNumber
-  order.statusHistory.push({ status, note: note || '', timestamp: new Date() })
+  if (status === 'cancelled' && previousStatus !== 'cancelled') {
+    const restored = await restoreOrderStock(order)
+    order.statusHistory.push({
+      status,
+      note: note || (restored ? 'Order cancelled; inventory restored' : 'Order cancelled'),
+      timestamp: new Date(),
+    })
+  } else {
+    order.statusHistory.push({ status, note: note || '', timestamp: new Date() })
+  }
   await order.save()
 
   // Fire-and-forget status email
+  sendOrderStatusEmail(order).catch((err) => {
+    console.error('Status email failed:', err.message)
+  })
+
+  res.json({ success: true, order })
+}
+
+exports.cancelMyOrder = async (req, res) => {
+  const order = await Order.findOne({
+    orderId: req.params.orderId,
+    email: req.user.email,
+  })
+  if (!order) return res.status(404).json({ success: false, error: 'Order not found' })
+
+  if (order.status === 'cancelled') {
+    return res.status(400).json({ success: false, error: 'Order is already cancelled' })
+  }
+
+  if (!['pending', 'confirmed'].includes(order.status)) {
+    return res.status(400).json({ success: false, error: 'Order cannot be cancelled after shipping has started' })
+  }
+
+  const restored = await restoreOrderStock(order)
+  order.status = 'cancelled'
+  order.statusHistory.push({
+    status: 'cancelled',
+    note: restored ? 'Cancelled by customer; inventory restored' : 'Cancelled by customer',
+    timestamp: new Date(),
+  })
+  await order.save()
+
   sendOrderStatusEmail(order).catch((err) => {
     console.error('Status email failed:', err.message)
   })

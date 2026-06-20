@@ -75,7 +75,7 @@ export default function CategoryGrid() {
                 onClick={() => navigate(cat.path)}
                 className="group w-[160px] flex-none snap-start text-center sm:w-[180px] md:w-[200px]"
               >
-                <div className="relative aspect-[3/4] overflow-hidden rounded-2xl bg-[#141414] border border-[#242424] transition-all duration-500 group-hover:border-[#B8976A]/50 group-hover:shadow-[0_0_30px_rgba(201,168,106,0.15)]">
+                <div className="relative aspect-square overflow-hidden rounded-2xl bg-[#141414] border border-[#242424] transition-all duration-500 group-hover:border-[#B8976A]/50 group-hover:shadow-[0_0_30px_rgba(201,168,106,0.15)]">
                   <img
                     src={cat.image}
                     alt={cat.name}

@@ -46,6 +46,7 @@ const orderSchema = new mongoose.Schema({
   },
   trackingNumber: { type: String },
   phonePeTransactionId: { type: String, index: true },
+  inventoryRestoredAt: { type: Date },
   statusHistory: [{
     status: String,
     timestamp: { type: Date, default: Date.now },

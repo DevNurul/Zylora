@@ -33,7 +33,7 @@ export default function HeroBanner() {
   const isDesktop = useIsDesktop()
 
   useEffect(() => {
-    api.get('/banners')
+    api.get('/banners', { params: { placement: 'hero' } })
       .then(({ data }) => { if (data.banners?.length) setBanners(data.banners) })
       .catch(() => {})
   }, [])

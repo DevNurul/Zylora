@@ -7,6 +7,14 @@ import { formatPrice } from '../utils/formatPrice'
 import { downloadPdf } from '../utils/downloadPdf'
 
 const STATUSES = ['pending', 'confirmed', 'shipped', 'out_for_delivery', 'delivered', 'cancelled']
+const STATUS_TRANSITIONS = {
+  pending: ['pending', 'confirmed', 'cancelled'],
+  confirmed: ['confirmed', 'shipped', 'cancelled'],
+  shipped: ['shipped', 'out_for_delivery'],
+  out_for_delivery: ['out_for_delivery', 'delivered'],
+  delivered: ['delivered'],
+  cancelled: ['cancelled'],
+}
 
 export default function Orders() {
   const [orders, setOrders] = useState([])
@@ -19,6 +27,7 @@ export default function Orders() {
   const [loading, setLoading] = useState(true)
   const [selected, setSelected] = useState(null)
   const [newStatus, setNewStatus] = useState('')
+  const [trackingNumber, setTrackingNumber] = useState('')
   const [note, setNote] = useState('')
   const [updating, setUpdating] = useState(false)
   const [downloading, setDownloading] = useState(false)
@@ -51,6 +60,7 @@ export default function Orders() {
   const openOrder = (order) => {
     setSelected(order)
     setNewStatus(order.status)
+    setTrackingNumber(order.trackingNumber || '')
     setNote('')
   }
 
@@ -58,13 +68,14 @@ export default function Orders() {
     if (!newStatus) return
     setUpdating(true)
     try {
-      await api.patch(`/admin/orders/${selected.orderId}/status`, { status: newStatus, note })
+      const payload = { status: newStatus, note }
+      if (trackingNumber.trim()) payload.trackingNumber = trackingNumber.trim()
+      const { data } = await api.patch(`/admin/orders/${selected.orderId}/status`, payload)
       toast.success('Status updated')
-      // Update selected item in-place to reflect new status without closing
-      setSelected(prev => ({ ...prev, status: newStatus }))
+      setSelected(data.order)
       load()
-    } catch {
-      toast.error('Failed to update status')
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Failed to update status')
     } finally {
       setUpdating(false)
     }
@@ -92,6 +103,11 @@ export default function Orders() {
       setDownloading(false)
     }
   }
+
+  const allowedStatusOptions = selected
+    ? (STATUS_TRANSITIONS[selected.status] || [selected.status])
+    : STATUSES
+  const isTerminalStatus = selected && ['delivered', 'cancelled'].includes(selected.status)
 
   return (
     <div className="space-y-6 pb-12">
@@ -264,7 +280,8 @@ export default function Orders() {
                 <div className="pt-2.5 border-t border-gray-100 dark:border-white/5">
                   <p className="text-[10px] uppercase font-bold text-gray-400 dark:text-gray-500 tracking-wider">Shipping Address</p>
                   <p className="text-xs text-gray-600 dark:text-gray-400 mt-1 leading-relaxed">
-                    {selected.shippingAddress?.address}, {selected.shippingAddress?.city}, {selected.shippingAddress?.state} — {selected.shippingAddress?.pincode}
+                    {selected.shippingAddress?.addressLine1 || selected.shippingAddress?.address}
+                    {selected.shippingAddress?.addressLine2 ? `, ${selected.shippingAddress.addressLine2}` : ''}, {selected.shippingAddress?.city}, {selected.shippingAddress?.state} — {selected.shippingAddress?.pincode}
                   </p>
                 </div>
               </div>
@@ -315,12 +332,23 @@ export default function Orders() {
                         onChange={(e) => setNewStatus(e.target.value)}
                         className="w-full appearance-none bg-white dark:bg-dark-bg border border-gray-150 dark:border-white/5 rounded-xl pl-4 pr-10 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:text-white cursor-pointer"
                       >
-                        {STATUSES.map((s) => (
+                        {allowedStatusOptions.map((s) => (
                           <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>
                         ))}
                       </select>
                       <ChevronDown size={14} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
                     </div>
+                  </div>
+                  
+                  <div>
+                    <label className="text-[10px] uppercase font-bold text-gray-400 dark:text-gray-500 tracking-wider">Tracking Number</label>
+                    <input
+                      placeholder="e.g. BlueDart tracking ID"
+                      value={trackingNumber}
+                      onChange={(e) => setTrackingNumber(e.target.value)}
+                      disabled={selected.status === 'cancelled'}
+                      className="mt-1 w-full bg-white dark:bg-dark-bg border border-gray-150 dark:border-white/5 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:text-white disabled:opacity-50"
+                    />
                   </div>
                   
                   <div>
@@ -336,10 +364,10 @@ export default function Orders() {
 
                 <button
                   onClick={updateStatus}
-                  disabled={updating}
+                  disabled={updating || isTerminalStatus}
                   className="w-full mt-2 bg-primary hover:bg-primary-hover text-white py-3 rounded-xl text-sm font-semibold hover:shadow-lg hover:shadow-primary/20 transition-all active:scale-98 disabled:opacity-60 cursor-pointer"
                 >
-                  {updating ? 'Saving Changes...' : 'Update Status'}
+                  {updating ? 'Saving Changes...' : isTerminalStatus ? 'Status Is Final' : 'Update Status'}
                 </button>
 
                 <div className="pt-4 border-t border-gray-150 dark:border-white/5 mt-4">

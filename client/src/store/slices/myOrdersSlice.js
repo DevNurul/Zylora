@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import { getMyOrders, getMyOrderById } from '../../utils/myOrdersApi'
+import { getMyOrders, getMyOrderById, cancelMyOrder } from '../../utils/myOrdersApi'
 
 export const fetchMyOrders = createAsyncThunk(
   'myOrders/fetchAll',
@@ -23,6 +23,18 @@ export const fetchMyOrderById = createAsyncThunk(
       return data.order
     } catch (err) {
       return rejectWithValue(err.response?.data?.error || 'Order not found')
+    }
+  }
+)
+
+export const cancelMyOrderById = createAsyncThunk(
+  'myOrders/cancel',
+  async (orderId, { rejectWithValue }) => {
+    try {
+      const { data } = await cancelMyOrder(orderId)
+      return data.order
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.error || 'Failed to cancel order')
     }
   }
 )
@@ -69,6 +81,12 @@ const myOrdersSlice = createSlice({
       .addCase(fetchMyOrderById.pending,  (s) => { s.detailLoading = true; s.selectedOrder = null; s.error = null })
       .addCase(fetchMyOrderById.fulfilled,(s, { payload }) => { s.detailLoading = false; s.selectedOrder = payload })
       .addCase(fetchMyOrderById.rejected, (s, { payload }) => { s.detailLoading = false; s.error = payload })
+
+      .addCase(cancelMyOrderById.fulfilled, (s, { payload }) => {
+        s.selectedOrder = payload
+        const order = s.orders.find(o => o.orderId === payload.orderId)
+        if (order) order.status = payload.status
+      })
   },
 })
 

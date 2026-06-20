@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { fetchMyOrderById, clearSelectedOrder } from '../store/slices/myOrdersSlice'
+import { fetchMyOrderById, clearSelectedOrder, cancelMyOrderById } from '../store/slices/myOrdersSlice'
 import { fetchMyReturnRequests } from '../store/slices/returnSlice'
 import ReturnStatusCard from '../components/returns/ReturnStatusCard'
 import ReturnRequestForm from '../components/returns/ReturnRequestForm'
 import { RETURN_WINDOW_DAYS, EXCHANGE_WINDOW_DAYS } from '../utils/returnReasons'
 import { Printer } from 'lucide-react'
 import { downloadPdf } from '../utils/downloadPdf'
+import toast from 'react-hot-toast'
 
 function fmt(n) { return '₹' + Number(n).toLocaleString('en-IN') }
 function fmtDate(iso) { return new Date(iso).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }) }
@@ -212,6 +213,9 @@ function ReturnSection({ order }) {
 
 function OrderSummaryCard({ order }) {
   const [downloading, setDownloading] = useState(false)
+  const [cancelling, setCancelling] = useState(false)
+  const dispatch = useDispatch()
+  const canCancel = ['pending', 'confirmed'].includes(order.status)
 
   const handlePrint = async () => {
     try {
@@ -221,6 +225,22 @@ function OrderSummaryCard({ order }) {
       console.error('Download failed:', err)
     } finally {
       setDownloading(false)
+    }
+  }
+
+  const handleCancel = async () => {
+    if (!window.confirm('Cancel this order? Items will be returned to stock.')) return
+
+    try {
+      setCancelling(true)
+      const result = await dispatch(cancelMyOrderById(order.orderId))
+      if (cancelMyOrderById.fulfilled.match(result)) {
+        toast.success('Order cancelled')
+      } else {
+        toast.error(result.payload || 'Failed to cancel order')
+      }
+    } finally {
+      setCancelling(false)
     }
   }
 
@@ -264,6 +284,15 @@ function OrderSummaryCard({ order }) {
         <Printer size={13} />
         {downloading ? 'Downloading...' : 'Print Invoice + Label'}
       </button>
+      {canCancel && (
+        <button
+          onClick={handleCancel}
+          disabled={cancelling}
+          className="w-full mt-3 border border-[#EF4444] bg-transparent text-[#EF4444] py-2.5 text-[12px] uppercase tracking-widest font-medium hover:bg-[#EF4444] hover:text-white transition-all rounded-lg disabled:opacity-50"
+        >
+          {cancelling ? 'Cancelling...' : 'Cancel Order'}
+        </button>
+      )}
     </div>
   )
 }

@@ -6,6 +6,7 @@ router.use(authenticateUser)
 
 router.get('/',                        ctrl.getMyOrders)
 router.get('/:orderId',                ctrl.getMyOrderById)
+router.patch('/:orderId/cancel',       ctrl.cancelMyOrder)
 router.get('/:orderId/invoice',        ctrl.downloadInvoice)
 router.get('/:orderId/address-label',  ctrl.downloadAddressLabel)
 router.get('/:orderId/print',          ctrl.downloadCombined)

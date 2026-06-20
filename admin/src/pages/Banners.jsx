@@ -3,7 +3,7 @@ import api from '../lib/api'
 import toast from 'react-hot-toast'
 import { Plus, Pencil, Trash2, X, ToggleLeft, ToggleRight, Laptop, Smartphone, Image as ImageIcon, Link2, ListOrdered } from 'lucide-react'
 
-const empty = { title: '', subtitle: '', ctaText: '', ctaLink: '', displayOrder: 0 }
+const empty = { title: '', subtitle: '', ctaText: '', ctaLink: '', placement: 'hero', displayOrder: 0 }
 
 function inputCls() {
   return 'mt-1.5 w-full bg-gray-50 dark:bg-dark-bg border border-gray-150 dark:border-white/5 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:text-white transition-all duration-200'
@@ -43,6 +43,7 @@ export default function Banners() {
       subtitle: b.subtitle || '',
       ctaText: b.ctaText || '',
       ctaLink: b.ctaLink || '',
+      placement: b.placement || 'hero',
       displayOrder: b.displayOrder ?? 0,
     })
     setFile(null); setImageUrl(''); setEditId(b._id); setModal('edit')
@@ -105,7 +106,7 @@ export default function Banners() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="font-serif text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Banners</h2>
-          <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">Manage homepage advertisements, promotional slider elements, and CTA navigation</p>
+          <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">Manage homepage hero and promotional banner images</p>
         </div>
         <button 
           onClick={openAdd} 
@@ -184,6 +185,9 @@ export default function Banners() {
                 <div className="p-5 flex items-start justify-between gap-4">
                   <div className="min-w-0">
                     <p className="font-bold text-gray-900 dark:text-white truncate">{b.title || 'Untitled Banner'}</p>
+                    <p className="text-[10px] text-primary bg-brand-pink dark:bg-primary/10 font-bold px-2 py-0.5 rounded-md uppercase tracking-wider inline-block mt-2">
+                      {b.placement || 'hero'}
+                    </p>
                     {b.subtitle && <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 line-clamp-1">{b.subtitle}</p>}
                     {b.ctaText && b.ctaLink && (
                       <p className="text-[10px] text-primary bg-brand-pink dark:bg-primary/10 font-bold px-2 py-0.5 rounded-md uppercase tracking-wider inline-block mt-3.5">
@@ -271,6 +275,18 @@ export default function Banners() {
                     />
                   </div>
                 </div>
+              </div>
+
+              <div>
+                <label className="text-[10px] uppercase font-bold text-gray-400 dark:text-gray-500 tracking-wider">Placement</label>
+                <select
+                  value={form.placement}
+                  onChange={e => f('placement', e.target.value)}
+                  className={inputCls()}
+                >
+                  <option value="hero">Hero Slider</option>
+                  <option value="promotional">Promotional Banner</option>
+                </select>
               </div>
 
               <div>
